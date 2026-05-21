@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ClaimStatus, Role } from "@/generated/prisma";
+import { ClaimStatus, Role, ReceiptStatus } from "@/generated/prisma";
 import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus } from "lucide-react";
 
 const STATUS_LABELS: Record<ClaimStatus, { label: string; color: string }> = {
@@ -35,6 +35,11 @@ export default async function DashboardPage() {
   const used = Number(allocation?.usedMyr ?? 0);
   const remaining = limit - used;
   const usedPercent = Math.min((used / limit) * 100, 100);
+
+  // Unsorted receipts count
+  const unsortedCount = await prisma.receipt.count({
+    where: { ownerId: userId, status: ReceiptStatus.UNSORTED },
+  });
 
   // My recent claims
   const myClaims = await prisma.claim.findMany({
@@ -144,7 +149,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Quick actions */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
         <Button asChild className="bg-green-700 hover:bg-green-800">
           <Link href="/resit">
             <Plus className="w-4 h-4 mr-2" />
@@ -158,6 +163,19 @@ export default async function DashboardPage() {
           </Link>
         </Button>
       </div>
+
+      {/* Inbox resit belum dituntut */}
+      {unsortedCount > 0 && (
+        <Link href="/resit" className="flex items-center justify-between p-3 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className="text-sm text-amber-800">
+              <span className="font-semibold">{unsortedCount} resit</span> dalam inbox belum dibuat tuntutan
+            </span>
+          </div>
+          <span className="text-xs text-amber-600 font-medium">Semak →</span>
+        </Link>
+      )}
 
       {/* Recent claims */}
       <Card>

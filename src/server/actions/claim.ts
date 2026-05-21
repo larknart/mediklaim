@@ -149,16 +149,20 @@ export async function withdrawClaim(claimId: string) {
   if (!claim || claim.claimantId !== session.user.id) throw new Error("NOT_FOUND");
   if (claim.status !== ClaimStatus.SUBMITTED) throw new Error("CANNOT_WITHDRAW");
 
-  await prisma.claim.update({
-    where: { id: claimId },
-    data: { status: ClaimStatus.DRAFT },
-  });
+  const refNo = claim.refNo;
 
-  // Detach receipts back to UNSORTED
+  // Detach receipts back to inbox
   await prisma.receipt.updateMany({
     where: { claimId },
     data: { status: ReceiptStatus.UNSORTED, claimId: null },
   });
+
+  // Delete notifications that link to this claim
+  await prisma.notification.deleteMany({ where: { link: { contains: claimId } } });
+
+  // Delete approvals then claim
+  await prisma.approval.deleteMany({ where: { claimId } });
+  await prisma.claim.delete({ where: { id: claimId } });
 
   await logAction({
     actorId: session.user.id,
@@ -166,6 +170,7 @@ export async function withdrawClaim(claimId: string) {
     action: AuditAction.CLAIM_WITHDRAWN,
     entity: "Claim",
     entityId: claimId,
+    meta: { refNo },
   });
 
   return { ok: true };
