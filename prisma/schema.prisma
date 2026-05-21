@@ -1,0 +1,340 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  CLAIMANT
+  HEAD
+  FINANCE
+  APPROVER
+  YDP
+  ADMIN
+}
+
+enum ReceiptStatus {
+  UNSORTED
+  ATTACHED
+  ARCHIVED
+}
+
+enum ExtractionStatus {
+  PENDING
+  DONE
+  FAILED
+  SKIPPED
+}
+
+enum ClaimStatus {
+  DRAFT
+  SUBMITTED
+  HEAD_APPROVED
+  FINANCE_REVIEWED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum ApprovalStep {
+  HEAD
+  FINANCE
+  APPROVER
+}
+
+enum Decision {
+  APPROVED
+  REJECTED
+  OVERRIDDEN
+  SKIPPED
+}
+
+enum WaStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+  RATE_LIMITED
+}
+
+// ─── Auth (NextAuth v5 / Auth.js) ────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core ────────────────────────────────────────────────────────────────────
+
+model User {
+  id             String      @id @default(cuid())
+  email          String      @unique
+  emailVerified  DateTime?
+  passwordHash   String?
+  name           String
+  staffNo        String?     @unique
+  phone          String?
+  isAhliMajlis   Boolean     @default(false)
+  departmentId   String?
+  isActive       Boolean     @default(true)
+  deletedAt      DateTime?
+  // Login security
+  loginFailCount Int         @default(0)
+  lockedUntil    DateTime?
+  // 2FA (phase 2)
+  totpSecret     String?
+  totpEnabled    Boolean     @default(false)
+  // Timestamps
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  department     Department?          @relation("DepartmentMembers", fields: [departmentId], references: [id])
+  roles          UserRole[]
+  allocations    AnnualAllocation[]
+  receipts       Receipt[]
+  claims         Claim[]
+  approvals      Approval[]
+  accounts       Account[]
+  sessions       Session[]
+  notifications  Notification[]
+  comments       ClaimComment[]
+
+  @@index([departmentId])
+  @@index([isActive, deletedAt])
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String
+  headId    String?
+  createdAt DateTime @default(now())
+
+  members   User[]   @relation("DepartmentMembers")
+  claims    Claim[]  @relation("DepartmentClaims")
+}
+
+model UserRole {
+  userId String
+  role   Role
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, role])
+}
+
+model AnnualAllocation {
+  id        String   @id @default(cuid())
+  userId    String
+  year      Int
+  limitMyr  Decimal  @db.Decimal(10, 2)
+  usedMyr   Decimal  @default(0) @db.Decimal(10, 2)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year])
+  @@index([year])
+}
+
+model Receipt {
+  id               String           @id @default(cuid())
+  ownerId          String
+  fileUrl          String
+  fileMime         String
+  fileHash         String?          // SHA256 for dedup
+  receiptDate      DateTime?
+  vendor           String?
+  totalMyr         Decimal?         @db.Decimal(10, 2)
+  status           ReceiptStatus    @default(UNSORTED)
+  extractionStatus ExtractionStatus @default(PENDING)
+  extractedJson    Json?
+  aiConfidence     Float?
+  claimId          String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  owner  User         @relation(fields: [ownerId], references: [id])
+  claim  Claim?       @relation(fields: [claimId], references: [id])
+  items  ReceiptItem[]
+
+  @@index([ownerId, status])
+  @@index([claimId])
+  @@index([fileHash])
+}
+
+model ReceiptItem {
+  id            String  @id @default(cuid())
+  receiptId     String
+  description   String
+  qty           Int     @default(1)
+  unitMyr       Decimal @db.Decimal(10, 2)
+  amountMyr     Decimal @db.Decimal(10, 2)
+  isEligible    Boolean @default(true)
+  flaggedReason String?
+  category      String?
+
+  receipt Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+
+  @@index([receiptId])
+}
+
+model Claim {
+  id               String      @id @default(cuid())
+  refNo            String      @unique
+  claimantId       String
+  departmentId     String?
+  forMonth         Int
+  forYear          Int
+  status           ClaimStatus @default(DRAFT)
+  totalClaimedMyr  Decimal     @db.Decimal(10, 2)
+  totalEligibleMyr Decimal?    @db.Decimal(10, 2)
+  totalApprovedMyr Decimal?    @db.Decimal(10, 2)
+  submittedAt      DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  claimant   User         @relation(fields: [claimantId], references: [id])
+  department Department?  @relation("DepartmentClaims", fields: [departmentId], references: [id])
+  receipts   Receipt[]
+  approvals  Approval[]
+  comments   ClaimComment[]
+
+  @@index([claimantId, status])
+  @@index([departmentId, status])
+  @@index([forYear, forMonth])
+  @@index([status])
+}
+
+model Approval {
+  id        String       @id @default(cuid())
+  claimId   String
+  step      ApprovalStep
+  actorId   String
+  decision  Decision
+  comment   String?
+  decidedAt DateTime     @default(now())
+
+  claim Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  actor User  @relation(fields: [actorId], references: [id])
+
+  @@index([claimId])
+}
+
+model ClaimComment {
+  id        String   @id @default(cuid())
+  claimId   String
+  authorId  String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  claim  Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id])
+
+  @@index([claimId])
+}
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+
+model BlacklistKeyword {
+  id        String   @id @default(cuid())
+  keyword   String   @unique
+  reason    String?
+  addedById String?
+  createdAt DateTime @default(now())
+
+  @@index([keyword])
+}
+
+model Settings {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String    @db.Text
+  link      String?
+  readAt    DateTime?
+  channels  Json      @default("{}")
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+}
+
+model WhatsAppOutbox {
+  id             String    @id @default(cuid())
+  toPhone        String
+  body           String    @db.Text
+  status         WaStatus  @default(PENDING)
+  attempt        Int       @default(0)
+  lastError      String?
+  scheduledAt    DateTime  @default(now())
+  sentAt         DateTime?
+  notificationId String?
+  hash           String    // SHA256(toPhone+body) for dedup
+
+  @@index([status, scheduledAt])
+  @@index([toPhone, sentAt])
+  @@index([hash])
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actorName String?
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([action])
+}

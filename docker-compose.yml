@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    environment:
+      - SERVICE_FQDN_APP_3000
+      - NEXTAUTH_URL=https://$SERVICE_FQDN_APP
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:?}
+      - DATABASE_URL=${DATABASE_URL:?}
+      - AI_PROVIDER=${AI_PROVIDER:-ollama}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:?}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5vl:7b}
+      - SMTP_HOST=${SMTP_HOST:?}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:?}
+      - SMTP_PASS=${SMTP_PASS:?}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME:-MediKlaim MDS}
+      - WA_ENABLED=${WA_ENABLED:-false}
+      - EVOLUTION_BASE_URL=${EVOLUTION_BASE_URL:-}
+      - EVOLUTION_INSTANCE=${EVOLUTION_INSTANCE:-mediklaim}
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-}
+      - DEFAULT_ANNUAL_LIMIT=${DEFAULT_ANNUAL_LIMIT:-1200}
+      - CRON_SECRET=${CRON_SECRET:?}
+      - TZ=Asia/Kuala_Lumpur
+      - NODE_ENV=production
+    volumes:
+      - type: bind
+        source: ./storage
+        target: /app/storage
+        is_directory: true
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    restart: unless-stopped
+
+  migrate:
+    build: .
+    command: ["npx", "prisma", "migrate", "deploy"]
+    environment:
+      - DATABASE_URL=${DATABASE_URL:?}
+    exclude_from_hc: true
+    restart: "no"

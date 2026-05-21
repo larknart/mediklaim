@@ -1,0 +1,223 @@
+﻿"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { createClaim } from "@/server/actions/claim";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { FileText, AlertCircle, CheckCircle2, Calendar, Building2 } from "lucide-react";
+import { ExtractionStatus } from "@/generated/prisma";
+
+const MONTHS_BM = [
+  "Januari", "Februari", "Mac", "April", "Mei", "Jun",
+  "Julai", "Ogos", "September", "Oktober", "November", "Disember",
+];
+
+type Receipt = {
+  id: string;
+  vendor: string | null;
+  receiptDate: Date | null;
+  totalMyr: { toString(): string } | null;
+  extractionStatus: ExtractionStatus;
+  items: Array<{ amountMyr: { toString(): string } }>;
+};
+
+interface NewClaimFormProps {
+  receipts: Receipt[];
+  remaining: number;
+  limit: number;
+}
+
+export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [forMonth, setForMonth] = useState(String(new Date().getMonth() + 1));
+  const [forYear, setForYear] = useState(String(new Date().getFullYear()));
+  const [error, setError] = useState("");
+
+  const currentYear = new Date().getFullYear();
+  const years = [currentYear - 1, currentYear];
+
+  function toggleReceipt(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const selectedReceipts = receipts.filter((r) => selectedIds.has(r.id));
+  const totalSelected = selectedReceipts.reduce((sum, r) => {
+    const total = r.totalMyr
+      ? Number(r.totalMyr.toString())
+      : r.items.reduce((s, i) => s + Number(i.amountMyr.toString()), 0);
+    return sum + total;
+  }, 0);
+
+  const exceedsLimit = totalSelected > remaining;
+
+  function handleSubmit() {
+    if (selectedIds.size === 0) { setError("Pilih sekurang-kurangnya satu resit."); return; }
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = await createClaim({
+          forMonth: parseInt(forMonth),
+          forYear: parseInt(forYear),
+          receiptIds: Array.from(selectedIds),
+        });
+        router.push(`/tuntutan/${result.id}?submitted=1`);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Gagal buat tuntutan.");
+      }
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Period selection */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Bulan Tuntutan</CardTitle>
+        </CardHeader>
+        <CardContent className="flex gap-3">
+          <div className="flex-1">
+            <Label className="text-xs text-gray-500 mb-1.5 block">Bulan</Label>
+            <Select value={forMonth} onValueChange={(v) => setForMonth(v ?? forMonth)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS_BM.map((m, i) => (
+                  <SelectItem key={i + 1} value={String(i + 1)}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="w-32">
+            <Label className="text-xs text-gray-500 mb-1.5 block">Tahun</Label>
+            <Select value={forYear} onValueChange={(v) => setForYear(v ?? forYear)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {years.map((y) => (
+                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Limit info */}
+      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg text-sm">
+        <span className="text-gray-600">Baki peruntukan {forYear}:</span>
+        <span className={`font-semibold ${remaining < 100 ? "text-red-600" : "text-green-700"}`}>
+          RM {remaining.toFixed(2)} / RM {limit.toFixed(2)}
+        </span>
+      </div>
+
+      {/* Receipt selection */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Pilih Resit ({selectedIds.size} dipilih)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {receipts.length === 0 ? (
+            <div className="text-center py-6 text-gray-400">
+              <FileText className="w-10 h-10 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">Tiada resit dalam inbox.</p>
+              <Button variant="link" onClick={() => router.push("/resit")} className="text-green-700">
+                Upload resit dahulu →
+              </Button>
+            </div>
+          ) : (
+            receipts.map((r) => {
+              const total = r.totalMyr
+                ? Number(r.totalMyr.toString())
+                : r.items.reduce((s, i) => s + Number(i.amountMyr.toString()), 0);
+              const isSelected = selectedIds.has(r.id);
+              const needsReview = r.extractionStatus !== ExtractionStatus.DONE;
+
+              return (
+                <label
+                  key={r.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    isSelected ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleReceipt(r.id)}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate">{r.vendor ?? "Vendor tidak diketahui"}</span>
+                      {needsReview && (
+                        <Badge variant="outline" className="text-xs">Perlu semak</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      {r.receiptDate && (
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
+                        </span>
+                      )}
+                      <span className="text-xs font-semibold text-green-700">
+                        RM {total.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </label>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Summary + submit */}
+      {selectedIds.size > 0 && (
+        <Card className={exceedsLimit ? "border-red-300 bg-red-50" : "border-green-300 bg-green-50"}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-sm">Jumlah tuntutan:</span>
+              <span className={`text-lg font-bold ${exceedsLimit ? "text-red-700" : "text-green-700"}`}>
+                RM {totalSelected.toFixed(2)}
+              </span>
+            </div>
+            {exceedsLimit && (
+              <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                Melebihi baki peruntukan. Hanya RM {remaining.toFixed(2)} akan dipertimbangkan.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <Button
+        onClick={handleSubmit}
+        disabled={isPending || selectedIds.size === 0}
+        className="w-full bg-green-700 hover:bg-green-800"
+        size="lg"
+      >
+        {isPending ? "Menghantar..." : "Hantar Tuntutan"}
+      </Button>
+    </div>
+  );
+}
