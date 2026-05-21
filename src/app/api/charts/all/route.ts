@@ -29,6 +29,10 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const year = parseInt(searchParams.get("year") ?? String(new Date().getFullYear()), 10);
+  const currentYear = new Date().getFullYear();
+  if (isNaN(year) || year < 2020 || year > currentYear + 1) {
+    return NextResponse.json({ error: "Invalid year" }, { status: 400 });
+  }
   const deptParam = searchParams.get("dept") || null;
 
   // HEAD-only users are locked to their own dept; senior roles can filter freely
@@ -38,60 +42,65 @@ export async function GET(request: Request) {
   const claimDeptClause = deptId ? Prisma.sql`AND "departmentId" = ${deptId}` : Prisma.empty;
   const userDeptClause = deptId ? Prisma.sql`AND u."departmentId" = ${deptId}` : Prisma.empty;
 
-  const [rawMonthly, rawDept, rawStatus, rawUtil] = await Promise.all([
-    // Chart D: monthly trend
-    prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
-      SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
-      FROM "Claim"
-      WHERE "forYear" = ${year}
-      ${claimDeptClause}
-      GROUP BY "forMonth"
-      ORDER BY "forMonth"
-    `,
-    // Chart C: by department
-    prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
-      SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
-      FROM "Claim" c
-      JOIN "Department" d ON c."departmentId" = d.id
-      WHERE c."forYear" = ${year}
-      ${claimDeptClause}
-      GROUP BY d.id, d.name
-      ORDER BY total DESC
-    `,
-    // Chart F: by status
-    prisma.$queryRaw<Array<{ status: string; count: string }>>`
-      SELECT status, COUNT(*) AS count
-      FROM "Claim"
-      WHERE "forYear" = ${year}
-      ${claimDeptClause}
-      GROUP BY status
-    `,
-    // Chart E: dept budget utilization
-    prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
-      SELECT d.name,
-        SUM(a."usedMyr") AS used,
-        SUM(a."limitMyr") AS limit_myr
-      FROM "AnnualAllocation" a
-      JOIN "User" u ON a."userId" = u.id
-      JOIN "Department" d ON u."departmentId" = d.id
-      WHERE a.year = ${year}
-      ${userDeptClause}
-      GROUP BY d.id, d.name
-      ORDER BY used DESC
-    `,
-  ]);
+  try {
+    const [rawMonthly, rawDept, rawStatus, rawUtil] = await Promise.all([
+      // Chart D: monthly trend
+      prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+        SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+        FROM "Claim"
+        WHERE "forYear" = ${year}
+        ${claimDeptClause}
+        GROUP BY "forMonth"
+        ORDER BY "forMonth"
+      `,
+      // Chart C: by department
+      prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
+        SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
+        FROM "Claim" c
+        JOIN "Department" d ON c."departmentId" = d.id
+        WHERE c."forYear" = ${year}
+        ${claimDeptClause}
+        GROUP BY d.id, d.name
+        ORDER BY total DESC
+      `,
+      // Chart F: by status
+      prisma.$queryRaw<Array<{ status: string; count: string }>>`
+        SELECT status, COUNT(*) AS count
+        FROM "Claim"
+        WHERE "forYear" = ${year}
+        ${claimDeptClause}
+        GROUP BY status
+      `,
+      // Chart E: dept budget utilization
+      prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
+        SELECT d.name,
+          SUM(a."usedMyr") AS used,
+          SUM(a."limitMyr") AS limit_myr
+        FROM "AnnualAllocation" a
+        JOIN "User" u ON a."userId" = u.id
+        JOIN "Department" d ON u."departmentId" = d.id
+        WHERE a.year = ${year}
+        ${userDeptClause}
+        GROUP BY d.id, d.name
+        ORDER BY used DESC
+      `,
+    ]);
 
-  const monthlyTrend: MonthlyTrendRow[] = Array.from({ length: 12 }, (_, i) => {
-    const row = rawMonthly.find((r) => Number(r.forMonth) === i + 1);
-    return { month: i + 1, total: row ? Number(row.total) : 0, count: row ? Number(row.count) : 0 };
-  });
+    const monthlyTrend: MonthlyTrendRow[] = Array.from({ length: 12 }, (_, i) => {
+      const row = rawMonthly.find((r) => Number(r.forMonth) === i + 1);
+      return { month: i + 1, total: row ? Number(row.total) : 0, count: row ? Number(row.count) : 0 };
+    });
 
-  const data: AllChartsData = {
-    monthlyTrend,
-    byDepartment: rawDept.map((r) => ({ name: r.name, total: Number(r.total), count: Number(r.count) })),
-    byStatus: rawStatus.map((r) => ({ status: r.status, count: Number(r.count) })),
-    deptUtilization: rawUtil.map((r) => ({ name: r.name, used: Number(r.used), limit_myr: Number(r.limit_myr) })),
-  };
+    const data: AllChartsData = {
+      monthlyTrend,
+      byDepartment: rawDept.map((r) => ({ name: r.name, total: Number(r.total), count: Number(r.count) })),
+      byStatus: rawStatus.map((r) => ({ status: r.status, count: Number(r.count) })),
+      deptUtilization: rawUtil.map((r) => ({ name: r.name, used: Number(r.used), limit_myr: Number(r.limit_myr) })),
+    };
 
-  return NextResponse.json(data);
+    return NextResponse.json(data);
+  } catch (err) {
+    console.error("Charts query failed:", err);
+    return NextResponse.json({ error: "Failed to fetch chart data" }, { status: 500 });
+  }
 }
