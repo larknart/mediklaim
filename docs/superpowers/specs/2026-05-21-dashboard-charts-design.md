@@ -123,23 +123,20 @@ src/
       analitik/
         page.tsx                          ← server shell, role guard (new)
         _components/
-          analitik-filters.tsx            ← year + jabatan selectors, client (new)
+          analitik-filters.tsx            ← year + jabatan selectors + poll loop, client (new)
           chart-dept-claims.tsx           ← Chart C: bar by dept (new)
           chart-monthly-trend.tsx         ← Chart D: full monthly line/bar (new)
           chart-dept-utilization.tsx      ← Chart E: horizontal bar (new)
           chart-system-status.tsx         ← Chart F: full donut (new)
     api/
       charts/
-        monthly-trend/route.ts            ← GET ?year&dept (new)
-        by-department/route.ts            ← GET ?year&dept (new)
-        by-status/route.ts                ← GET ?year&dept (new)
-        dept-utilization/route.ts         ← GET ?year&dept (new)
+        all/route.ts                      ← GET ?year&dept, returns all 4 datasets (new)
   components/
     ui/
       chart.tsx                           ← added by shadcn add chart
 ```
 
-Total new files: 14 (4 API routes, 6 analitik components, 4 dashboard chart components, 1 analitik page)
+Total new files: 11 (1 API route, 6 analitik components, 4 dashboard chart components, 1 analitik page)
 Modified files: 1 (`dashboard/page.tsx`)
 
 ## UI Layout
@@ -195,21 +192,33 @@ HEAD redirect: no redirect, but queries are scoped by `session.user.departmentId
 
 ## API Routes
 
-All routes: `GET`, authenticated via `auth()`, return `JSON`.
+Single combined endpoint (reduces 4 requests → 1 per poll):
 
 ```
-GET /api/charts/monthly-trend?year=2026&dept=<id>
-GET /api/charts/by-department?year=2026&dept=<id>
-GET /api/charts/by-status?year=2026&dept=<id>
-GET /api/charts/dept-utilization?year=2026&dept=<id>
+GET /api/charts/all?year=2026&dept=<id>
 ```
 
-Response shape (example monthly-trend):
+Response shape:
 ```json
-{ "data": [{ "month": 1, "total": 450.00, "count": 3 }, ...] }
+{
+  "monthlyTrend": [{ "month": 1, "total": 450.00, "count": 3 }, ...],
+  "byDepartment": [{ "name": "Jabatan A", "total": 1200.00, "count": 8 }, ...],
+  "byStatus": [{ "status": "APPROVED", "count": 12 }, ...],
+  "deptUtilization": [{ "name": "Jabatan A", "used": 800.00, "limit": 1200.00 }, ...]
+}
 ```
 
-HEAD role: API routes enforce dept scoping server-side (ignore `dept` param, use `session.user.departmentId`).
+HEAD role: API enforces dept scoping server-side (ignores `dept` param, uses `session.user.departmentId`).
+
+## Auto-Poll (`/analitik` only)
+
+`analitik-filters.tsx` owns the poll loop. Three optimizations:
+
+1. **Single endpoint** — 1 fetch per tick returns all 4 datasets (see API Routes above)
+2. **`visibilitychange` pause** — poll stops when tab is hidden, resumes on focus. Zero resource use when idle.
+3. **`useEffect` cleanup** — interval cleared on unmount (navigate away stops polling)
+
+Poll interval: **60 seconds**. Dashboard personal charts (A, B) are static — no polling, data fetched server-side on page load.
 
 ## Nav Integration
 
@@ -219,5 +228,5 @@ Add `/analitik` link to sidebar nav, visible only to HEAD/FINANCE/APPROVER/ADMIN
 
 - Date range filters (month-level granularity) — year filter sufficient
 - Chart export (PNG/PDF) — laporan page handles exports
-- Real-time refresh / websocket
+- WebSocket / SSE push (auto-poll 60s used instead)
 - Claimant seeing other users' data
