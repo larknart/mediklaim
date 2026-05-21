@@ -6,6 +6,7 @@ import { ReceiptEditForm } from "./_components/receipt-edit-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, Clock, FileImage } from "lucide-react";
+import { BackButton } from "@/components/back-button";
 
 export default async function ReceiptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -31,6 +32,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-4 pb-10">
+      <BackButton />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Edit Resit</h1>

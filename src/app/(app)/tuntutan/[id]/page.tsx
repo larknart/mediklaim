@@ -12,6 +12,7 @@ import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
 import { WithdrawButton } from "./_components/withdraw-button";
+import { BackButton } from "@/components/back-button";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
 
@@ -78,6 +79,7 @@ export default async function ClaimDetailPage({
 
   return (
     <div className="space-y-4 pb-10">
+      <BackButton />
       {sp.submitted === "1" && (
         <Alert className="border-green-300 bg-green-50 text-green-800">
           <CheckCircle2 className="h-4 w-4" />

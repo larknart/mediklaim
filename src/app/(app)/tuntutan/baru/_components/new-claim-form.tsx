@@ -6,7 +6,7 @@ import { createClaim } from "@/server/actions/claim";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,9 +22,9 @@ type Receipt = {
   id: string;
   vendor: string | null;
   receiptDate: Date | null;
-  totalMyr: { toString(): string } | null;
+  totalMyr: number | null;
   extractionStatus: ExtractionStatus;
-  items: Array<{ amountMyr: { toString(): string } }>;
+  items: Array<{ amountMyr: number }>;
 };
 
 interface NewClaimFormProps {
@@ -56,8 +56,8 @@ export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) 
   const selectedReceipts = receipts.filter((r) => selectedIds.has(r.id));
   const totalSelected = selectedReceipts.reduce((sum, r) => {
     const total = r.totalMyr
-      ? Number(r.totalMyr.toString())
-      : r.items.reduce((s, i) => s + Number(i.amountMyr.toString()), 0);
+      ? r.totalMyr
+      : r.items.reduce((s, i) => s + i.amountMyr, 0);
     return sum + total;
   }, 0);
 
@@ -92,7 +92,7 @@ export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) 
             <Label className="text-xs text-gray-500 mb-1.5 block">Bulan</Label>
             <Select value={forMonth} onValueChange={(v) => setForMonth(v ?? forMonth)}>
               <SelectTrigger>
-                <SelectValue />
+                <span>{MONTHS_BM[parseInt(forMonth) - 1]}</span>
               </SelectTrigger>
               <SelectContent>
                 {MONTHS_BM.map((m, i) => (
@@ -105,7 +105,7 @@ export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) 
             <Label className="text-xs text-gray-500 mb-1.5 block">Tahun</Label>
             <Select value={forYear} onValueChange={(v) => setForYear(v ?? forYear)}>
               <SelectTrigger>
-                <SelectValue />
+                <span>{forYear}</span>
               </SelectTrigger>
               <SelectContent>
                 {years.map((y) => (
@@ -142,8 +142,8 @@ export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) 
           ) : (
             receipts.map((r) => {
               const total = r.totalMyr
-                ? Number(r.totalMyr.toString())
-                : r.items.reduce((s, i) => s + Number(i.amountMyr.toString()), 0);
+                ? r.totalMyr
+                : r.items.reduce((s, i) => s + i.amountMyr, 0);
               const isSelected = selectedIds.has(r.id);
               const needsReview = r.extractionStatus !== ExtractionStatus.DONE;
 

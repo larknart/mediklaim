@@ -92,6 +92,13 @@ async function extractReceiptBackground(
   try {
     const result = await extractor.extract(buffer, mime);
 
+    // Fallback: AI returned no items or zero-amount single item but total is known
+    if (result.totalMyr && result.items.length === 0) {
+      result.items = [{ description: "Rawatan perubatan", qty: 1, unitMyr: result.totalMyr, amountMyr: result.totalMyr }];
+    } else if (result.totalMyr && result.items.length === 1 && result.items[0].amountMyr === 0) {
+      result.items[0] = { ...result.items[0], unitMyr: result.totalMyr, amountMyr: result.totalMyr };
+    }
+
     // Flag items against blacklist
     const keywords = await prisma.blacklistKeyword.findMany({ select: { keyword: true, reason: true } });
     const items = result.items.map((item) => {

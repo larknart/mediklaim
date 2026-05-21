@@ -42,8 +42,10 @@ Extract structured data and return ONLY valid JSON with this exact structure:
 Rules:
 - All monetary values in MYR as plain numbers (no RM symbol)
 - If item qty/unit unclear, set qty=1 and unitMyr=amountMyr
+- For non-itemized receipts (lump sum, only total visible): create ONE item with description = the receipt purpose/reason (e.g. "Rawatan", "Konsultasi", "Perubatan"), qty=1, unitMyr=totalMyr, amountMyr=totalMyr
+- NEVER set amountMyr=0 if the receipt shows a total amount — use totalMyr as amountMyr for that item
+- items array must NEVER be empty if totalMyr is known
 - confidence: 0.9+ if clearly readable, 0.5-0.9 if partial, <0.5 if poor quality
-- Return empty items array if no line items visible
 - Do not add explanations, only JSON`;
 
 // ─── Ollama extractor ─────────────────────────────────────────────────────────

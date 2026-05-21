@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
 import { UserForm } from "../_components/user-form";
+import { BackButton } from "@/components/back-button";
 
 export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -20,6 +21,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="max-w-lg space-y-6">
+      <BackButton />
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Edit Pengguna</h1>
         <p className="text-gray-500 text-sm mt-1">{user.email}</p>
