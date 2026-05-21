@@ -13,6 +13,7 @@ import {
   Calculator,
   Shield,
   BarChart3,
+  LineChart,
   Users,
   Settings,
   ScrollText,
@@ -59,6 +60,12 @@ const navItems: NavItem[] = [
     label: "Laporan",
     icon: BarChart3,
     roles: [Role.FINANCE, Role.APPROVER, Role.YDP, Role.ADMIN],
+  },
+  {
+    href: "/analitik",
+    label: "Analitik",
+    icon: LineChart,
+    roles: [Role.HEAD, Role.FINANCE, Role.APPROVER, Role.YDP, Role.ADMIN],
   },
   {
     href: "/notifikasi",
