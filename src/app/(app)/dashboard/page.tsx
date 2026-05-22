@@ -8,6 +8,8 @@ import Link from "next/link";
 import { ClaimStatus, Role, ReceiptStatus, Prisma } from "@/generated/prisma";
 import { ChartSpendingTrend } from "./_components/chart-spending-trend";
 import { ChartClaimStatus } from "./_components/chart-claim-status";
+import { ChartMiniMonthly } from "./_components/chart-mini-monthly";
+import { ChartMiniSystemStatus } from "./_components/chart-mini-system-status";
 import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus } from "lucide-react";
 
 const STATUS_LABELS: Record<ClaimStatus, { label: string; color: string }> = {
@@ -71,6 +73,48 @@ export default async function DashboardPage() {
     GROUP BY status
   `;
   const statusData = rawStatus.map((r) => ({ status: r.status, count: Number(r.count) }));
+
+  // Management mini-charts — HEAD/FINANCE/APPROVER/ADMIN only
+  const mgmtRoles: Role[] = [Role.HEAD, Role.FINANCE, Role.APPROVER, Role.YDP, Role.ADMIN];
+  const nonHeadMgmtRoles: Role[] = [Role.FINANCE, Role.APPROVER, Role.YDP, Role.ADMIN];
+  const isMgmt = roles.some((r) => mgmtRoles.includes(r));
+  const isHeadOnly =
+    roles.includes(Role.HEAD) &&
+    !roles.some((r) => nonHeadMgmtRoles.includes(r));
+  const mgmtDeptId = isHeadOnly ? (session.user.departmentId ?? null) : null;
+  const mgmtDeptClause = mgmtDeptId
+    ? Prisma.sql`AND "departmentId" = ${mgmtDeptId}`
+    : Prisma.empty;
+
+  let miniMonthlyData: { month: number; total: number; count: number }[] = [];
+  let miniStatusData: { status: string; count: number }[] = [];
+
+  if (isMgmt) {
+    const [rawMiniMonthly, rawMiniStatus] = await Promise.all([
+      prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+        SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+        FROM "Claim"
+        WHERE "forYear" = ${currentYear}
+        ${mgmtDeptClause}
+        GROUP BY "forMonth"
+        ORDER BY "forMonth"
+      `,
+      prisma.$queryRaw<Array<{ status: string; count: string }>>`
+        SELECT status, COUNT(*) AS count
+        FROM "Claim"
+        WHERE "forYear" = ${currentYear}
+        ${mgmtDeptClause}
+        GROUP BY status
+      `,
+    ]);
+
+    miniMonthlyData = Array.from({ length: 12 }, (_, i) => {
+      const row = rawMiniMonthly.find((r) => Number(r.forMonth) === i + 1);
+      return { month: i + 1, total: row ? Number(row.total) : 0, count: row ? Number(row.count) : 0 };
+    });
+
+    miniStatusData = rawMiniStatus.map((r) => ({ status: r.status, count: Number(r.count) }));
+  }
 
   // Pending actions count (role-aware)
   let pendingHead = 0;
@@ -193,6 +237,24 @@ export default async function DashboardPage() {
         <ChartSpendingTrend data={monthlyData} year={currentYear} />
         <ChartClaimStatus data={statusData} />
       </div>
+
+      {/* Management mini-charts */}
+      {isMgmt && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-700">
+              Gambaran Sistem {currentYear}
+            </h2>
+            <a href="/analitik" className="text-xs text-green-700 hover:underline">
+              Lihat analitik penuh →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ChartMiniMonthly data={miniMonthlyData} year={currentYear} />
+            <ChartMiniSystemStatus data={miniStatusData} year={currentYear} />
+          </div>
+        </div>
+      )}
 
       {/* Inbox resit belum dituntut */}
       {unsortedCount > 0 && (
