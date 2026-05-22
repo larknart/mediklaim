@@ -15,6 +15,7 @@ export async function createClaim(data: {
   forMonth: number;
   forYear: number;
   receiptIds: string[];
+  resubmittedFromId?: string;
 }) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
@@ -75,6 +76,7 @@ export async function createClaim(data: {
       receipts: {
         connect: data.receiptIds.map((id) => ({ id })),
       },
+      ...(data.resubmittedFromId && { resubmittedFromId: data.resubmittedFromId }),
     },
   });
 
@@ -87,10 +89,15 @@ export async function createClaim(data: {
   await logAction({
     actorId: session.user.id,
     actorName: session.user.name ?? undefined,
-    action: AuditAction.CLAIM_SUBMITTED,
+    action: data.resubmittedFromId ? AuditAction.CLAIM_RESUBMITTED : AuditAction.CLAIM_SUBMITTED,
     entity: "Claim",
     entityId: claim.id,
-    meta: { refNo, total: total.toString(), remaining: remaining.toString() },
+    meta: {
+      refNo,
+      total: total.toString(),
+      remaining: remaining.toString(),
+      ...(data.resubmittedFromId && { resubmittedFromId: data.resubmittedFromId }),
+    },
   });
 
   if (skipHead) {
@@ -174,6 +181,38 @@ export async function withdrawClaim(claimId: string) {
   });
 
   return { ok: true };
+}
+
+// ─── Initiate resubmit (release receipts, redirect happens client-side) ───────
+
+export async function initiateResubmit(claimId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+
+  const claim = await prisma.claim.findUnique({
+    where: { id: claimId },
+    include: { resubmissions: { select: { id: true } } },
+  });
+
+  if (!claim || claim.claimantId !== session.user.id) throw new Error("NOT_FOUND");
+  if (claim.status !== ClaimStatus.REJECTED) throw new Error("CANNOT_RESUBMIT");
+  if (claim.resubmissions.length > 0) throw new Error("ALREADY_RESUBMITTED");
+
+  await prisma.receipt.updateMany({
+    where: { claimId },
+    data: { status: ReceiptStatus.UNSORTED, claimId: null },
+  });
+
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: AuditAction.CLAIM_RESUBMIT_INITIATED,
+    entity: "Claim",
+    entityId: claimId,
+    meta: { originalRefNo: claim.refNo },
+  });
+
+  return { originalClaimId: claimId };
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
