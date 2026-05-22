@@ -37,6 +37,9 @@ export async function GET(request: Request) {
 
   // HEAD-only users are locked to their own dept; senior roles can filter freely
   const isHeadOnly = roles.includes(Role.HEAD) && !roles.some((r) => SENIOR_ROLES.includes(r));
+  if (isHeadOnly && !session.user.departmentId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const deptId = isHeadOnly ? (session.user.departmentId ?? null) : deptParam;
 
   const claimDeptClause = deptId ? Prisma.sql`AND "departmentId" = ${deptId}` : Prisma.empty;
@@ -53,7 +56,7 @@ export async function GET(request: Request) {
         GROUP BY "forMonth"
         ORDER BY "forMonth"
       `,
-      // Chart C: by department
+      // Chart C: inner JOIN intentionally excludes claims with null departmentId
       prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
         SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
         FROM "Claim" c

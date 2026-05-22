@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Role } from "@/generated/prisma";
 import { ChartDeptClaims } from "./chart-dept-claims";
 import { ChartMonthlyTrend } from "./chart-monthly-trend";
@@ -21,8 +21,6 @@ interface Props {
   userDeptId: string | null;
 }
 
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
 const SENIOR_ROLES: Role[] = [Role.FINANCE, Role.APPROVER, Role.YDP, Role.ADMIN];
 
 export function AnalitikFilters({
@@ -35,9 +33,13 @@ export function AnalitikFilters({
   const isHeadOnly =
     userRoles.includes(Role.HEAD) && !userRoles.some((r) => SENIOR_ROLES.includes(r));
 
+  const yearOptions = Array.from({ length: 5 }, (_, i) => initialYear - i);
+
   const [year, setYear] = useState(initialYear);
   const [dept, setDept] = useState(isHeadOnly ? (userDeptId ?? "") : "");
   const [data, setData] = useState<AllChartsData>(initialData);
+
+  const isFirstRender = useRef(true);
 
   const fetchData = useCallback(async () => {
     const params = new URLSearchParams({ year: String(year) });
@@ -63,7 +65,11 @@ export function AnalitikFilters({
       }
     };
 
-    fetchData();
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    } else {
+      fetchData();
+    }
     start();
 
     const onVisibility = () => {
@@ -93,7 +99,7 @@ export function AnalitikFilters({
             onChange={(e) => setYear(Number(e.target.value))}
             className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
           >
-            {YEAR_OPTIONS.map((y) => (
+            {yearOptions.map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>

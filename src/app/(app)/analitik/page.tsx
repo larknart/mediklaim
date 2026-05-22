@@ -17,6 +17,7 @@ export default async function AnalitikPage() {
 
   const currentYear = new Date().getFullYear();
   const isHeadOnly = roles.includes(Role.HEAD) && !roles.some((r) => SENIOR_ROLES.includes(r));
+  if (isHeadOnly && !session.user.departmentId) redirect("/dashboard");
   const deptId = isHeadOnly ? (session.user.departmentId ?? null) : null;
 
   const claimDeptClause = deptId ? Prisma.sql`AND "departmentId" = ${deptId}` : Prisma.empty;
@@ -35,6 +36,7 @@ export default async function AnalitikPage() {
       GROUP BY "forMonth"
       ORDER BY "forMonth"
     `,
+    // Chart C: inner JOIN intentionally excludes claims with null departmentId
     prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
       SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
       FROM "Claim" c

@@ -29,6 +29,7 @@ export function ChartClaimStatus({ data }: Props) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Status Tuntutan Saya</CardTitle>
+          <p className="text-xs text-gray-400">Semua masa</p>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-48">
           <p className="text-gray-400 text-sm">Tiada tuntutan lagi</p>

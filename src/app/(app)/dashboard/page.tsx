@@ -89,7 +89,7 @@ export default async function DashboardPage() {
   let miniMonthlyData: { month: number; total: number; count: number }[] = [];
   let miniStatusData: { status: string; count: number }[] = [];
 
-  if (isMgmt) {
+  if (isMgmt && !(isHeadOnly && !session.user.departmentId)) {
     const [rawMiniMonthly, rawMiniStatus] = await Promise.all([
       prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
         SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
@@ -245,9 +245,9 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-gray-700">
               Gambaran Sistem {currentYear}
             </h2>
-            <a href="/analitik" className="text-xs text-green-700 hover:underline">
+            <Link href="/analitik" className="text-xs text-green-700 hover:underline">
               Lihat analitik penuh →
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ChartMiniMonthly data={miniMonthlyData} year={currentYear} />
