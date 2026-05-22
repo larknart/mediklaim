@@ -224,12 +224,15 @@ model Claim {
   paidAt           DateTime?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
+  resubmittedFromId String?
 
   claimant   User         @relation(fields: [claimantId], references: [id])
   department Department?  @relation("DepartmentClaims", fields: [departmentId], references: [id])
   receipts   Receipt[]
   approvals  Approval[]
   comments   ClaimComment[]
+  resubmittedFrom   Claim?  @relation("ClaimResubmit", fields: [resubmittedFromId], references: [id])
+  resubmissions     Claim[] @relation("ClaimResubmit")
 
   @@index([claimantId, status])
   @@index([departmentId, status])
