@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ClaimStatus, Role, ReceiptStatus } from "@/generated/prisma";
+import { ClaimStatus, Role, ReceiptStatus, Prisma } from "@/generated/prisma";
+import { ChartSpendingTrend } from "./_components/chart-spending-trend";
+import { ChartClaimStatus } from "./_components/chart-claim-status";
 import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus } from "lucide-react";
 
 const STATUS_LABELS: Record<ClaimStatus, { label: string; color: string }> = {
@@ -47,6 +49,28 @@ export default async function DashboardPage() {
     orderBy: { createdAt: "desc" },
     take: 5,
   });
+
+  // Chart A — personal monthly spending (12 months, zero-filled)
+  const rawMonthly = await prisma.$queryRaw<Array<{ forMonth: number; total: string }>>`
+    SELECT "forMonth", SUM("totalClaimedMyr") AS total
+    FROM "Claim"
+    WHERE "claimantId" = ${userId} AND "forYear" = ${currentYear}
+    GROUP BY "forMonth"
+    ORDER BY "forMonth"
+  `;
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const row = rawMonthly.find((r) => Number(r.forMonth) === i + 1);
+    return { month: i + 1, total: row ? Number(row.total) : 0 };
+  });
+
+  // Chart B — personal status breakdown (all-time, not year-filtered)
+  const rawStatus = await prisma.$queryRaw<Array<{ status: string; count: string }>>`
+    SELECT status, COUNT(*) AS count
+    FROM "Claim"
+    WHERE "claimantId" = ${userId}
+    GROUP BY status
+  `;
+  const statusData = rawStatus.map((r) => ({ status: r.status, count: Number(r.count) }));
 
   // Pending actions count (role-aware)
   let pendingHead = 0;
@@ -162,6 +186,12 @@ export default async function DashboardPage() {
             Buat Tuntutan
           </Link>
         </Button>
+      </div>
+
+      {/* Personal Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ChartSpendingTrend data={monthlyData} year={currentYear} />
+        <ChartClaimStatus data={statusData} />
       </div>
 
       {/* Inbox resit belum dituntut */}
