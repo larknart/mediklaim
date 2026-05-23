@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { Prisma, Role } from "@/generated/prisma";
+import { Role } from "@/generated/prisma";
 import { NextResponse } from "next/server";
 
 export type MonthlyTrendRow = { month: number; total: number; count: number };
@@ -42,52 +42,91 @@ export async function GET(request: Request) {
   }
   const deptId = isHeadOnly ? (session.user.departmentId ?? null) : deptParam;
 
-  const claimDeptClause = deptId ? Prisma.sql`AND "departmentId" = ${deptId}` : Prisma.empty;
-  const userDeptClause = deptId ? Prisma.sql`AND u."departmentId" = ${deptId}` : Prisma.empty;
-
   try {
-    const [rawMonthly, rawDept, rawStatus, rawUtil] = await Promise.all([
-      // Chart D: monthly trend
-      prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
-        SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
-        FROM "Claim"
-        WHERE "forYear" = ${year}
-        ${claimDeptClause}
-        GROUP BY "forMonth"
-        ORDER BY "forMonth"
-      `,
-      // Chart C: inner JOIN intentionally excludes claims with null departmentId
-      prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
-        SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
-        FROM "Claim" c
-        JOIN "Department" d ON c."departmentId" = d.id
-        WHERE c."forYear" = ${year}
-        ${claimDeptClause}
-        GROUP BY d.id, d.name
-        ORDER BY total DESC
-      `,
-      // Chart F: by status
-      prisma.$queryRaw<Array<{ status: string; count: string }>>`
-        SELECT status, COUNT(*) AS count
-        FROM "Claim"
-        WHERE "forYear" = ${year}
-        ${claimDeptClause}
-        GROUP BY status
-      `,
-      // Chart E: dept budget utilization
-      prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
-        SELECT d.name,
-          SUM(a."usedMyr") AS used,
-          SUM(a."limitMyr") AS limit_myr
-        FROM "AnnualAllocation" a
-        JOIN "User" u ON a."userId" = u.id
-        JOIN "Department" d ON u."departmentId" = d.id
-        WHERE a.year = ${year}
-        ${userDeptClause}
-        GROUP BY d.id, d.name
-        ORDER BY used DESC
-      `,
-    ]);
+    let rawMonthly: Array<{ forMonth: number; total: string; count: string }>;
+    let rawDept: Array<{ name: string; total: string; count: string }>;
+    let rawStatus: Array<{ status: string; count: string }>;
+    let rawUtil: Array<{ name: string; used: string; limit_myr: string }>;
+
+    if (deptId) {
+      [rawMonthly, rawDept, rawStatus, rawUtil] = await Promise.all([
+        // Chart D: monthly trend
+        prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+          SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${year} AND "departmentId" = ${deptId}
+          GROUP BY "forMonth"
+          ORDER BY "forMonth"
+        `,
+        // Chart C: inner JOIN intentionally excludes claims with null departmentId
+        prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
+          SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
+          FROM "Claim" c
+          JOIN "Department" d ON c."departmentId" = d.id
+          WHERE c."forYear" = ${year} AND c."departmentId" = ${deptId}
+          GROUP BY d.id, d.name
+          ORDER BY total DESC
+        `,
+        // Chart F: by status
+        prisma.$queryRaw<Array<{ status: string; count: string }>>`
+          SELECT status, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${year} AND "departmentId" = ${deptId}
+          GROUP BY status
+        `,
+        // Chart E: dept budget utilization
+        prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
+          SELECT d.name,
+            SUM(a."usedMyr") AS used,
+            SUM(a."limitMyr") AS limit_myr
+          FROM "AnnualAllocation" a
+          JOIN "User" u ON a."userId" = u.id
+          JOIN "Department" d ON u."departmentId" = d.id
+          WHERE a.year = ${year} AND u."departmentId" = ${deptId}
+          GROUP BY d.id, d.name
+          ORDER BY used DESC
+        `,
+      ]);
+    } else {
+      [rawMonthly, rawDept, rawStatus, rawUtil] = await Promise.all([
+        // Chart D: monthly trend
+        prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+          SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${year}
+          GROUP BY "forMonth"
+          ORDER BY "forMonth"
+        `,
+        // Chart C: inner JOIN intentionally excludes claims with null departmentId
+        prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
+          SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
+          FROM "Claim" c
+          JOIN "Department" d ON c."departmentId" = d.id
+          WHERE c."forYear" = ${year}
+          GROUP BY d.id, d.name
+          ORDER BY total DESC
+        `,
+        // Chart F: by status
+        prisma.$queryRaw<Array<{ status: string; count: string }>>`
+          SELECT status, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${year}
+          GROUP BY status
+        `,
+        // Chart E: dept budget utilization
+        prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
+          SELECT d.name,
+            SUM(a."usedMyr") AS used,
+            SUM(a."limitMyr") AS limit_myr
+          FROM "AnnualAllocation" a
+          JOIN "User" u ON a."userId" = u.id
+          JOIN "Department" d ON u."departmentId" = d.id
+          WHERE a.year = ${year}
+          GROUP BY d.id, d.name
+          ORDER BY used DESC
+        `,
+      ]);
+    }
 
     const monthlyTrend: MonthlyTrendRow[] = Array.from({ length: 12 }, (_, i) => {
       const row = rawMonthly.find((r) => Number(r.forMonth) === i + 1);

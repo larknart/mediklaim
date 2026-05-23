@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { Prisma, Role } from "@/generated/prisma";
+import { Role } from "@/generated/prisma";
 import { AnalitikFilters } from "./_components/analitik-filters";
 import type { AllChartsData, MonthlyTrendRow } from "@/app/api/charts/all/route";
 
@@ -20,52 +20,95 @@ export default async function AnalitikPage() {
   if (isHeadOnly && !session.user.departmentId) redirect("/dashboard");
   const deptId = isHeadOnly ? (session.user.departmentId ?? null) : null;
 
-  const claimDeptClause = deptId ? Prisma.sql`AND "departmentId" = ${deptId}` : Prisma.empty;
-  const userDeptClause = deptId ? Prisma.sql`AND u."departmentId" = ${deptId}` : Prisma.empty;
+  let rawMonthly: Array<{ forMonth: number; total: string; count: string }>;
+  let rawDept: Array<{ name: string; total: string; count: string }>;
+  let rawStatus: Array<{ status: string; count: string }>;
+  let rawUtil: Array<{ name: string; used: string; limit_myr: string }>;
 
-  const [departments, rawMonthly, rawDept, rawStatus, rawUtil] = await Promise.all([
+  const [departments, ...chartRows] = await Promise.all([
     prisma.department.findMany({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
-    prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
-      SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
-      FROM "Claim"
-      WHERE "forYear" = ${currentYear}
-      ${claimDeptClause}
-      GROUP BY "forMonth"
-      ORDER BY "forMonth"
-    `,
-    // Chart C: inner JOIN intentionally excludes claims with null departmentId
-    prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
-      SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
-      FROM "Claim" c
-      JOIN "Department" d ON c."departmentId" = d.id
-      WHERE c."forYear" = ${currentYear}
-      ${claimDeptClause}
-      GROUP BY d.id, d.name
-      ORDER BY total DESC
-    `,
-    prisma.$queryRaw<Array<{ status: string; count: string }>>`
-      SELECT status, COUNT(*) AS count
-      FROM "Claim"
-      WHERE "forYear" = ${currentYear}
-      ${claimDeptClause}
-      GROUP BY status
-    `,
-    prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
-      SELECT d.name,
-        SUM(a."usedMyr") AS used,
-        SUM(a."limitMyr") AS limit_myr
-      FROM "AnnualAllocation" a
-      JOIN "User" u ON a."userId" = u.id
-      JOIN "Department" d ON u."departmentId" = d.id
-      WHERE a.year = ${currentYear}
-      ${userDeptClause}
-      GROUP BY d.id, d.name
-      ORDER BY used DESC
-    `,
+    ...(deptId
+      ? [
+          prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+            SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+            FROM "Claim"
+            WHERE "forYear" = ${currentYear} AND "departmentId" = ${deptId}
+            GROUP BY "forMonth"
+            ORDER BY "forMonth"
+          `,
+          // Chart C: inner JOIN intentionally excludes claims with null departmentId
+          prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
+            SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
+            FROM "Claim" c
+            JOIN "Department" d ON c."departmentId" = d.id
+            WHERE c."forYear" = ${currentYear} AND c."departmentId" = ${deptId}
+            GROUP BY d.id, d.name
+            ORDER BY total DESC
+          `,
+          prisma.$queryRaw<Array<{ status: string; count: string }>>`
+            SELECT status, COUNT(*) AS count
+            FROM "Claim"
+            WHERE "forYear" = ${currentYear} AND "departmentId" = ${deptId}
+            GROUP BY status
+          `,
+          prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
+            SELECT d.name,
+              SUM(a."usedMyr") AS used,
+              SUM(a."limitMyr") AS limit_myr
+            FROM "AnnualAllocation" a
+            JOIN "User" u ON a."userId" = u.id
+            JOIN "Department" d ON u."departmentId" = d.id
+            WHERE a.year = ${currentYear} AND u."departmentId" = ${deptId}
+            GROUP BY d.id, d.name
+            ORDER BY used DESC
+          `,
+        ]
+      : [
+          prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+            SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+            FROM "Claim"
+            WHERE "forYear" = ${currentYear}
+            GROUP BY "forMonth"
+            ORDER BY "forMonth"
+          `,
+          // Chart C: inner JOIN intentionally excludes claims with null departmentId
+          prisma.$queryRaw<Array<{ name: string; total: string; count: string }>>`
+            SELECT d.name, SUM(c."totalClaimedMyr") AS total, COUNT(*) AS count
+            FROM "Claim" c
+            JOIN "Department" d ON c."departmentId" = d.id
+            WHERE c."forYear" = ${currentYear}
+            GROUP BY d.id, d.name
+            ORDER BY total DESC
+          `,
+          prisma.$queryRaw<Array<{ status: string; count: string }>>`
+            SELECT status, COUNT(*) AS count
+            FROM "Claim"
+            WHERE "forYear" = ${currentYear}
+            GROUP BY status
+          `,
+          prisma.$queryRaw<Array<{ name: string; used: string; limit_myr: string }>>`
+            SELECT d.name,
+              SUM(a."usedMyr") AS used,
+              SUM(a."limitMyr") AS limit_myr
+            FROM "AnnualAllocation" a
+            JOIN "User" u ON a."userId" = u.id
+            JOIN "Department" d ON u."departmentId" = d.id
+            WHERE a.year = ${currentYear}
+            GROUP BY d.id, d.name
+            ORDER BY used DESC
+          `,
+        ]),
   ]);
+
+  [rawMonthly, rawDept, rawStatus, rawUtil] = chartRows as [
+    typeof rawMonthly,
+    typeof rawDept,
+    typeof rawStatus,
+    typeof rawUtil,
+  ];
 
   const monthlyTrend: MonthlyTrendRow[] = Array.from({ length: 12 }, (_, i) => {
     const row = rawMonthly.find((r) => Number(r.forMonth) === i + 1);
