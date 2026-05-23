@@ -185,3 +185,61 @@ export async function deleteBlacklistKeyword(id: string) {
   return { ok: true };
 }
 
+// ─── Approval Delegation ──────────────────────────────────────────────────────
+
+export async function createDelegation(data: {
+  delegatorId: string;
+  delegateId: string;
+  role: Role;
+  fromDate: string;
+  toDate: string;
+}) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  if (data.delegatorId === data.delegateId) throw new Error("SAME_USER");
+  const from = new Date(data.fromDate);
+  const to = new Date(data.toDate);
+  if (to < from) throw new Error("INVALID_DATE_RANGE");
+
+  const delegation = await prisma.approvalDelegation.create({
+    data: {
+      delegatorId: data.delegatorId,
+      delegateId: data.delegateId,
+      role: data.role,
+      fromDate: from,
+      toDate: to,
+    },
+  });
+
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: "DELEGATION_CREATED",
+    entity: "ApprovalDelegation",
+    entityId: delegation.id,
+    meta: data,
+  });
+
+  return { id: delegation.id };
+}
+
+export async function deleteDelegation(id: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  await prisma.approvalDelegation.delete({ where: { id } });
+
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: "DELEGATION_DELETED",
+    entity: "ApprovalDelegation",
+    entityId: id,
+  });
+
+  return { ok: true };
+}
+

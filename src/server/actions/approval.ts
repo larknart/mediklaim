@@ -6,6 +6,7 @@ import { logAction, AuditAction } from "@/lib/audit";
 import { dispatch } from "@/lib/notify/dispatcher";
 import { notifyApproverTeam } from "./claim";
 import { isHead, isFinance, isApprover, isYdp, canApproveAsHead, shouldSkipApproverStep } from "@/lib/permissions";
+import { getActiveDelegation } from "@/lib/delegation";
 import { ClaimStatus, ApprovalStep, Decision, Role } from "@/generated/prisma";
 import Decimal from "decimal.js";
 
@@ -17,7 +18,7 @@ export async function headDecide(
   comment?: string
 ) {
   const session = await auth();
-  if (!session?.user || !isHead(session.user)) throw new Error("UNAUTHORIZED");
+  if (!session?.user) throw new Error("UNAUTHORIZED");
 
   const claim = await prisma.claim.findUnique({
     where: { id: claimId },
@@ -25,12 +26,14 @@ export async function headDecide(
   });
   if (!claim || claim.status !== ClaimStatus.SUBMITTED) throw new Error("INVALID_STATE");
 
-  if (
-    !canApproveAsHead(session.user, {
-      claimantId: claim.claimantId,
-      departmentId: claim.departmentId,
-    })
-  ) {
+  const ownApproval = canApproveAsHead(session.user, {
+    claimantId: claim.claimantId,
+    departmentId: claim.departmentId,
+  });
+  const delegation = !ownApproval
+    ? await getActiveDelegation(session.user.id, Role.HEAD, claim.departmentId)
+    : null;
+  if (!ownApproval && (!delegation || claim.claimantId === session.user.id)) {
     throw new Error("UNAUTHORIZED");
   }
 
@@ -90,7 +93,10 @@ export async function financeReview(
   comment?: string
 ) {
   const session = await auth();
-  if (!session?.user || !isFinance(session.user)) throw new Error("UNAUTHORIZED");
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  const financeOk = isFinance(session.user) ||
+    !!(await getActiveDelegation(session.user.id, Role.FINANCE));
+  if (!financeOk) throw new Error("UNAUTHORIZED");
 
   const claim = await prisma.claim.findUnique({
     where: { id: claimId },
@@ -226,7 +232,13 @@ export async function approverDecide(
 ) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
-  if (!isApprover(session.user) && !isYdp(session.user)) throw new Error("UNAUTHORIZED");
+  const [approverDelegation, ydpDelegation] = await Promise.all([
+    getActiveDelegation(session.user.id, Role.APPROVER),
+    getActiveDelegation(session.user.id, Role.YDP),
+  ]);
+  const effectiveIsApprover = isApprover(session.user) || !!approverDelegation;
+  const effectiveIsYdp = isYdp(session.user) || !!ydpDelegation;
+  if (!effectiveIsApprover && !effectiveIsYdp) throw new Error("UNAUTHORIZED");
 
   const claim = await prisma.claim.findUnique({
     where: { id: claimId },
@@ -237,7 +249,7 @@ export async function approverDecide(
 
   // Setiausaha: must be FINANCE_REVIEWED; YDP: can override APPROVED too
   const validStatuses: ClaimStatus[] = [ClaimStatus.FINANCE_REVIEWED];
-  if (isYdp(session.user)) validStatuses.push(ClaimStatus.APPROVED);
+  if (effectiveIsYdp) validStatuses.push(ClaimStatus.APPROVED);
   if (!validStatuses.includes(claim.status)) throw new Error("INVALID_STATE");
 
   const eligibleMyr = new Decimal(claim.totalEligibleMyr?.toString() ?? "0");
@@ -325,7 +337,10 @@ export async function approverDecide(
 export async function bulkApprove(claimIds: string[]) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
-  if (!isApprover(session.user) && !isYdp(session.user)) throw new Error("UNAUTHORIZED");
+  const bulkApproverOk = isApprover(session.user) || isYdp(session.user) ||
+    !!(await getActiveDelegation(session.user.id, Role.APPROVER)) ||
+    !!(await getActiveDelegation(session.user.id, Role.YDP));
+  if (!bulkApproverOk) throw new Error("UNAUTHORIZED");
   if (claimIds.length === 0) throw new Error("NO_CLAIMS");
   if (claimIds.length > 50) throw new Error("TOO_MANY");
 
@@ -409,7 +424,10 @@ export async function bulkApprove(claimIds: string[]) {
 
 export async function markPaid(claimId: string) {
   const session = await auth();
-  if (!session?.user || !isFinance(session.user)) throw new Error("UNAUTHORIZED");
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  const paidOk = isFinance(session.user) ||
+    !!(await getActiveDelegation(session.user.id, Role.FINANCE));
+  if (!paidOk) throw new Error("UNAUTHORIZED");
 
   const claim = await prisma.claim.findUnique({ where: { id: claimId } });
   if (!claim || claim.status !== ClaimStatus.APPROVED) throw new Error("INVALID_STATE");

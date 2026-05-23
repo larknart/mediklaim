@@ -134,6 +134,8 @@ model User {
   sessions       Session[]
   notifications  Notification[]
   comments       ClaimComment[]
+  delegationsMade     ApprovalDelegation[] @relation("DelegationsMade")
+  delegationsReceived ApprovalDelegation[] @relation("DelegationsReceived")
 
   @@index([departmentId])
   @@index([isActive, deletedAt])
@@ -280,6 +282,22 @@ model BlacklistKeyword {
   createdAt DateTime @default(now())
 
   @@index([keyword])
+}
+
+model ApprovalDelegation {
+  id          String   @id @default(cuid())
+  delegatorId String
+  delegateId  String
+  role        Role
+  fromDate    DateTime @db.Date
+  toDate      DateTime @db.Date
+  createdAt   DateTime @default(now())
+
+  delegator   User     @relation("DelegationsMade", fields: [delegatorId], references: [id], onDelete: Cascade)
+  delegate    User     @relation("DelegationsReceived", fields: [delegateId], references: [id], onDelete: Cascade)
+
+  @@index([delegateId, fromDate, toDate])
+  @@index([delegatorId])
 }
 
 model Settings {

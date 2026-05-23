@@ -20,6 +20,7 @@ import {
   Bell,
   LogOut,
   Building2,
+  CalendarRange,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -88,6 +89,12 @@ const navItems: NavItem[] = [
     href: "/admin/tetapan",
     label: "Tetapan",
     icon: Settings,
+    roles: [Role.ADMIN],
+  },
+  {
+    href: "/admin/delegasi",
+    label: "Delegasi",
+    icon: CalendarRange,
     roles: [Role.ADMIN],
   },
   {

@@ -3,7 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { canViewClaim, canApproveAsHead, isFinance, isApprover, isYdp } from "@/lib/permissions";
-import { ClaimStatus, ApprovalStep } from "@/generated/prisma";
+import { ClaimStatus, ApprovalStep, Role } from "@/generated/prisma";
+import { getActiveDelegation } from "@/lib/delegation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -80,17 +81,28 @@ export default async function ClaimDetailPage({
   const resubmission = claim.resubmissions[0] ?? null;
   const canResubmit = isOwner && claim.status === ClaimStatus.REJECTED && !resubmission;
 
-  // Panel visibility
+  // Panel visibility — own role OR active delegation
+  const [headDelegation, financeDelegation, approverDelegation, ydpDelegation] =
+    await Promise.all([
+      getActiveDelegation(user.id, Role.HEAD, claim.departmentId),
+      getActiveDelegation(user.id, Role.FINANCE),
+      getActiveDelegation(user.id, Role.APPROVER),
+      getActiveDelegation(user.id, Role.YDP),
+    ]);
+
   const showHeadPanel =
-    canApproveAsHead(user, { claimantId: claim.claimantId, departmentId: claim.departmentId }) &&
+    (canApproveAsHead(user, { claimantId: claim.claimantId, departmentId: claim.departmentId }) ||
+      (!!headDelegation && claim.claimantId !== user.id)) &&
     claim.status === ClaimStatus.SUBMITTED;
 
-  const showFinancePanel = isFinance(user) && claim.status === ClaimStatus.HEAD_APPROVED;
+  const showFinancePanel =
+    (isFinance(user) || !!financeDelegation) && claim.status === ClaimStatus.HEAD_APPROVED;
 
+  const effectiveIsYdp = isYdp(user) || !!ydpDelegation;
   const showApproverPanel =
-    (isApprover(user) || isYdp(user)) &&
+    (isApprover(user) || effectiveIsYdp || !!approverDelegation) &&
     (claim.status === ClaimStatus.FINANCE_REVIEWED ||
-      (isYdp(user) && claim.status === ClaimStatus.APPROVED));
+      (effectiveIsYdp && claim.status === ClaimStatus.APPROVED));
 
   return (
     <div className="space-y-4 pb-10">
@@ -202,7 +214,7 @@ export default async function ClaimDetailPage({
           refNo={claim.refNo}
           totalEligibleMyr={claim.totalEligibleMyr ? Number(claim.totalEligibleMyr) : null}
           currentStatus={claim.status}
-          isYdp={isYdp(user)}
+          isYdp={effectiveIsYdp}
         />
       )}
 
