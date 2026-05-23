@@ -14,6 +14,8 @@ import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
 import { WithdrawButton } from "./_components/withdraw-button";
 import { ResubmitButton } from "./_components/resubmit-button";
+import { CommentThread } from "./_components/comment-thread";
+import type { CommentRow } from "./_components/comment-thread";
 import { BackButton } from "@/components/back-button";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
@@ -57,6 +59,10 @@ export default async function ClaimDetailPage({
       resubmissions: {
         select: { id: true, refNo: true },
         take: 1,
+      },
+      comments: {
+        include: { author: { select: { name: true } } },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
@@ -301,6 +307,19 @@ export default async function ClaimDetailPage({
           </CardContent>
         </Card>
       )}
+
+      {/* Comments */}
+      <CommentThread
+        claimId={claim.id}
+        currentUserId={user.id}
+        comments={claim.comments.map((c): CommentRow => ({
+          id: c.id,
+          body: c.body,
+          authorId: c.authorId,
+          authorName: c.author.name,
+          createdAt: c.createdAt.toISOString(),
+        }))}
+      />
 
       {/* Withdraw */}
       {canWithdraw && (
