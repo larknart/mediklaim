@@ -27,16 +27,26 @@ type Receipt = {
   items: Array<{ amountMyr: number }>;
 };
 
+type ResubmitContext = {
+  claimId: string;
+  refNo: string;
+  rejectionComment: string | null;
+  originalReceiptIds: string[];
+};
+
 interface NewClaimFormProps {
   receipts: Receipt[];
   remaining: number;
   limit: number;
+  resubmitContext?: ResubmitContext | null;
 }
 
-export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) {
+export function NewClaimForm({ receipts, remaining, limit, resubmitContext }: NewClaimFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+    new Set(resubmitContext?.originalReceiptIds ?? [])
+  );
   const [forMonth, setForMonth] = useState(String(new Date().getMonth() + 1));
   const [forYear, setForYear] = useState(String(new Date().getFullYear()));
   const [error, setError] = useState("");
@@ -72,6 +82,7 @@ export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) 
           forMonth: parseInt(forMonth),
           forYear: parseInt(forYear),
           receiptIds: Array.from(selectedIds),
+          ...(resubmitContext && { resubmittedFromId: resubmitContext.claimId }),
         });
         router.push(`/tuntutan/${result.id}?submitted=1`);
       } catch (e: unknown) {
@@ -82,6 +93,18 @@ export function NewClaimForm({ receipts, remaining, limit }: NewClaimFormProps) 
 
   return (
     <div className="space-y-4">
+      {resubmitContext && (
+        <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 space-y-1">
+          <p className="text-sm font-medium text-amber-800">
+            Hantar semula dari {resubmitContext.refNo}
+          </p>
+          {resubmitContext.rejectionComment && (
+            <p className="text-xs text-amber-700">
+              Sebab penolakan: &ldquo;{resubmitContext.rejectionComment}&rdquo;
+            </p>
+          )}
+        </div>
+      )}
       {/* Period selection */}
       <Card>
         <CardHeader className="pb-3">
