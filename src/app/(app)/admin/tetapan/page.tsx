@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/permissions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GeneralSettings } from "./_components/general-settings";
 import { AllocationSettings } from "./_components/allocation-settings";
+import { ClaimRulesSettings } from "./_components/claim-rules-settings";
 import { BlacklistSettings } from "./_components/blacklist-settings";
 import { NotifSettings } from "./_components/notif-settings";
 
@@ -27,9 +28,10 @@ export default async function TetapanPage() {
       </div>
 
       <Tabs defaultValue="am">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="am">Am</TabsTrigger>
           <TabsTrigger value="peruntukan">Peruntukan</TabsTrigger>
+          <TabsTrigger value="peraturan">Peraturan</TabsTrigger>
           <TabsTrigger value="blacklist">Blacklist</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
         </TabsList>
@@ -43,6 +45,14 @@ export default async function TetapanPage() {
         <TabsContent value="peruntukan" className="mt-4">
           <AllocationSettings
             defaultLimit={Number(s["default_annual_limit"] ?? 1200)}
+          />
+        </TabsContent>
+
+        <TabsContent value="peraturan" className="mt-4">
+          <ClaimRulesSettings
+            cutoffDays={Number(s["claim_cutoff_days"] ?? 45)}
+            receiptMaxAgeMonths={Number(s["receipt_max_age_months"] ?? 3)}
+            proRataEnabled={Boolean(s["pro_rata_enabled"] ?? true)}
           />
         </TabsContent>
 

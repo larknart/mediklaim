@@ -33,6 +33,7 @@ interface UserFormProps {
     phone: string | null;
     departmentId: string | null;
     isAhliMajlis: boolean;
+    joinDate: string | null;
     roles: Role[];
   };
 }
@@ -49,6 +50,7 @@ export function UserForm({ departments, user }: UserFormProps) {
   const [password, setPassword] = useState("");
   const [departmentId, setDepartmentId] = useState(user?.departmentId ?? "");
   const [isAhliMajlis, setIsAhliMajlis] = useState(user?.isAhliMajlis ?? false);
+  const [joinDate, setJoinDate] = useState(user?.joinDate ?? "");
   const [roles, setRoles] = useState<Set<Role>>(new Set(user?.roles ?? [Role.CLAIMANT]));
 
   function toggleRole(role: Role) {
@@ -75,6 +77,7 @@ export function UserForm({ departments, user }: UserFormProps) {
             departmentId: departmentId || null,
             roles: Array.from(roles),
             isAhliMajlis,
+            joinDate: joinDate || null,
           });
           if (password.trim()) await resetUserPassword(user.id, password);
         } else {
@@ -87,6 +90,7 @@ export function UserForm({ departments, user }: UserFormProps) {
             departmentId: departmentId || undefined,
             roles: Array.from(roles),
             isAhliMajlis,
+            joinDate: joinDate || undefined,
           });
         }
         router.push("/admin/pengguna");
@@ -163,6 +167,16 @@ export function UserForm({ departments, user }: UserFormProps) {
                 </label>
               ))}
             </div>
+          </div>
+
+          <div>
+            <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh Mula Berkhidmat</Label>
+            <Input
+              type="date"
+              value={joinDate}
+              onChange={(e) => setJoinDate(e.target.value)}
+            />
+            <p className="text-xs text-gray-400 mt-1">Digunakan untuk kira peruntukan pro-rata tahun pertama.</p>
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">

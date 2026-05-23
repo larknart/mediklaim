@@ -53,6 +53,7 @@ export async function createUser(data: {
   departmentId?: string;
   roles: Role[];
   isAhliMajlis?: boolean;
+  joinDate?: string;
 }) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
@@ -68,14 +69,27 @@ export async function createUser(data: {
       phone: data.phone || undefined,
       departmentId: data.departmentId || undefined,
       isAhliMajlis: data.isAhliMajlis ?? false,
+      joinDate: data.joinDate ? new Date(data.joinDate) : undefined,
       roles: { create: data.roles.map((r) => ({ role: r })) },
     },
   });
 
-  // Create annual allocation for current year
+  // Create annual allocation for current year with pro-rata if applicable
   const year = new Date().getFullYear();
-  const limitSetting = await prisma.settings.findUnique({ where: { key: "default_annual_limit" } });
-  const limitMyr = Number(limitSetting?.value ?? 1200);
+  const [limitSetting, proRataSetting] = await Promise.all([
+    prisma.settings.findUnique({ where: { key: "default_annual_limit" } }),
+    prisma.settings.findUnique({ where: { key: "pro_rata_enabled" } }),
+  ]);
+  const defaultLimit = Number(limitSetting?.value ?? 1200);
+  const proRataEnabled = proRataSetting?.value !== false;
+  let limitMyr = defaultLimit;
+  if (proRataEnabled && data.joinDate) {
+    const jd = new Date(data.joinDate);
+    if (jd.getFullYear() === year) {
+      const monthsRemaining = 12 - jd.getMonth(); // getMonth() is 0-indexed; July=6 → 6 remaining
+      limitMyr = Math.round((monthsRemaining / 12) * defaultLimit * 100) / 100;
+    }
+  }
   await prisma.annualAllocation.create({ data: { userId: user.id, year, limitMyr, usedMyr: 0 } });
 
   await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: AuditAction.USER_CREATED, entity: "User", entityId: user.id, meta: { email: data.email, roles: data.roles } });
@@ -89,13 +103,20 @@ export async function updateUser(userId: string, data: {
   roles?: Role[];
   isAhliMajlis?: boolean;
   isActive?: boolean;
+  joinDate?: string | null;
 }) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
   requireAdmin(session.user);
 
-  const { roles, ...rest } = data;
-  await prisma.user.update({ where: { id: userId }, data: rest });
+  const { roles, joinDate, ...rest } = data;
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...rest,
+      ...(joinDate !== undefined && { joinDate: joinDate ? new Date(joinDate) : null }),
+    },
+  });
 
   if (roles !== undefined) {
     await prisma.userRole.deleteMany({ where: { userId } });

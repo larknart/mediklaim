@@ -36,6 +36,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
           phone: user.phone,
           departmentId: user.departmentId,
           isAhliMajlis: user.isAhliMajlis,
+          joinDate: user.joinDate ? user.joinDate.toISOString().split("T")[0] : null,
           roles: user.roles.map((r) => r.role as Role),
         }}
       />

@@ -86,7 +86,15 @@ export function NewClaimForm({ receipts, remaining, limit, resubmitContext }: Ne
         });
         router.push(`/tuntutan/${result.id}?submitted=1`);
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Gagal buat tuntutan.");
+        const msg = e instanceof Error ? e.message : "Gagal buat tuntutan.";
+        if (msg === "CLAIM_PERIOD_CLOSED") {
+          setError("Tempoh hantar tuntutan bagi bulan ini telah tamat.");
+        } else if (msg.startsWith("RECEIPT_TOO_OLD:")) {
+          const vendors = msg.replace("RECEIPT_TOO_OLD:", "");
+          setError(`Resit berikut melebihi had umur: ${vendors}. Sila alih keluar resit tersebut.`);
+        } else {
+          setError(msg);
+        }
       }
     });
   }

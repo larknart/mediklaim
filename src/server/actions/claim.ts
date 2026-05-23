@@ -23,6 +23,19 @@ export async function createClaim(data: {
   if (data.receiptIds.length === 0) throw new Error("NO_RECEIPTS");
   if (data.forMonth < 1 || data.forMonth > 12) throw new Error("INVALID_MONTH");
 
+  // Cutoff: reject if past allowed submission window
+  const [cutoffSetting, maxAgeSetting] = await Promise.all([
+    prisma.settings.findUnique({ where: { key: "claim_cutoff_days" } }),
+    prisma.settings.findUnique({ where: { key: "receipt_max_age_months" } }),
+  ]);
+  const cutoffDays = Number(cutoffSetting?.value ?? 45);
+  const maxAgeMonths = Number(maxAgeSetting?.value ?? 3);
+
+  // Last day of the claim month
+  const lastDayOfMonth = new Date(data.forYear, data.forMonth, 0); // day 0 = last day of prev month
+  const cutoffDate = new Date(lastDayOfMonth.getTime() + cutoffDays * 86400000);
+  if (new Date() > cutoffDate) throw new Error("CLAIM_PERIOD_CLOSED");
+
   // Verify all receipts belong to user + are UNSORTED
   const receipts = await prisma.receipt.findMany({
     where: {
@@ -34,6 +47,16 @@ export async function createClaim(data: {
   });
 
   if (receipts.length !== data.receiptIds.length) throw new Error("INVALID_RECEIPTS");
+
+  // Max receipt age: receiptDate must be within maxAgeMonths before claim period start
+  const claimPeriodStart = new Date(data.forYear, data.forMonth - 1, 1);
+  const oldestAllowed = new Date(claimPeriodStart);
+  oldestAllowed.setMonth(oldestAllowed.getMonth() - maxAgeMonths);
+  const tooOld = receipts.filter((r) => r.receiptDate && new Date(r.receiptDate) < oldestAllowed);
+  if (tooOld.length > 0) {
+    const list = tooOld.map((r) => r.vendor ?? "Tanpa nama").join(", ");
+    throw new Error(`RECEIPT_TOO_OLD:${list}`);
+  }
 
   // Calculate total
   const total = receipts.reduce((sum, r) => {

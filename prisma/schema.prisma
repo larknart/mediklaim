@@ -110,6 +110,7 @@ model User {
   staffNo        String?     @unique
   phone          String?
   isAhliMajlis   Boolean     @default(false)
+  joinDate       DateTime?
   departmentId   String?
   isActive       Boolean     @default(true)
   deletedAt      DateTime?
