@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
@@ -7,11 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, FileText, Calendar, Building2, User, Clock } from "lucide-react";
+import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw } from "lucide-react";
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
 import { WithdrawButton } from "./_components/withdraw-button";
+import { ResubmitButton } from "./_components/resubmit-button";
 import { BackButton } from "@/components/back-button";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
@@ -51,6 +53,10 @@ export default async function ClaimDetailPage({
         include: { actor: { select: { name: true, email: true } } },
         orderBy: { decidedAt: "asc" },
       },
+      resubmissions: {
+        select: { id: true, refNo: true },
+        take: 1,
+      },
     },
   });
 
@@ -64,6 +70,8 @@ export default async function ClaimDetailPage({
   const statusCfg = STATUS_CONFIG[claim.status] ?? STATUS_CONFIG.DRAFT;
   const isOwner = claim.claimantId === user.id;
   const canWithdraw = isOwner && claim.status === ClaimStatus.SUBMITTED;
+  const resubmission = claim.resubmissions[0] ?? null;
+  const canResubmit = isOwner && claim.status === ClaimStatus.REJECTED && !resubmission;
 
   // Panel visibility
   const showHeadPanel =
@@ -296,6 +304,20 @@ export default async function ClaimDetailPage({
       {/* Withdraw */}
       {canWithdraw && (
         <WithdrawButton claimId={claim.id} />
+      )}
+
+      {/* Resubmit */}
+      {canResubmit && (
+        <ResubmitButton claimId={claim.id} />
+      )}
+      {resubmission && (
+        <div className="flex items-center gap-2 p-3 rounded-lg border border-amber-200 bg-amber-50 text-sm text-amber-800">
+          <RotateCcw className="w-4 h-4 shrink-0" />
+          <span>Sudah dihantar semula →{" "}</span>
+          <Link href={`/tuntutan/${resubmission.id}`} className="font-medium underline">
+            {resubmission.refNo}
+          </Link>
+        </div>
       )}
     </div>
   );
