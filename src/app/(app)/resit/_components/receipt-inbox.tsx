@@ -10,6 +10,7 @@ import { ExtractionStatus, ReceiptStatus } from "@/generated/prisma";
 import {
   Upload,
   FileImage,
+  Camera,
   Loader2,
   CheckCircle2,
   AlertCircle,
@@ -127,22 +128,40 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
             </p>
             <p className="text-sm text-gray-400 mt-1">JPG, PNG, WebP, PDF · Max 10MB</p>
           </div>
-          <label className="cursor-pointer">
-            <Button variant="outline" asChild>
-              <span>
-                <FileImage className="w-4 h-4 mr-2" />
-                Pilih Fail
-              </span>
-            </Button>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
-              multiple
-              className="hidden"
-              onChange={(e) => handleFiles(e.target.files)}
-              disabled={uploading}
-            />
-          </label>
+          <div className="flex gap-2 flex-wrap justify-center">
+            <label className="cursor-pointer">
+              <Button variant="outline" asChild>
+                <span>
+                  <FileImage className="w-4 h-4 mr-2" />
+                  Pilih Fail
+                </span>
+              </Button>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                multiple
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+                disabled={uploading}
+              />
+            </label>
+            <label className="cursor-pointer">
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50" asChild>
+                <span>
+                  <Camera className="w-4 h-4 mr-2" />
+                  Snap Kamera
+                </span>
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+                disabled={uploading}
+              />
+            </label>
+          </div>
         </div>
       </div>
 
