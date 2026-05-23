@@ -191,6 +191,8 @@ model Receipt {
   extractedJson    Json?
   aiConfidence     Float?
   claimId          String?
+  claimFor         ClaimFor         @default(SELF)
+  claimForChildNo  Int?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -235,8 +237,6 @@ model Claim {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   resubmittedFromId String?
-  claimFor          ClaimFor @default(SELF)
-  claimForChildNo   Int?
 
   claimant   User         @relation(fields: [claimantId], references: [id])
   department Department?  @relation("DepartmentClaims", fields: [departmentId], references: [id])

@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { canViewClaim, canApproveAsHead, isFinance, isApprover, isYdp } from "@/lib/permissions";
-import { ClaimStatus, ClaimFor, ApprovalStep, Role } from "@/generated/prisma";
+import { ClaimStatus, ApprovalStep, Role } from "@/generated/prisma";
 import { getActiveDelegation } from "@/lib/delegation";
 import { computeSla } from "@/lib/sla";
 import { SlaBadge } from "@/components/sla-badge";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, FileText, Calendar, Building2, User, Users, Clock, RotateCcw, Download } from "lucide-react";
+import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Download } from "lucide-react";
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
@@ -23,9 +23,9 @@ import { BackButton } from "@/components/back-button";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
 
-function claimForLabel(claimFor: ClaimFor, childNo: number | null): string {
-  if (claimFor === ClaimFor.SPOUSE) return "Isteri / Suami";
-  if (claimFor === ClaimFor.CHILD) return `Anak ke-${childNo ?? 1}`;
+function claimForLabel(claimFor: string, childNo: number | null): string {
+  if (claimFor === "SPOUSE") return "Isteri / Suami";
+  if (claimFor === "CHILD") return `Anak ke-${childNo ?? 1}`;
   return "Diri Sendiri";
 }
 
@@ -179,10 +179,6 @@ export default async function ClaimDetailPage({
                   {claim.claimant.name}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" />
-                  {claimForLabel(claim.claimFor, claim.claimForChildNo)}
-                </span>
-                <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />
                   {claim.submittedAt
                     ? new Date(claim.submittedAt).toLocaleDateString("ms-MY")
@@ -283,11 +279,16 @@ export default async function ClaimDetailPage({
                 <div className="flex items-center justify-between p-3 bg-gray-50">
                   <div>
                     <p className="font-medium text-sm">{r.vendor ?? "Vendor tidak diketahui"}</p>
-                    {r.receiptDate && (
-                      <p className="text-xs text-gray-500">
-                        {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
-                      </p>
-                    )}
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {r.receiptDate && (
+                        <p className="text-xs text-gray-500">
+                          {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
+                        </p>
+                      )}
+                      <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                        {claimForLabel(r.claimFor, r.claimForChildNo)}
+                      </span>
+                    </div>
                   </div>
                   <span className="font-semibold text-sm text-green-700">
                     RM {rTotal.toFixed(2)}

@@ -16,8 +16,7 @@ export async function createClaim(data: {
   forYear: number;
   receiptIds: string[];
   resubmittedFromId?: string;
-  claimFor?: ClaimFor;
-  claimForChildNo?: number | null;
+  receiptBeneficiaries?: Record<string, { claimFor: ClaimFor; claimForChildNo?: number | null }>;
 }) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
@@ -102,18 +101,28 @@ export async function createClaim(data: {
         connect: data.receiptIds.map((id) => ({ id })),
       },
       ...(data.resubmittedFromId && { resubmittedFromId: data.resubmittedFromId }),
-      claimFor: data.claimFor ?? ClaimFor.SELF,
-      ...(data.claimFor === ClaimFor.CHILD && data.claimForChildNo != null
-        ? { claimForChildNo: data.claimForChildNo }
-        : {}),
     },
   });
 
-  // Mark receipts as attached
+  // Mark receipts as attached + set beneficiary per receipt
   await prisma.receipt.updateMany({
     where: { id: { in: data.receiptIds } },
     data: { status: ReceiptStatus.ATTACHED, claimId: claim.id },
   });
+
+  if (data.receiptBeneficiaries) {
+    await Promise.all(
+      Object.entries(data.receiptBeneficiaries).map(([receiptId, b]) =>
+        prisma.receipt.update({
+          where: { id: receiptId },
+          data: {
+            claimFor: b.claimFor,
+            claimForChildNo: b.claimFor === ClaimFor.CHILD ? (b.claimForChildNo ?? null) : null,
+          },
+        })
+      )
+    );
+  }
 
   await logAction({
     actorId: session.user.id,

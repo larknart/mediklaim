@@ -50,8 +50,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
   );
   const [forMonth, setForMonth] = useState(String(new Date().getMonth() + 1));
   const [forYear, setForYear] = useState(String(new Date().getFullYear()));
-  const [claimFor, setClaimFor] = useState<ClaimFor>(ClaimFor.SELF);
-  const [claimForChildNo, setClaimForChildNo] = useState("1");
+  const [beneficiaries, setBeneficiaries] = useState<Record<string, { claimFor: ClaimFor; childNo: string }>>({});
   const [error, setError] = useState("");
 
   const currentYear = new Date().getFullYear();
@@ -64,6 +63,17 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
       else next.add(id);
       return next;
     });
+  }
+
+  function getBeneficiary(id: string) {
+    return beneficiaries[id] ?? { claimFor: ClaimFor.SELF, childNo: "1" };
+  }
+
+  function setBeneficiaryFor(id: string, claimFor: ClaimFor, childNo?: string) {
+    setBeneficiaries((prev) => ({
+      ...prev,
+      [id]: { claimFor, childNo: childNo ?? prev[id]?.childNo ?? "1" },
+    }));
   }
 
   const selectedReceipts = receipts.filter((r) => selectedIds.has(r.id));
@@ -81,12 +91,19 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
     setError("");
     startTransition(async () => {
       try {
+        const receiptBeneficiaries: Record<string, { claimFor: ClaimFor; claimForChildNo?: number | null }> = {};
+        for (const id of selectedIds) {
+          const b = getBeneficiary(id);
+          receiptBeneficiaries[id] = {
+            claimFor: b.claimFor,
+            ...(b.claimFor === ClaimFor.CHILD ? { claimForChildNo: parseInt(b.childNo) } : {}),
+          };
+        }
         const result = await createClaim({
           forMonth: parseInt(forMonth),
           forYear: parseInt(forYear),
           receiptIds: Array.from(selectedIds),
-          claimFor,
-          ...(claimFor === ClaimFor.CHILD ? { claimForChildNo: parseInt(claimForChildNo) } : {}),
+          receiptBeneficiaries,
           ...(resubmitContext && { resubmittedFromId: resubmitContext.claimId }),
         });
         router.push(`/tuntutan/${result.id}?submitted=1`);
@@ -153,50 +170,6 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
         </CardContent>
       </Card>
 
-      {/* Beneficiary selection — hidden for Ahli Majlis (self only) */}
-      {!isAhliMajlis && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Tuntutan Untuk</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-col gap-2">
-              {[
-                { value: ClaimFor.SELF, label: "Diri Sendiri" },
-                { value: ClaimFor.SPOUSE, label: "Isteri / Suami" },
-                { value: ClaimFor.CHILD, label: "Anak" },
-              ].map(({ value, label }) => (
-                <label key={value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="claimFor"
-                    value={value}
-                    checked={claimFor === value}
-                    onChange={() => setClaimFor(value)}
-                    className="accent-green-700"
-                  />
-                  <span className="text-sm">{label}</span>
-                </label>
-              ))}
-            </div>
-            {claimFor === ClaimFor.CHILD && (
-              <div className="flex items-center gap-2 ml-5">
-                <Label className="text-xs text-gray-500 shrink-0">Anak ke-</Label>
-                <select
-                  value={claimForChildNo}
-                  onChange={(e) => setClaimForChildNo(e.target.value)}
-                  className="border rounded px-2 py-1 text-sm w-20"
-                >
-                  {[1,2,3,4,5,6,7,8].map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
       {/* Limit info */}
       <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg text-sm">
         <span className="text-gray-600">Baki peruntukan {forYear}:</span>
@@ -227,37 +200,68 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
               const isSelected = selectedIds.has(r.id);
               const needsReview = r.extractionStatus !== ExtractionStatus.DONE;
 
+              const b = getBeneficiary(r.id);
               return (
-                <label
+                <div
                   key={r.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                    isSelected ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-gray-300"
+                  className={`rounded-lg border transition-colors ${
+                    isSelected ? "border-green-500 bg-green-50" : "border-gray-200"
                   }`}
                 >
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={() => toggleReceipt(r.id)}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium truncate">{r.vendor ?? "Vendor tidak diketahui"}</span>
-                      {needsReview && (
-                        <Badge variant="outline" className="text-xs">Perlu semak</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 mt-0.5">
-                      {r.receiptDate && (
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
+                  <label className="flex items-center gap-3 p-3 cursor-pointer">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleReceipt(r.id)}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate">{r.vendor ?? "Vendor tidak diketahui"}</span>
+                        {needsReview && (
+                          <Badge variant="outline" className="text-xs">Perlu semak</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-0.5">
+                        {r.receiptDate && (
+                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
+                          </span>
+                        )}
+                        <span className="text-xs font-semibold text-green-700">
+                          RM {total.toFixed(2)}
                         </span>
-                      )}
-                      <span className="text-xs font-semibold text-green-700">
-                        RM {total.toFixed(2)}
-                      </span>
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                  {isSelected && !isAhliMajlis && (
+                    <div className="px-3 pb-3 flex items-center gap-2">
+                      <span className="text-xs text-gray-500 shrink-0">Untuk:</span>
+                      <select
+                        value={b.claimFor}
+                        onChange={(e) => setBeneficiaryFor(r.id, e.target.value as ClaimFor)}
+                        className="border rounded px-2 py-1 text-xs"
+                      >
+                        <option value={ClaimFor.SELF}>Diri Sendiri</option>
+                        <option value={ClaimFor.SPOUSE}>Isteri / Suami</option>
+                        <option value={ClaimFor.CHILD}>Anak</option>
+                      </select>
+                      {b.claimFor === ClaimFor.CHILD && (
+                        <>
+                          <span className="text-xs text-gray-500">ke-</span>
+                          <select
+                            value={b.childNo}
+                            onChange={(e) => setBeneficiaryFor(r.id, ClaimFor.CHILD, e.target.value)}
+                            className="border rounded px-2 py-1 text-xs w-16"
+                          >
+                            {[1,2,3,4,5,6,7,8].map((n) => (
+                              <option key={n} value={n}>{n}</option>
+                            ))}
+                          </select>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
               );
             })
           )}

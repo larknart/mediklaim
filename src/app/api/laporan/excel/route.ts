@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
     include: {
       claimant: true,
       department: true,
+      receipts: { select: { claimFor: true, claimForChildNo: true } },
     },
     orderBy: [{ forMonth: "asc" }, { submittedAt: "asc" }],
   });
@@ -39,6 +40,15 @@ export async function GET(req: NextRequest) {
     ? `${months[filterMonth - 1]} ${filterYear}`
     : `Tahun ${filterYear}`;
 
+  function beneficiarySummary(receipts: Array<{ claimFor: string; claimForChildNo: number | null }>): string {
+    const labels = new Set(receipts.map((r) => {
+      if (r.claimFor === "SPOUSE") return "Pasangan";
+      if (r.claimFor === "CHILD") return `Anak ke-${r.claimForChildNo ?? 1}`;
+      return "Diri";
+    }));
+    return [...labels].join(", ") || "Diri";
+  }
+
   const buffer = await generateLaporan(
     claims.map((c) => ({
       refNo: c.refNo,
@@ -47,8 +57,8 @@ export async function GET(req: NextRequest) {
       department: c.department?.name ?? null,
       forMonth: c.forMonth,
       forYear: c.forYear,
-      claimFor: c.claimFor,
-      claimForChildNo: c.claimForChildNo,
+      claimFor: beneficiarySummary(c.receipts),
+      claimForChildNo: null,
       status: c.status,
       totalClaimedMyr: Number(c.totalClaimedMyr),
       totalEligibleMyr: c.totalEligibleMyr ? Number(c.totalEligibleMyr) : null,

@@ -46,8 +46,6 @@ export async function GET(
     departmentName: claim.department?.name ?? null,
     forMonth: claim.forMonth,
     forYear: claim.forYear,
-    claimFor: claim.claimFor,
-    claimForChildNo: claim.claimForChildNo,
     status: claim.status,
     submittedAt: claim.submittedAt,
     totalClaimedMyr: Number(claim.totalClaimedMyr),
@@ -56,6 +54,8 @@ export async function GET(
     receipts: claim.receipts.map((r) => ({
       vendor: r.vendor,
       receiptDate: r.receiptDate,
+      claimFor: r.claimFor,
+      claimForChildNo: r.claimForChildNo,
       items: r.items.map((i) => ({
         description: i.description,
         qty: i.qty,

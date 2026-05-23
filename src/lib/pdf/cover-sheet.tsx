@@ -84,8 +84,6 @@ export interface CoverSheetData {
   departmentName: string | null;
   forMonth: number;
   forYear: number;
-  claimFor: string;
-  claimForChildNo: number | null;
   status: string;
   submittedAt: Date | null;
   totalClaimedMyr: number;
@@ -94,6 +92,8 @@ export interface CoverSheetData {
   receipts: Array<{
     vendor: string | null;
     receiptDate: Date | null;
+    claimFor: string;
+    claimForChildNo: number | null;
     items: Array<{
       description: string;
       qty: number;
@@ -139,16 +139,6 @@ function CoverSheet({ data }: { data: CoverSheetData }) {
           <InfoRow label="Nama Pemohon" value={data.claimantName} />
           {data.staffNo && <InfoRow label="No. Kakitangan" value={data.staffNo} />}
           <InfoRow label="Jabatan" value={data.departmentName ?? "—"} />
-          <InfoRow
-            label="Tuntutan Untuk"
-            value={
-              data.claimFor === "SPOUSE"
-                ? "Isteri / Suami"
-                : data.claimFor === "CHILD"
-                ? `Anak ke-${data.claimForChildNo ?? 1}`
-                : "Diri Sendiri"
-            }
-          />
           <InfoRow label="Tempoh Tuntutan" value={`${MONTHS_BM[data.forMonth - 1]} ${data.forYear}`} />
           <InfoRow label="Tarikh Hantar" value={data.submittedAt ? new Date(data.submittedAt).toLocaleDateString("ms-MY") : "—"} />
           <InfoRow label="Status" value={STATUS_BM[data.status] ?? data.status} />
@@ -160,7 +150,12 @@ function CoverSheet({ data }: { data: CoverSheetData }) {
           {data.receipts.map((r, ri) => (
             <View key={ri}>
               <View style={s.receiptHeader}>
-                <Text style={s.receiptVendor}>{r.vendor ?? "Vendor tidak diketahui"}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.receiptVendor}>{r.vendor ?? "Vendor tidak diketahui"}</Text>
+                  <Text style={{ fontSize: 7, color: "#3b82f6" }}>
+                    {r.claimFor === "SPOUSE" ? "Isteri / Suami" : r.claimFor === "CHILD" ? `Anak ke-${r.claimForChildNo ?? 1}` : "Diri Sendiri"}
+                  </Text>
+                </View>
                 <Text style={s.receiptDate}>
                   {r.receiptDate ? new Date(r.receiptDate).toLocaleDateString("ms-MY") : ""}
                 </Text>
