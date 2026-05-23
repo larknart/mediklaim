@@ -43,6 +43,7 @@ export default async function LaporanPage({
     include: {
       claimant: true,
       department: true,
+      resubmittedFrom: { select: { refNo: true } },
     },
     orderBy: [{ forMonth: "asc" }, { submittedAt: "asc" }],
   });
@@ -138,6 +139,11 @@ export default async function LaporanPage({
                       <Link href={`/tuntutan/${claim.id}`} className="text-green-700 hover:underline font-medium">
                         {claim.refNo}
                       </Link>
+                      {claim.resubmittedFrom && (
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Rujukan asal: {claim.resubmittedFrom.refNo} (Ditolak)
+                        </p>
+                      )}
                     </td>
                     <td className="p-3 text-gray-700">{claim.claimant.name}</td>
                     <td className="p-3 text-gray-500">{claim.department?.name ?? "—"}</td>
