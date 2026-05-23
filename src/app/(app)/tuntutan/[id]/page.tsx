@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw } from "lucide-react";
+import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Download } from "lucide-react";
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
@@ -109,7 +109,17 @@ export default async function ClaimDetailPage({
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 mb-1">{claim.refNo}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-xs text-gray-500">{claim.refNo}</p>
+                <a
+                  href={`/api/tuntutan/${claim.id}/pdf`}
+                  className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-green-700 transition-colors"
+                  title="Muat turun PDF"
+                >
+                  <Download className="w-3 h-3" />
+                  PDF
+                </a>
+              </div>
               <h1 className="text-lg font-bold text-gray-900 leading-tight">
                 Tuntutan {MONTHS_BM[claim.forMonth - 1]} {claim.forYear}
               </h1>
