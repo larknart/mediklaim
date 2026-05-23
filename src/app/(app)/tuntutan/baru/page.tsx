@@ -15,7 +15,7 @@ type ResubmitContext = {
 export default async function BuatTuntutanPage({
   searchParams,
 }: {
-  searchParams: Promise<{ resubmitFrom?: string }>;
+  searchParams: Promise<{ resubmitFrom?: string; receiptIds?: string }>;
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
@@ -29,7 +29,6 @@ export default async function BuatTuntutanPage({
     const original = await prisma.claim.findUnique({
       where: { id: sp.resubmitFrom, claimantId: session.user.id },
       include: {
-        receipts: { select: { id: true } },
         approvals: {
           where: { decision: Decision.REJECTED },
           orderBy: { decidedAt: "desc" },
@@ -38,11 +37,14 @@ export default async function BuatTuntutanPage({
       },
     });
     if (original) {
+      const originalReceiptIds = sp.receiptIds
+        ? sp.receiptIds.split(",").filter(Boolean)
+        : [];
       resubmitContext = {
         claimId: original.id,
         refNo: original.refNo,
         rejectionComment: original.approvals[0]?.comment ?? null,
-        originalReceiptIds: original.receipts.map((r) => r.id),
+        originalReceiptIds,
       };
     }
   }

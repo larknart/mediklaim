@@ -198,6 +198,12 @@ export async function initiateResubmit(claimId: string) {
   if (claim.status !== ClaimStatus.REJECTED) throw new Error("CANNOT_RESUBMIT");
   if (claim.resubmissions.length > 0) throw new Error("ALREADY_RESUBMITTED");
 
+  const receipts = await prisma.receipt.findMany({
+    where: { claimId },
+    select: { id: true },
+  });
+  const receiptIds = receipts.map((r) => r.id);
+
   await prisma.receipt.updateMany({
     where: { claimId },
     data: { status: ReceiptStatus.UNSORTED, claimId: null },
@@ -212,7 +218,7 @@ export async function initiateResubmit(claimId: string) {
     meta: { originalRefNo: claim.refNo },
   });
 
-  return { originalClaimId: claimId };
+  return { originalClaimId: claimId, receiptIds };
 }
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
