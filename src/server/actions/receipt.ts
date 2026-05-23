@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { createExtractor } from "@/lib/ai/extract-receipt";
+import { reasonEligibility } from "@/lib/ai/reason-eligibility";
 import { ExtractionStatus, ReceiptStatus } from "@/generated/prisma";
 import crypto from "crypto";
 import path from "path";
@@ -101,7 +102,7 @@ async function extractReceiptBackground(
 
     // Flag items against blacklist
     const keywords = await prisma.blacklistKeyword.findMany({ select: { keyword: true, reason: true } });
-    const items = result.items.map((item) => {
+    const blacklistItems = result.items.map((item) => {
       const match = keywords.find((k) =>
         item.description.toLowerCase().includes(k.keyword.toLowerCase())
       );
@@ -113,6 +114,28 @@ async function extractReceiptBackground(
         isEligible: !match,
         flaggedReason: match?.reason ?? null,
       };
+    });
+
+    // LLM reasoning pass — only flag items not already caught by blacklist
+    // Runs only when Ollama is configured; gracefully skipped on failure
+    const useOllamaReasoning = (process.env.AI_PROVIDER === "ollama" || process.env.OLLAMA_BASE_URL) &&
+      blacklistItems.some((i) => i.isEligible); // skip if all already flagged
+    let llmFlags: Array<{ isEligible: boolean; llmReason: string | null }> | null = null;
+    if (useOllamaReasoning) {
+      llmFlags = await reasonEligibility(
+        result.items.map((i) => ({ description: i.description, qty: i.qty, amountMyr: i.amountMyr })),
+        result.vendor ?? null
+      );
+    }
+
+    const items = blacklistItems.map((item, idx) => {
+      // Blacklist takes precedence; LLM only flags items not already caught
+      if (!item.isEligible) return item;
+      const llm = llmFlags?.[idx];
+      if (llm && !llm.isEligible && llm.llmReason) {
+        return { ...item, isEligible: false, flaggedReason: `AI: ${llm.llmReason}` };
+      }
+      return item;
     });
 
     await prisma.receipt.update({

@@ -84,7 +84,7 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-xs text-yellow-700">
-          Tandakan item yang TIDAK layak dituntut. Item bertanda merah auto-flagged sistem.
+          Tandakan item yang TIDAK layak dituntut. <span className="text-yellow-600">⚠ Blacklist</span> = auto-flagged kata kunci. <span className="text-purple-600">AI</span> = cadangan sistem AI.
         </p>
 
         {receipts.map((r) => (
@@ -126,12 +126,13 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
             <div className="divide-y">
               {r.items.map((item) => {
                 const isElig = eligibility[item.id] ?? true;
+                const isAiFlag = item.flaggedReason?.startsWith("AI:");
                 const isFlagged = !!item.flaggedReason;
                 return (
                   <label
                     key={item.id}
                     className={`flex items-start gap-3 p-3 cursor-pointer transition-colors ${
-                      !isElig ? "bg-red-50" : isFlagged ? "bg-yellow-50" : ""
+                      !isElig ? "bg-red-50" : isAiFlag ? "bg-purple-50" : isFlagged ? "bg-yellow-50" : ""
                     }`}
                   >
                     <Checkbox
@@ -145,12 +146,17 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
                           {item.description}
                           {item.qty > 1 && ` × ${item.qty}`}
                         </p>
-                        {isFlagged && (
+                        {isFlagged && !isAiFlag && (
                           <AlertTriangle className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
+                        )}
+                        {isAiFlag && (
+                          <span className="text-xs font-medium text-purple-600 shrink-0">AI</span>
                         )}
                       </div>
                       {item.flaggedReason && (
-                        <p className="text-xs text-yellow-600">{item.flaggedReason}</p>
+                        <p className={`text-xs ${isAiFlag ? "text-purple-600" : "text-yellow-600"}`}>
+                          {isAiFlag ? item.flaggedReason.replace("AI: ", "") : item.flaggedReason}
+                        </p>
                       )}
                     </div>
                     <span className={`text-sm font-medium shrink-0 ${!isElig ? "text-gray-400" : ""}`}>
