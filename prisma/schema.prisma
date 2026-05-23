@@ -284,6 +284,16 @@ model BlacklistKeyword {
   @@index([keyword])
 }
 
+model PublicHoliday {
+  id    String   @id @default(cuid())
+  date  DateTime @db.Date
+  name  String
+  year  Int
+
+  @@unique([date])
+  @@index([year])
+}
+
 model ApprovalDelegation {
   id          String   @id @default(cuid())
   delegatorId String

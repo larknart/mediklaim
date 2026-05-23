@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GeneralSettings } from "./_components/general-settings";
 import { AllocationSettings } from "./_components/allocation-settings";
 import { ClaimRulesSettings } from "./_components/claim-rules-settings";
+import { HolidaySettings } from "./_components/holiday-settings";
+import type { HolidayRow } from "./_components/holiday-settings";
 import { BlacklistSettings } from "./_components/blacklist-settings";
 import { NotifSettings } from "./_components/notif-settings";
 
@@ -13,9 +15,14 @@ export default async function TetapanPage() {
   const session = await auth();
   if (!session?.user || !isAdmin(session.user)) redirect("/dashboard");
 
-  const [settings, keywords] = await Promise.all([
+  const currentYear = new Date().getFullYear();
+  const [settings, keywords, holidays] = await Promise.all([
     prisma.settings.findMany(),
     prisma.blacklistKeyword.findMany({ orderBy: { keyword: "asc" } }),
+    prisma.publicHoliday.findMany({
+      where: { year: { gte: currentYear - 1 } },
+      orderBy: { date: "asc" },
+    }),
   ]);
 
   const s = Object.fromEntries(settings.map((r) => [r.key, r.value]));
@@ -28,10 +35,11 @@ export default async function TetapanPage() {
       </div>
 
       <Tabs defaultValue="am">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="am">Am</TabsTrigger>
           <TabsTrigger value="peruntukan">Peruntukan</TabsTrigger>
           <TabsTrigger value="peraturan">Peraturan</TabsTrigger>
+          <TabsTrigger value="kalendar">Kalendar</TabsTrigger>
           <TabsTrigger value="blacklist">Blacklist</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
         </TabsList>
@@ -53,6 +61,19 @@ export default async function TetapanPage() {
             cutoffDays={Number(s["claim_cutoff_days"] ?? 45)}
             receiptMaxAgeMonths={Number(s["receipt_max_age_months"] ?? 3)}
             proRataEnabled={Boolean(s["pro_rata_enabled"] ?? true)}
+            slaHeadDays={Number(s["sla_head_days"] ?? 3)}
+            slaFinanceDays={Number(s["sla_finance_days"] ?? 5)}
+            slaApproverDays={Number(s["sla_approver_days"] ?? 3)}
+          />
+        </TabsContent>
+
+        <TabsContent value="kalendar" className="mt-4">
+          <HolidaySettings
+            holidays={holidays.map((h): HolidayRow => ({
+              id: h.id,
+              date: h.date.toISOString().split("T")[0],
+              name: h.name,
+            }))}
           />
         </TabsContent>
 

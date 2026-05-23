@@ -5,6 +5,8 @@ import { redirect, notFound } from "next/navigation";
 import { canViewClaim, canApproveAsHead, isFinance, isApprover, isYdp } from "@/lib/permissions";
 import { ClaimStatus, ApprovalStep, Role } from "@/generated/prisma";
 import { getActiveDelegation } from "@/lib/delegation";
+import { computeSla } from "@/lib/sla";
+import { SlaBadge } from "@/components/sla-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -104,6 +106,36 @@ export default async function ClaimDetailPage({
     (claim.status === ClaimStatus.FINANCE_REVIEWED ||
       (effectiveIsYdp && claim.status === ClaimStatus.APPROVED));
 
+  // SLA — only for active pending steps
+  const slaSettings = await prisma.settings.findMany({
+    where: { key: { in: ["sla_head_days", "sla_finance_days", "sla_approver_days"] } },
+  });
+  const slaMap = Object.fromEntries(slaSettings.map((s) => [s.key, Number(s.value)]));
+  const slaHeadDays = slaMap["sla_head_days"] ?? 3;
+  const slaFinanceDays = slaMap["sla_finance_days"] ?? 5;
+  const slaApproverDays = slaMap["sla_approver_days"] ?? 3;
+
+  const holidays = await prisma.publicHoliday.findMany({
+    where: { year: { in: [new Date().getFullYear(), new Date().getFullYear() - 1] } },
+    select: { date: true },
+  });
+  const holidaySet = new Set(holidays.map((h) => h.date.toISOString().split("T")[0]));
+
+  let slaInfo: ({ step: string } & ReturnType<typeof computeSla>) | null = null;
+  if (claim.status === ClaimStatus.SUBMITTED && claim.submittedAt) {
+    slaInfo = { step: "HEAD", ...computeSla(claim.submittedAt, slaHeadDays, holidaySet) };
+  } else if (claim.status === ClaimStatus.HEAD_APPROVED) {
+    const headApproval = claim.approvals.find((a) => a.step === "HEAD");
+    if (headApproval) {
+      slaInfo = { step: "FINANCE", ...computeSla(headApproval.decidedAt, slaFinanceDays, holidaySet) };
+    }
+  } else if (claim.status === ClaimStatus.FINANCE_REVIEWED) {
+    const financeApproval = claim.approvals.find((a) => a.step === "FINANCE");
+    if (financeApproval) {
+      slaInfo = { step: "APPROVER", ...computeSla(financeApproval.decidedAt, slaApproverDays, holidaySet) };
+    }
+  }
+
   return (
     <div className="space-y-4 pb-10">
       <BackButton />
@@ -148,9 +180,12 @@ export default async function ClaimDetailPage({
                 </span>
               </div>
             </div>
-            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${statusCfg.color}`}>
-              {statusCfg.label}
-            </span>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusCfg.color}`}>
+                {statusCfg.label}
+              </span>
+              {slaInfo && <SlaBadge step={slaInfo.step} sla={slaInfo} />}
+            </div>
           </div>
 
           <Separator className="my-3" />

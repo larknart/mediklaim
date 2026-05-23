@@ -185,6 +185,37 @@ export async function deleteBlacklistKeyword(id: string) {
   return { ok: true };
 }
 
+// ─── Public Holidays ─────────────────────────────────────────────────────────
+
+export async function addPublicHoliday(date: string, name: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  const d = new Date(date);
+  if (isNaN(d.getTime())) throw new Error("INVALID_DATE");
+  const year = d.getFullYear();
+
+  const holiday = await prisma.publicHoliday.upsert({
+    where: { date: d },
+    create: { date: d, name: name.trim(), year },
+    update: { name: name.trim() },
+  });
+
+  await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: "HOLIDAY_ADDED", entity: "PublicHoliday", entityId: holiday.id, meta: { date, name } });
+  return { id: holiday.id };
+}
+
+export async function deletePublicHoliday(id: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  await prisma.publicHoliday.delete({ where: { id } });
+  await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: "HOLIDAY_DELETED", entity: "PublicHoliday", entityId: id });
+  return { ok: true };
+}
+
 // ─── Approval Delegation ──────────────────────────────────────────────────────
 
 export async function createDelegation(data: {

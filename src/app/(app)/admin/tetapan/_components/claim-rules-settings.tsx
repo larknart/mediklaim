@@ -15,28 +15,41 @@ interface Props {
   cutoffDays: number;
   receiptMaxAgeMonths: number;
   proRataEnabled: boolean;
+  slaHeadDays: number;
+  slaFinanceDays: number;
+  slaApproverDays: number;
 }
 
-export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths: initMaxAge, proRataEnabled: initProRata }: Props) {
+export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths: initMaxAge, proRataEnabled: initProRata, slaHeadDays: initHead, slaFinanceDays: initFinance, slaApproverDays: initApprover }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [cutoffDays, setCutoffDays] = useState(String(initCutoff));
   const [maxAge, setMaxAge] = useState(String(initMaxAge));
   const [proRata, setProRata] = useState(initProRata);
+  const [slaHead, setSlaHead] = useState(String(initHead));
+  const [slaFinance, setSlaFinance] = useState(String(initFinance));
+  const [slaApprover, setSlaApprover] = useState(String(initApprover));
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   function save() {
     const days = parseInt(cutoffDays);
     const months = parseInt(maxAge);
+    const head = parseInt(slaHead);
+    const finance = parseInt(slaFinance);
+    const approver = parseInt(slaApprover);
     if (isNaN(days) || days < 1 || days > 365) { setError("Had hari hantar: 1–365."); return; }
     if (isNaN(months) || months < 1 || months > 24) { setError("Had umur resit: 1–24 bulan."); return; }
+    if ([head, finance, approver].some((v) => isNaN(v) || v < 1 || v > 30)) { setError("SLA: 1–30 hari bekerja."); return; }
     setError(""); setSaved(false);
     startTransition(async () => {
       try {
         await updateSetting("claim_cutoff_days", days);
         await updateSetting("receipt_max_age_months", months);
         await updateSetting("pro_rata_enabled", proRata);
+        await updateSetting("sla_head_days", head);
+        await updateSetting("sla_finance_days", finance);
+        await updateSetting("sla_approver_days", approver);
         setSaved(true);
         router.refresh();
       } catch (e: unknown) {
@@ -93,6 +106,24 @@ export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths
             </p>
           </div>
         </label>
+        <div>
+          <p className="text-xs font-medium text-gray-600 mb-2">Had SLA (hari bekerja)</p>
+          <p className="text-xs text-gray-400 mb-3">Amaran kuning ≥ 75% had, merah apabila melepasi had.</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <Label className="text-xs text-gray-500 mb-1.5 block">Sokongan (HEAD)</Label>
+              <Input type="number" min="1" max="30" value={slaHead} onChange={(e) => setSlaHead(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1.5 block">Kewangan</Label>
+              <Input type="number" min="1" max="30" value={slaFinance} onChange={(e) => setSlaFinance(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1.5 block">Kelulusan</Label>
+              <Input type="number" min="1" max="30" value={slaApprover} onChange={(e) => setSlaApprover(e.target.value)} />
+            </div>
+          </div>
+        </div>
         {saved && <p className="text-xs text-green-600">Tetapan disimpan.</p>}
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
         <Button onClick={save} disabled={isPending} className="bg-green-700 hover:bg-green-800">
