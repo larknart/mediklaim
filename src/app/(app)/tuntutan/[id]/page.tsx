@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { canViewClaim, canApproveAsHead, isFinance, isApprover, isYdp } from "@/lib/permissions";
-import { ClaimStatus, ApprovalStep, Role } from "@/generated/prisma";
+import { ClaimStatus, ClaimFor, ApprovalStep, Role } from "@/generated/prisma";
 import { getActiveDelegation } from "@/lib/delegation";
 import { computeSla } from "@/lib/sla";
 import { SlaBadge } from "@/components/sla-badge";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Download } from "lucide-react";
+import { CheckCircle2, FileText, Calendar, Building2, User, Users, Clock, RotateCcw, Download } from "lucide-react";
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
@@ -22,6 +22,12 @@ import type { CommentRow } from "./_components/comment-thread";
 import { BackButton } from "@/components/back-button";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
+
+function claimForLabel(claimFor: ClaimFor, childNo: number | null): string {
+  if (claimFor === ClaimFor.SPOUSE) return "Isteri / Suami";
+  if (claimFor === ClaimFor.CHILD) return `Anak ke-${childNo ?? 1}`;
+  return "Diri Sendiri";
+}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   DRAFT:            { label: "Draf",               color: "bg-gray-100 text-gray-700" },
@@ -171,6 +177,10 @@ export default async function ClaimDetailPage({
                 <span className="flex items-center gap-1">
                   <User className="w-3.5 h-3.5" />
                   {claim.claimant.name}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />
+                  {claimForLabel(claim.claimFor, claim.claimForChildNo)}
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />

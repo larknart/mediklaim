@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FileText, AlertCircle, CheckCircle2, Calendar, Building2 } from "lucide-react";
-import { ExtractionStatus } from "@/generated/prisma";
+import { ExtractionStatus, ClaimFor } from "@/generated/prisma";
 
 const MONTHS_BM = [
   "Januari", "Februari", "Mac", "April", "Mei", "Jun",
@@ -38,10 +38,11 @@ interface NewClaimFormProps {
   receipts: Receipt[];
   remaining: number;
   limit: number;
+  isAhliMajlis: boolean;
   resubmitContext?: ResubmitContext | null;
 }
 
-export function NewClaimForm({ receipts, remaining, limit, resubmitContext }: NewClaimFormProps) {
+export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmitContext }: NewClaimFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
@@ -49,6 +50,8 @@ export function NewClaimForm({ receipts, remaining, limit, resubmitContext }: Ne
   );
   const [forMonth, setForMonth] = useState(String(new Date().getMonth() + 1));
   const [forYear, setForYear] = useState(String(new Date().getFullYear()));
+  const [claimFor, setClaimFor] = useState<ClaimFor>(ClaimFor.SELF);
+  const [claimForChildNo, setClaimForChildNo] = useState("1");
   const [error, setError] = useState("");
 
   const currentYear = new Date().getFullYear();
@@ -82,6 +85,8 @@ export function NewClaimForm({ receipts, remaining, limit, resubmitContext }: Ne
           forMonth: parseInt(forMonth),
           forYear: parseInt(forYear),
           receiptIds: Array.from(selectedIds),
+          claimFor,
+          ...(claimFor === ClaimFor.CHILD ? { claimForChildNo: parseInt(claimForChildNo) } : {}),
           ...(resubmitContext && { resubmittedFromId: resubmitContext.claimId }),
         });
         router.push(`/tuntutan/${result.id}?submitted=1`);
@@ -147,6 +152,50 @@ export function NewClaimForm({ receipts, remaining, limit, resubmitContext }: Ne
           </div>
         </CardContent>
       </Card>
+
+      {/* Beneficiary selection — hidden for Ahli Majlis (self only) */}
+      {!isAhliMajlis && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Tuntutan Untuk</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex flex-col gap-2">
+              {[
+                { value: ClaimFor.SELF, label: "Diri Sendiri" },
+                { value: ClaimFor.SPOUSE, label: "Isteri / Suami" },
+                { value: ClaimFor.CHILD, label: "Anak" },
+              ].map(({ value, label }) => (
+                <label key={value} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="claimFor"
+                    value={value}
+                    checked={claimFor === value}
+                    onChange={() => setClaimFor(value)}
+                    className="accent-green-700"
+                  />
+                  <span className="text-sm">{label}</span>
+                </label>
+              ))}
+            </div>
+            {claimFor === ClaimFor.CHILD && (
+              <div className="flex items-center gap-2 ml-5">
+                <Label className="text-xs text-gray-500 shrink-0">Anak ke-</Label>
+                <select
+                  value={claimForChildNo}
+                  onChange={(e) => setClaimForChildNo(e.target.value)}
+                  className="border rounded px-2 py-1 text-sm w-20"
+                >
+                  {[1,2,3,4,5,6,7,8].map((n) => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Limit info */}
       <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg text-sm">

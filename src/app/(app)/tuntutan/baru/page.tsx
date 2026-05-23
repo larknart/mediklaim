@@ -89,6 +89,7 @@ export default async function BuatTuntutanPage({
         }))}
         remaining={remaining}
         limit={limit}
+        isAhliMajlis={session.user.isAhliMajlis}
         resubmitContext={resubmitContext}
       />
     </div>

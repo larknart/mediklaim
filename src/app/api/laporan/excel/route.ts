@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
       department: c.department?.name ?? null,
       forMonth: c.forMonth,
       forYear: c.forYear,
+      claimFor: c.claimFor,
+      claimForChildNo: c.claimForChildNo,
       status: c.status,
       totalClaimedMyr: Number(c.totalClaimedMyr),
       totalEligibleMyr: c.totalEligibleMyr ? Number(c.totalEligibleMyr) : null,

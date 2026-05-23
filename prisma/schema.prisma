@@ -48,6 +48,12 @@ enum ApprovalStep {
   APPROVER
 }
 
+enum ClaimFor {
+  SELF
+  SPOUSE
+  CHILD
+}
+
 enum Decision {
   APPROVED
   REJECTED
@@ -229,6 +235,8 @@ model Claim {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   resubmittedFromId String?
+  claimFor          ClaimFor @default(SELF)
+  claimForChildNo   Int?
 
   claimant   User         @relation(fields: [claimantId], references: [id])
   department Department?  @relation("DepartmentClaims", fields: [departmentId], references: [id])

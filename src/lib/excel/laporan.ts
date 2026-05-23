@@ -9,6 +9,8 @@ export interface ClaimRow {
   department: string | null;
   forMonth: number;
   forYear: number;
+  claimFor: string;
+  claimForChildNo: number | null;
   status: string;
   totalClaimedMyr: number;
   totalEligibleMyr: number | null;
@@ -26,12 +28,12 @@ export async function generateLaporan(
   const ws = wb.addWorksheet("Laporan Tuntutan");
 
   // Header rows
-  ws.mergeCells("A1:L1");
+  ws.mergeCells("A1:M1");
   ws.getCell("A1").value = orgName;
   ws.getCell("A1").font = { bold: true, size: 14 };
   ws.getCell("A1").alignment = { horizontal: "center" };
 
-  ws.mergeCells("A2:L2");
+  ws.mergeCells("A2:M2");
   ws.getCell("A2").value = `Laporan Tuntutan Perubatan — ${filterLabel}`;
   ws.getCell("A2").font = { bold: true, size: 12 };
   ws.getCell("A2").alignment = { horizontal: "center" };
@@ -41,7 +43,7 @@ export async function generateLaporan(
   // Column headers
   const headerRow = ws.addRow([
     "No.", "Ref No.", "Nama Kakitangan", "No. Staf", "Jabatan",
-    "Bulan", "Tahun", "Status", "Tuntut (RM)", "Layak (RM)", "Lulus (RM)", "Tarikh Hantar",
+    "Bulan", "Tahun", "Tuntutan Untuk", "Status", "Tuntut (RM)", "Layak (RM)", "Lulus (RM)", "Tarikh Hantar",
   ]);
   headerRow.font = { bold: true };
   headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF166534" } };
@@ -56,12 +58,19 @@ export async function generateLaporan(
     { key: "dept", width: 20 },
     { key: "month", width: 12 },
     { key: "year", width: 8 },
+    { key: "claimFor", width: 16 },
     { key: "status", width: 18 },
     { key: "claimed", width: 12 },
     { key: "eligible", width: 12 },
     { key: "approved", width: 12 },
     { key: "submitted", width: 14 },
   ];
+
+  function claimForText(claimFor: string, childNo: number | null): string {
+    if (claimFor === "SPOUSE") return "Isteri / Suami";
+    if (claimFor === "CHILD") return `Anak ke-${childNo ?? 1}`;
+    return "Diri Sendiri";
+  }
 
   const STATUS_LABELS: Record<string, string> = {
     DRAFT: "Draf", SUBMITTED: "Menunggu Sokongan", HEAD_APPROVED: "Menunggu Kewangan",
@@ -77,6 +86,7 @@ export async function generateLaporan(
       row.department ?? "",
       MONTHS_BM[row.forMonth - 1] ?? row.forMonth,
       row.forYear,
+      claimForText(row.claimFor, row.claimForChildNo),
       STATUS_LABELS[row.status] ?? row.status,
       row.totalClaimedMyr,
       row.totalEligibleMyr ?? "",
@@ -84,15 +94,15 @@ export async function generateLaporan(
       row.submittedAt ? row.submittedAt.toLocaleDateString("ms-MY") : "",
     ]);
 
-    // Color rejected rows
+    // Color rejected rows (status is now col 9)
     if (row.status === "REJECTED") {
-      dataRow.getCell(8).font = { color: { argb: "FFDC2626" } };
+      dataRow.getCell(9).font = { color: { argb: "FFDC2626" } };
     } else if (row.status === "APPROVED" || row.status === "PAID") {
-      dataRow.getCell(8).font = { color: { argb: "FF166534" } };
+      dataRow.getCell(9).font = { color: { argb: "FF166534" } };
     }
 
     // Format amounts
-    [9, 10, 11].forEach((col) => {
+    [10, 11, 12].forEach((col) => {
       const cell = dataRow.getCell(col);
       if (typeof cell.value === "number") {
         cell.numFmt = '#,##0.00';
@@ -105,12 +115,12 @@ export async function generateLaporan(
   const totalClaimed = rows.reduce((s, r) => s + r.totalClaimedMyr, 0);
   const totalEligible = rows.reduce((s, r) => s + (r.totalEligibleMyr ?? 0), 0);
   const totalApproved = rows.reduce((s, r) => s + (r.totalApprovedMyr ?? 0), 0);
-  const sumRow = ws.addRow(["", "", "", "", "", "", "JUMLAH", "", totalClaimed, totalEligible, totalApproved, ""]);
+  const sumRow = ws.addRow(["", "", "", "", "", "", "", "JUMLAH", "", totalClaimed, totalEligible, totalApproved, ""]);
   sumRow.font = { bold: true };
-  [9, 10, 11].forEach((col) => { sumRow.getCell(col).numFmt = '#,##0.00'; });
+  [10, 11, 12].forEach((col) => { sumRow.getCell(col).numFmt = '#,##0.00'; });
 
   ws.addRow([]);
-  ws.addRow(["", "", "", "", "", "", "", "", "", "", "", `Dijana: ${new Date().toLocaleDateString("ms-MY")}`]);
+  ws.addRow(["", "", "", "", "", "", "", "", "", "", "", "", `Dijana: ${new Date().toLocaleDateString("ms-MY")}`]);
 
   const buffer = await wb.xlsx.writeBuffer();
   return Buffer.from(buffer);

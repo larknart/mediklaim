@@ -6,7 +6,7 @@ import { logAction, AuditAction } from "@/lib/audit";
 import { dispatch } from "@/lib/notify/dispatcher";
 import { generateRefNo } from "@/lib/refno";
 import { shouldSkipHeadStep } from "@/lib/permissions";
-import { ClaimStatus, ReceiptStatus, Role, ApprovalStep, Decision } from "@/generated/prisma";
+import { ClaimStatus, ClaimFor, ReceiptStatus, Role, ApprovalStep, Decision } from "@/generated/prisma";
 import Decimal from "decimal.js";
 
 // ─── Create claim (from staged receipts) ─────────────────────────────────────
@@ -16,6 +16,8 @@ export async function createClaim(data: {
   forYear: number;
   receiptIds: string[];
   resubmittedFromId?: string;
+  claimFor?: ClaimFor;
+  claimForChildNo?: number | null;
 }) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
@@ -100,6 +102,10 @@ export async function createClaim(data: {
         connect: data.receiptIds.map((id) => ({ id })),
       },
       ...(data.resubmittedFromId && { resubmittedFromId: data.resubmittedFromId }),
+      claimFor: data.claimFor ?? ClaimFor.SELF,
+      ...(data.claimFor === ClaimFor.CHILD && data.claimForChildNo != null
+        ? { claimForChildNo: data.claimForChildNo }
+        : {}),
     },
   });
 

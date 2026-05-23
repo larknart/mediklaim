@@ -84,6 +84,8 @@ export interface CoverSheetData {
   departmentName: string | null;
   forMonth: number;
   forYear: number;
+  claimFor: string;
+  claimForChildNo: number | null;
   status: string;
   submittedAt: Date | null;
   totalClaimedMyr: number;
@@ -137,6 +139,16 @@ function CoverSheet({ data }: { data: CoverSheetData }) {
           <InfoRow label="Nama Pemohon" value={data.claimantName} />
           {data.staffNo && <InfoRow label="No. Kakitangan" value={data.staffNo} />}
           <InfoRow label="Jabatan" value={data.departmentName ?? "—"} />
+          <InfoRow
+            label="Tuntutan Untuk"
+            value={
+              data.claimFor === "SPOUSE"
+                ? "Isteri / Suami"
+                : data.claimFor === "CHILD"
+                ? `Anak ke-${data.claimForChildNo ?? 1}`
+                : "Diri Sendiri"
+            }
+          />
           <InfoRow label="Tempoh Tuntutan" value={`${MONTHS_BM[data.forMonth - 1]} ${data.forYear}`} />
           <InfoRow label="Tarikh Hantar" value={data.submittedAt ? new Date(data.submittedAt).toLocaleDateString("ms-MY") : "—"} />
           <InfoRow label="Status" value={STATUS_BM[data.status] ?? data.status} />
