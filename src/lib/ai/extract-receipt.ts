@@ -143,11 +143,20 @@ export class ManualExtractor implements ReceiptExtractor {
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
 
-export function createExtractor(): ReceiptExtractor {
-  const provider = process.env.AI_PROVIDER ?? "manual";
+export function createExtractor(overrides?: {
+  provider?: string;
+  baseUrl?: string;
+  model?: string;
+  timeoutMs?: number;
+}): ReceiptExtractor {
+  const provider = overrides?.provider ?? process.env.AI_PROVIDER ?? "manual";
+  const baseUrl = overrides?.baseUrl ?? process.env.OLLAMA_BASE_URL;
+  const model = overrides?.model ?? process.env.OLLAMA_MODEL;
+  const timeoutMs = overrides?.timeoutMs ?? 60_000;
+
   switch (provider) {
     case "ollama":
-      return new OllamaExtractor();
+      return new OllamaExtractor(baseUrl, model, timeoutMs);
     case "gemini":
       return new GeminiExtractor();
     default:

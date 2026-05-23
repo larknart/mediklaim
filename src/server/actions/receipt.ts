@@ -89,7 +89,16 @@ async function extractReceiptBackground(
   actorId: string,
   actorName?: string
 ) {
-  const extractor = createExtractor();
+  const aiRows = await prisma.settings.findMany({
+    where: { key: { in: ["ai_provider", "ai_ollama_base_url", "ai_ollama_model", "ai_timeout_seconds"] } },
+  });
+  const aiS = Object.fromEntries(aiRows.map((r) => [r.key, r.value]));
+  const extractor = createExtractor({
+    provider: typeof aiS["ai_provider"] === "string" ? aiS["ai_provider"] : undefined,
+    baseUrl: typeof aiS["ai_ollama_base_url"] === "string" ? aiS["ai_ollama_base_url"] : undefined,
+    model: typeof aiS["ai_ollama_model"] === "string" ? aiS["ai_ollama_model"] : undefined,
+    timeoutMs: typeof aiS["ai_timeout_seconds"] === "number" ? aiS["ai_timeout_seconds"] * 1000 : undefined,
+  });
   try {
     const result = await extractor.extract(buffer, mime);
 
@@ -118,13 +127,18 @@ async function extractReceiptBackground(
 
     // LLM reasoning pass — only flag items not already caught by blacklist
     // Runs only when Ollama is configured; gracefully skipped on failure
-    const useOllamaReasoning = (process.env.AI_PROVIDER === "ollama" || process.env.OLLAMA_BASE_URL) &&
+    const resolvedProvider = typeof aiS["ai_provider"] === "string" ? aiS["ai_provider"] : (process.env.AI_PROVIDER ?? "manual");
+    const useOllamaReasoning = (resolvedProvider === "ollama" || typeof aiS["ai_ollama_base_url"] === "string") &&
       blacklistItems.some((i) => i.isEligible); // skip if all already flagged
     let llmFlags: Array<{ isEligible: boolean; llmReason: string | null }> | null = null;
     if (useOllamaReasoning) {
       llmFlags = await reasonEligibility(
         result.items.map((i) => ({ description: i.description, qty: i.qty, amountMyr: i.amountMyr })),
-        result.vendor ?? null
+        result.vendor ?? null,
+        {
+          baseUrl: typeof aiS["ai_ollama_base_url"] === "string" ? aiS["ai_ollama_base_url"] : undefined,
+          model: typeof aiS["ai_ollama_model"] === "string" ? aiS["ai_ollama_model"] : undefined,
+        }
       );
     }
 

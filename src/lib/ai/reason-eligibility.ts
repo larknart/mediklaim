@@ -42,10 +42,11 @@ export interface ItemEligibility {
 
 export async function reasonEligibility(
   items: Array<{ description: string; qty: number; amountMyr: number }>,
-  vendor: string | null
+  vendor: string | null,
+  opts?: { baseUrl?: string; model?: string }
 ): Promise<ItemEligibility[]> {
-  const baseUrl = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
-  const model = process.env.OLLAMA_REASONING_MODEL ?? process.env.OLLAMA_MODEL ?? "qwen2.5vl:7b";
+  const baseUrl = opts?.baseUrl ?? process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
+  const model = opts?.model ?? process.env.OLLAMA_REASONING_MODEL ?? process.env.OLLAMA_MODEL ?? "qwen2.5vl:7b";
 
   const itemsJson = JSON.stringify(
     items.map((it, i) => ({ idx: i, description: it.description, qty: it.qty, amountMyr: it.amountMyr }))
