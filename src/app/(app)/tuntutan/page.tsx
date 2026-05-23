@@ -16,6 +16,7 @@ const STATUS_LABELS: Record<ClaimStatus, { label: string; variant: "default" | "
   APPROVED:         { label: "Diluluskan",        variant: "default" },
   REJECTED:         { label: "Ditolak",           variant: "destructive" },
   PAID:             { label: "Dibayar",           variant: "default" },
+  WITHDRAWN:        { label: "Tarik Balik",       variant: "secondary" },
 };
 
 const MONTHS_BM = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];

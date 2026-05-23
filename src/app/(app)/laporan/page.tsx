@@ -13,6 +13,7 @@ const MONTHS_BM = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt",
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Draf", SUBMITTED: "Menunggu Sokongan", HEAD_APPROVED: "Menunggu Kewangan",
   FINANCE_REVIEWED: "Menunggu Kelulusan", APPROVED: "Diluluskan", REJECTED: "Ditolak", PAID: "Dibayar",
+  WITHDRAWN: "Tarik Balik",
 };
 
 export default async function LaporanPage({
@@ -160,6 +161,8 @@ export default async function LaporanPage({
                           ? "bg-green-100 text-green-700"
                           : claim.status === "REJECTED"
                           ? "bg-red-100 text-red-700"
+                          : claim.status === "WITHDRAWN"
+                          ? "bg-gray-100 text-gray-400 line-through"
                           : "bg-gray-100 text-gray-600"
                       }`}>
                         {STATUS_LABELS[claim.status] ?? claim.status}

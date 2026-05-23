@@ -164,12 +164,14 @@ export async function withdrawClaim(claimId: string) {
     data: { status: ReceiptStatus.UNSORTED, claimId: null },
   });
 
-  // Delete notifications that link to this claim
+  // Delete pending action notifications (claim stays as audit record)
   await prisma.notification.deleteMany({ where: { link: { contains: claimId } } });
 
-  // Delete approvals then claim
-  await prisma.approval.deleteMany({ where: { claimId } });
-  await prisma.claim.delete({ where: { id: claimId } });
+  // Soft-delete: keep claim + approvals for audit trail, just mark WITHDRAWN
+  await prisma.claim.update({
+    where: { id: claimId },
+    data: { status: ClaimStatus.WITHDRAWN },
+  });
 
   await logAction({
     actorId: session.user.id,

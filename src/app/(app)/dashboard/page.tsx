@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ClaimStatus, Role, ReceiptStatus, Prisma } from "@/generated/prisma";
+import { ClaimStatus, Role, ReceiptStatus } from "@/generated/prisma";
 import { ChartSpendingTrend } from "./_components/chart-spending-trend";
 import { ChartClaimStatus } from "./_components/chart-claim-status";
 import { ChartMiniMonthly } from "./_components/chart-mini-monthly";
@@ -20,6 +20,7 @@ const STATUS_LABELS: Record<ClaimStatus, { label: string; color: string }> = {
   APPROVED:         { label: "Diluluskan",        color: "default" },
   REJECTED:         { label: "Ditolak",           color: "destructive" },
   PAID:             { label: "Dibayar",           color: "default" },
+  WITHDRAWN:        { label: "Tarik Balik",       color: "secondary" },
 };
 
 export default async function DashboardPage() {
@@ -82,31 +83,47 @@ export default async function DashboardPage() {
     roles.includes(Role.HEAD) &&
     !roles.some((r) => nonHeadMgmtRoles.includes(r));
   const mgmtDeptId = isHeadOnly ? (session.user.departmentId ?? null) : null;
-  const mgmtDeptClause = mgmtDeptId
-    ? Prisma.sql`AND "departmentId" = ${mgmtDeptId}`
-    : Prisma.empty;
 
   let miniMonthlyData: { month: number; total: number; count: number }[] = [];
   let miniStatusData: { status: string; count: number }[] = [];
 
   if (isMgmt && !(isHeadOnly && !session.user.departmentId)) {
-    const [rawMiniMonthly, rawMiniStatus] = await Promise.all([
-      prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
-        SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
-        FROM "Claim"
-        WHERE "forYear" = ${currentYear}
-        ${mgmtDeptClause}
-        GROUP BY "forMonth"
-        ORDER BY "forMonth"
-      `,
-      prisma.$queryRaw<Array<{ status: string; count: string }>>`
-        SELECT status, COUNT(*) AS count
-        FROM "Claim"
-        WHERE "forYear" = ${currentYear}
-        ${mgmtDeptClause}
-        GROUP BY status
-      `,
-    ]);
+    let rawMiniMonthly: Array<{ forMonth: number; total: string; count: string }>;
+    let rawMiniStatus: Array<{ status: string; count: string }>;
+
+    if (mgmtDeptId) {
+      [rawMiniMonthly, rawMiniStatus] = await Promise.all([
+        prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+          SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${currentYear} AND "departmentId" = ${mgmtDeptId}
+          GROUP BY "forMonth"
+          ORDER BY "forMonth"
+        `,
+        prisma.$queryRaw<Array<{ status: string; count: string }>>`
+          SELECT status, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${currentYear} AND "departmentId" = ${mgmtDeptId}
+          GROUP BY status
+        `,
+      ]);
+    } else {
+      [rawMiniMonthly, rawMiniStatus] = await Promise.all([
+        prisma.$queryRaw<Array<{ forMonth: number; total: string; count: string }>>`
+          SELECT "forMonth", SUM("totalClaimedMyr") AS total, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${currentYear}
+          GROUP BY "forMonth"
+          ORDER BY "forMonth"
+        `,
+        prisma.$queryRaw<Array<{ status: string; count: string }>>`
+          SELECT status, COUNT(*) AS count
+          FROM "Claim"
+          WHERE "forYear" = ${currentYear}
+          GROUP BY status
+        `,
+      ]);
+    }
 
     miniMonthlyData = Array.from({ length: 12 }, (_, i) => {
       const row = rawMiniMonthly.find((r) => Number(r.forMonth) === i + 1);

@@ -13,6 +13,7 @@ const STATUSES = [
   { value: "APPROVED", label: "Diluluskan" },
   { value: "REJECTED", label: "Ditolak" },
   { value: "PAID", label: "Dibayar" },
+  { value: "WITHDRAWN", label: "Tarik Balik" },
 ];
 
 interface LaporanFilterProps {

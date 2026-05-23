@@ -26,6 +26,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   APPROVED:         { label: "Diluluskan",         color: "bg-green-100 text-green-700" },
   REJECTED:         { label: "Ditolak",            color: "bg-red-100 text-red-700" },
   PAID:             { label: "Dibayar",            color: "bg-emerald-100 text-emerald-700" },
+  WITHDRAWN:        { label: "Tarik Balik",        color: "bg-gray-100 text-gray-500" },
 };
 
 export default async function ClaimDetailPage({

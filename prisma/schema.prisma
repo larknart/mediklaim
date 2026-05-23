@@ -39,6 +39,7 @@ enum ClaimStatus {
   APPROVED
   REJECTED
   PAID
+  WITHDRAWN
 }
 
 enum ApprovalStep {
