@@ -264,6 +264,91 @@ export async function approverDecide(
   return { ok: true };
 }
 
+// ─── Bulk approve (Approver/YDP only) ────────────────────────────────────────
+
+export async function bulkApprove(claimIds: string[]) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  if (!isApprover(session.user) && !isYdp(session.user)) throw new Error("UNAUTHORIZED");
+  if (claimIds.length === 0) throw new Error("NO_CLAIMS");
+  if (claimIds.length > 50) throw new Error("TOO_MANY");
+
+  let approved = 0;
+  const failed: string[] = [];
+
+  for (const claimId of claimIds) {
+    try {
+      const claim = await prisma.claim.findUnique({
+        where: { id: claimId },
+        include: { claimant: true },
+      });
+      if (!claim || claim.status !== ClaimStatus.FINANCE_REVIEWED) {
+        failed.push(claimId);
+        continue;
+      }
+
+      const finalMyr = new Decimal(
+        claim.totalEligibleMyr?.toString() ?? claim.totalClaimedMyr.toString()
+      ).toDecimalPlaces(2);
+
+      await prisma.approval.create({
+        data: {
+          claimId,
+          step: ApprovalStep.APPROVER,
+          actorId: session.user.id,
+          decision: Decision.APPROVED,
+          comment: "Lulus pukal",
+        },
+      });
+
+      await prisma.claim.update({
+        where: { id: claimId },
+        data: { status: ClaimStatus.APPROVED, totalApprovedMyr: finalMyr.toNumber() },
+      });
+
+      await prisma.annualAllocation.upsert({
+        where: { userId_year: { userId: claim.claimantId, year: claim.forYear } },
+        create: {
+          userId: claim.claimantId,
+          year: claim.forYear,
+          limitMyr: parseFloat(process.env.DEFAULT_ANNUAL_LIMIT ?? "1200"),
+          usedMyr: finalMyr.toNumber(),
+        },
+        update: { usedMyr: { increment: finalMyr.toNumber() } },
+      });
+
+      await logAction({
+        actorId: session.user.id,
+        actorName: session.user.name ?? undefined,
+        action: AuditAction.CLAIM_APPROVED,
+        entity: "Claim",
+        entityId: claimId,
+        meta: { approvedMyr: finalMyr.toString(), bulk: true },
+      });
+
+      await dispatch({
+        event: "CLAIM_APPROVED",
+        recipientId: claim.claimantId,
+        claim: {
+          id: claim.id,
+          refNo: claim.refNo,
+          claimantName: claim.claimant.name,
+          forMonth: claim.forMonth,
+          forYear: claim.forYear,
+          totalMyr: finalMyr.toNumber(),
+          status: "APPROVED",
+        },
+      });
+
+      approved++;
+    } catch {
+      failed.push(claimId);
+    }
+  }
+
+  return { approved, failed };
+}
+
 // ─── Mark paid ────────────────────────────────────────────────────────────────
 
 export async function markPaid(claimId: string) {
