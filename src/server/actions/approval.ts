@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { dispatch } from "@/lib/notify/dispatcher";
 import { notifyApproverTeam } from "./claim";
-import { isHead, isFinance, isApprover, isYdp, canApproveAsHead } from "@/lib/permissions";
+import { isHead, isFinance, isApprover, isYdp, canApproveAsHead, shouldSkipApproverStep } from "@/lib/permissions";
 import { ClaimStatus, ApprovalStep, Decision, Role } from "@/generated/prisma";
 import Decimal from "decimal.js";
 
@@ -95,7 +95,7 @@ export async function financeReview(
   const claim = await prisma.claim.findUnique({
     where: { id: claimId },
     include: {
-      claimant: true,
+      claimant: { include: { roles: true } },
       receipts: { include: { items: true } },
     },
   });
@@ -147,14 +147,70 @@ export async function financeReview(
     meta: { eligibleTotal: eligibleTotal.toString(), comment },
   });
 
-  // Notify approver team
+  // Check if approver step should be skipped (APPROVER self-claim)
+  const claimantRoles = claim.claimant.roles.map((r) => r.role);
+  const ydpExists = await prisma.userRole.findFirst({ where: { role: Role.YDP }, select: { userId: true } });
+  const skipApprover = shouldSkipApproverStep({ roles: claimantRoles }, ydpExists !== null);
+
+  if (skipApprover) {
+    const finalMyr = eligibleTotal.toDecimalPlaces(2);
+    await prisma.approval.create({
+      data: {
+        claimId,
+        step: ApprovalStep.APPROVER,
+        actorId: session.user.id,
+        decision: Decision.SKIPPED,
+        comment: "Auto-skip: pemohon ialah Pelulus, tiada YDP aktif",
+      },
+    });
+    await prisma.claim.update({
+      where: { id: claimId },
+      data: { status: ClaimStatus.APPROVED, totalApprovedMyr: finalMyr.toNumber() },
+    });
+    await prisma.annualAllocation.upsert({
+      where: { userId_year: { userId: claim.claimantId, year: claim.forYear } },
+      create: {
+        userId: claim.claimantId,
+        year: claim.forYear,
+        limitMyr: parseFloat(process.env.DEFAULT_ANNUAL_LIMIT ?? "1200"),
+        usedMyr: finalMyr.toNumber(),
+      },
+      update: { usedMyr: { increment: finalMyr.toNumber() } },
+    });
+    await logAction({
+      actorId: session.user.id,
+      actorName: session.user.name ?? undefined,
+      action: AuditAction.CLAIM_APPROVED,
+      entity: "Claim",
+      entityId: claimId,
+      meta: { approvedMyr: finalMyr.toString(), autoSkipApprover: true },
+    });
+    await dispatch({
+      event: "CLAIM_APPROVED",
+      recipientId: claim.claimantId,
+      claim: {
+        id: claim.id,
+        refNo: claim.refNo,
+        claimantName: claim.claimant.name,
+        forMonth: claim.forMonth,
+        forYear: claim.forYear,
+        totalMyr: finalMyr.toNumber(),
+        status: "APPROVED",
+      },
+    });
+    return { ok: true, eligibleTotal: eligibleTotal.toString() };
+  }
+
+  // Normal flow — exclude claimant from notifications if they hold APPROVER role
+  const claimantIsApprover = claimantRoles.includes(Role.APPROVER);
   await notifyApproverTeam(
     claimId,
     claim.refNo,
     claim.claimant.name,
     claim.forMonth,
     claim.forYear,
-    eligibleTotal.toNumber()
+    eligibleTotal.toNumber(),
+    claimantIsApprover ? claim.claimantId : undefined
   );
 
   return { ok: true, eligibleTotal: eligibleTotal.toString() };

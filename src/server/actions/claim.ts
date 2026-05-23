@@ -273,10 +273,14 @@ export async function notifyApproverTeam(
   claimantName: string,
   forMonth: number,
   forYear: number,
-  totalMyr: number
+  totalMyr: number,
+  excludeUserId?: string
 ) {
   const approvers = await prisma.userRole.findMany({
-    where: { role: { in: [Role.APPROVER, Role.YDP] } },
+    where: {
+      role: { in: [Role.APPROVER, Role.YDP] },
+      ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+    },
     select: { userId: true },
   });
 

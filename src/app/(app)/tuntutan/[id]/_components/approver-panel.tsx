@@ -110,7 +110,7 @@ export function ApproverPanel({
           </div>
         )}
 
-        {!overrideMode && !isOverride && (
+        {!isYdp && !overrideMode && !isOverride && (
           <button
             onClick={() => setOverrideMode(true)}
             className="text-xs text-purple-600 underline flex items-center gap-1"
