@@ -5,7 +5,7 @@ import { isAdmin, isFinance, isApprover, isYdp } from "@/lib/permissions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { FileSpreadsheet, Download } from "lucide-react";
+import { FileSpreadsheet, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LaporanFilter } from "./_components/laporan-filter";
 
@@ -69,12 +69,20 @@ export default async function LaporanPage({
           <h1 className="text-2xl font-bold text-gray-900">Laporan</h1>
           <p className="text-gray-500 text-sm mt-1">{claims.length} tuntutan</p>
         </div>
-        <Button asChild className="bg-green-700 hover:bg-green-800">
-          <Link href={`/api/laporan/excel?${exportParams}`}>
-            <Download className="w-4 h-4 mr-2" />
-            Export Excel
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link href={`/api/laporan/pdf?${exportParams}`}>
+              <FileText className="w-4 h-4 mr-2" />
+              PDF
+            </Link>
+          </Button>
+          <Button asChild className="bg-green-700 hover:bg-green-800">
+            <Link href={`/api/laporan/excel?${exportParams}`}>
+              <Download className="w-4 h-4 mr-2" />
+              Excel
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <LaporanFilter
