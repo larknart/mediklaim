@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { isAdmin, isFinance, isApprover, isYdp } from "@/lib/permissions";
+import { isAdmin, isFinance, isApprover, isYdp, isHead } from "@/lib/permissions";
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
@@ -34,6 +34,7 @@ export async function GET(
     const canAccess =
       receipt.ownerId === session.user.id ||
       isAdmin(session.user) ||
+      isHead(session.user) ||
       isFinance(session.user) ||
       isApprover(session.user) ||
       isYdp(session.user);

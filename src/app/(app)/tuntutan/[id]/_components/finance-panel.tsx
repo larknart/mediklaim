@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { BadgeCheck, AlertTriangle } from "lucide-react";
+import { BadgeCheck, AlertTriangle, ExternalLink, FileText } from "lucide-react";
 
 interface ReceiptItem {
   id: string;
@@ -26,6 +26,8 @@ interface Receipt {
   vendor: string | null;
   receiptDate: Date | null;
   totalMyr: number | null;
+  fileUrl: string;
+  fileMime: string;
   items: ReceiptItem[];
 }
 
@@ -87,14 +89,40 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
 
         {receipts.map((r) => (
           <div key={r.id} className="border rounded-lg bg-white overflow-hidden">
-            <div className="px-3 py-2 bg-gray-50 border-b">
-              <p className="text-sm font-medium">{r.vendor ?? "Vendor tidak diketahui"}</p>
-              {r.receiptDate && (
-                <p className="text-xs text-gray-500">
-                  {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
-                </p>
-              )}
+            <div className="px-3 py-2 bg-gray-50 border-b flex items-start justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">{r.vendor ?? "Vendor tidak diketahui"}</p>
+                {r.receiptDate && (
+                  <p className="text-xs text-gray-500">
+                    {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
+                  </p>
+                )}
+              </div>
+              <a
+                href={`/api/files/${r.fileUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
+                title="Lihat resit asal"
+              >
+                {r.fileMime === "application/pdf" ? (
+                  <FileText className="w-4 h-4" />
+                ) : (
+                  <ExternalLink className="w-3.5 h-3.5" />
+                )}
+                Resit Asal
+              </a>
             </div>
+            {r.fileMime.startsWith("image/") && (
+              <a href={`/api/files/${r.fileUrl}`} target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/api/files/${r.fileUrl}`}
+                  alt={`Resit ${r.vendor ?? ""}`}
+                  className="w-full max-h-48 object-contain bg-gray-100 border-b cursor-zoom-in"
+                />
+              </a>
+            )}
             <div className="divide-y">
               {r.items.map((item) => {
                 const isElig = eligibility[item.id] ?? true;

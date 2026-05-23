@@ -230,6 +230,8 @@ export default async function ClaimDetailPage({
             vendor: r.vendor,
             receiptDate: r.receiptDate,
             totalMyr: r.totalMyr ? Number(r.totalMyr) : null,
+            fileUrl: r.fileUrl,
+            fileMime: r.fileMime,
             items: r.items.map((i) => ({
               id: i.id,
               description: i.description,
