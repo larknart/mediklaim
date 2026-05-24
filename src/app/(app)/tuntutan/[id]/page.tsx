@@ -15,6 +15,7 @@ import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Do
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
+import { MarkPaidButton } from "./_components/mark-paid-button";
 import { WithdrawButton } from "./_components/withdraw-button";
 import { ResubmitButton } from "./_components/resubmit-button";
 import { CommentThread } from "./_components/comment-thread";
@@ -105,6 +106,9 @@ export default async function ClaimDetailPage({
 
   const showFinancePanel =
     (isFinance(user) || !!financeDelegation) && claim.status === ClaimStatus.HEAD_APPROVED;
+
+  const showMarkPaidPanel =
+    (isFinance(user) || !!financeDelegation) && claim.status === ClaimStatus.APPROVED;
 
   const effectiveIsYdp = isYdp(user) || !!ydpDelegation;
   const showApproverPanel =
@@ -248,6 +252,14 @@ export default async function ClaimDetailPage({
               flaggedReason: i.flaggedReason,
             })),
           }))}
+        />
+      )}
+
+      {showMarkPaidPanel && (
+        <MarkPaidButton
+          claimId={claim.id}
+          refNo={claim.refNo}
+          totalApprovedMyr={claim.totalApprovedMyr ? Number(claim.totalApprovedMyr) : null}
         />
       )}
 
