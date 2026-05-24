@@ -14,10 +14,11 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  const receipt = await prisma.receipt.findUnique({
-    where: { id },
-    include: { items: true },
-  });
+  const [receipt, thresholdSetting] = await Promise.all([
+    prisma.receipt.findUnique({ where: { id }, include: { items: true } }),
+    prisma.settings.findUnique({ where: { key: "ai_confidence_threshold" } }),
+  ]);
+  const confidenceThreshold = typeof thresholdSetting?.value === "number" ? thresholdSetting.value : 0.7;
 
   if (!receipt || receipt.ownerId !== session.user.id) notFound();
 
@@ -44,7 +45,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
         </span>
       </div>
 
-      {receipt.aiConfidence != null && receipt.aiConfidence < 0.7 && (
+      {receipt.aiConfidence != null && receipt.aiConfidence < confidenceThreshold && (
         <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-xs text-yellow-700">
           <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
           Keyakinan AI rendah ({Math.round(receipt.aiConfidence * 100)}%). Sila semak dan betulkan maklumat.
