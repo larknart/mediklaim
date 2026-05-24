@@ -20,10 +20,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-          include: { roles: true },
-        });
+        const [user, maxRow, durRow] = await Promise.all([
+          prisma.user.findUnique({
+            where: { email: credentials.email as string },
+            include: { roles: true },
+          }),
+          prisma.settings.findUnique({ where: { key: "login_max_attempts" } }),
+          prisma.settings.findUnique({ where: { key: "login_lock_duration_min" } }),
+        ]);
+        const maxFails = typeof maxRow?.value === "number" ? maxRow.value : 5;
+        const lockMins = typeof durRow?.value === "number" ? durRow.value : 15;
 
         if (!user || !user.passwordHash || !user.isActive || user.deletedAt) {
           return null;
@@ -40,13 +46,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!valid) {
-          // Increment fail count, lock after 5
+          // Increment fail count, lock after configurable threshold
           const fails = user.loginFailCount + 1;
           await prisma.user.update({
             where: { id: user.id },
             data: {
               loginFailCount: fails,
-              lockedUntil: fails >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null,
+              lockedUntil: fails >= maxFails ? new Date(Date.now() + lockMins * 60 * 1000) : undefined,
             },
           });
           return null;
