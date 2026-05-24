@@ -12,6 +12,8 @@ export async function generateRefNo(): Promise<string> {
   const prefix = typeof prefixRow?.value === "string" ? prefixRow.value : "MDS/MK";
   const padding = typeof paddingRow?.value === "number" ? paddingRow.value : 5;
 
+  // Config reads above are outside the atomic section intentionally — prefix/padding are
+  // stable during a single claim creation and don't need to be part of the counter transaction.
   // Atomic increment via raw SQL to avoid race conditions
   await prisma.$executeRaw`
     INSERT INTO "Settings" (key, value, "updatedAt")

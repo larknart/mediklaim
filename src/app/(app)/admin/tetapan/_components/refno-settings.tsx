@@ -13,7 +13,6 @@ import { Save, Hash } from "lucide-react";
 interface RefNoSettingsProps {
   prefix: string;
   padding: number;
-  nextRefNo: string;
   currentCounter: number;
 }
 
@@ -26,7 +25,7 @@ export function RefNoSettings(props: RefNoSettingsProps) {
   const [prefix, setPrefix] = useState(props.prefix);
   const [padding, setPadding] = useState(String(props.padding));
 
-  const previewNext = `${prefix}/${new Date().getFullYear()}/${String(props.currentCounter + 1).padStart(parseInt(padding) || 5, "0")}`;
+  const previewNext = `${prefix}/${new Date().getFullYear()}/${String(props.currentCounter + 1).padStart(parseInt(padding, 10) || 5, "0")}`;
 
   function save() {
     const paddingNum = parseInt(padding, 10);

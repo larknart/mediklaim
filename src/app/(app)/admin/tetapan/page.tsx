@@ -10,15 +10,19 @@ import { HolidaySettings } from "./_components/holiday-settings";
 import type { HolidayRow } from "./_components/holiday-settings";
 import { BlacklistSettings } from "./_components/blacklist-settings";
 import { NotifSettings } from "./_components/notif-settings";
+import { AiSettings } from "./_components/ai-settings";
+import { SecuritySettings } from "./_components/security-settings";
 import { SistemSettings } from "./_components/sistem-settings";
+import { RefNoSettings } from "./_components/refno-settings";
 import { getSystemStats } from "@/server/actions/admin";
+import { getRefNoPreview } from "@/lib/refno";
 
 export default async function TetapanPage() {
   const session = await auth();
   if (!session?.user || !isAdmin(session.user)) redirect("/dashboard");
 
   const currentYear = new Date().getFullYear();
-  const [settings, keywords, holidays, stats] = await Promise.all([
+  const [settings, keywords, holidays, stats, refNoPreview] = await Promise.all([
     prisma.settings.findMany(),
     prisma.blacklistKeyword.findMany({ orderBy: { keyword: "asc" } }),
     prisma.publicHoliday.findMany({
@@ -26,6 +30,7 @@ export default async function TetapanPage() {
       orderBy: { date: "asc" },
     }),
     getSystemStats(),
+    getRefNoPreview(),
   ]);
 
   const s = Object.fromEntries(settings.map((r) => [r.key, r.value]));
@@ -45,19 +50,18 @@ export default async function TetapanPage() {
           <TabsTrigger value="kalendar">Kalendar</TabsTrigger>
           <TabsTrigger value="blacklist">Blacklist</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
+          <TabsTrigger value="ai">AI / OCR</TabsTrigger>
+          <TabsTrigger value="keselamatan">Keselamatan</TabsTrigger>
           <TabsTrigger value="sistem">Sistem</TabsTrigger>
+          <TabsTrigger value="refno">Ref No</TabsTrigger>
         </TabsList>
 
         <TabsContent value="am" className="mt-4">
-          <GeneralSettings
-            orgName={String(s["org_name"] ?? "Majlis Daerah Setiu")}
-          />
+          <GeneralSettings orgName={String(s["org_name"] ?? "Majlis Daerah Setiu")} />
         </TabsContent>
 
         <TabsContent value="peruntukan" className="mt-4">
-          <AllocationSettings
-            defaultLimit={Number(s["default_annual_limit"] ?? 1200)}
-          />
+          <AllocationSettings defaultLimit={Number(s["default_annual_limit"] ?? 1200)} />
         </TabsContent>
 
         <TabsContent value="peraturan" className="mt-4">
@@ -97,11 +101,43 @@ export default async function TetapanPage() {
           />
         </TabsContent>
 
+        <TabsContent value="ai" className="mt-4">
+          <AiSettings
+            provider={String(s["ai_provider"] ?? "manual")}
+            ollamaBaseUrl={String(s["ai_ollama_base_url"] ?? "")}
+            ollamaModel={String(s["ai_ollama_model"] ?? "qwen2.5vl:7b")}
+            confidenceThreshold={Number(s["ai_confidence_threshold"] ?? 0.7)}
+            timeoutSeconds={Number(s["ai_timeout_seconds"] ?? 60)}
+            retryCount={Number(s["ai_retry_count"] ?? 1)}
+          />
+        </TabsContent>
+
+        <TabsContent value="keselamatan" className="mt-4">
+          <SecuritySettings
+            loginMaxAttempts={Number(s["login_max_attempts"] ?? 5)}
+            loginLockDurationMin={Number(s["login_lock_duration_min"] ?? 15)}
+            sessionTimeoutMin={Number(s["session_timeout_min"] ?? 30)}
+            passwordMinLength={Number(s["password_min_length"] ?? 10)}
+            passwordRequireUppercase={s["password_require_uppercase"] !== false}
+            passwordRequireNumber={s["password_require_number"] !== false}
+            passwordRequireSymbol={Boolean(s["password_require_symbol"] ?? false)}
+            maxUploadSizeMb={Number(s["max_upload_size_mb"] ?? 10)}
+          />
+        </TabsContent>
+
         <TabsContent value="sistem" className="mt-4">
           <SistemSettings
             maintenanceMode={Boolean(s["maintenance_mode"] ?? false)}
             logRetentionYears={Number(s["log_retention_years"] ?? 7)}
             stats={stats}
+          />
+        </TabsContent>
+
+        <TabsContent value="refno" className="mt-4">
+          <RefNoSettings
+            prefix={String(s["ref_no_prefix"] ?? "MDS/MK")}
+            padding={Number(s["ref_no_padding"] ?? 5)}
+            currentCounter={refNoPreview.currentCounter}
           />
         </TabsContent>
       </Tabs>
