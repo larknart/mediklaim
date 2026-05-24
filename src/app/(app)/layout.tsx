@@ -3,10 +3,16 @@ import { redirect } from "next/navigation";
 import { SessionProvider } from "next-auth/react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { prisma } from "@/lib/db";
+import { isAdmin } from "@/lib/permissions";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
+
+  const maintenanceSetting = await prisma.settings.findUnique({ where: { key: "maintenance_mode" } });
+  if (maintenanceSetting?.value === true && !isAdmin(session.user)) {
+    redirect("/maintenance");
+  }
 
   const unreadCount = await prisma.notification.count({
     where: { userId: session.user.id, readAt: null },

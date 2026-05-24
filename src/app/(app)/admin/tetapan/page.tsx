@@ -10,19 +10,22 @@ import { HolidaySettings } from "./_components/holiday-settings";
 import type { HolidayRow } from "./_components/holiday-settings";
 import { BlacklistSettings } from "./_components/blacklist-settings";
 import { NotifSettings } from "./_components/notif-settings";
+import { SistemSettings } from "./_components/sistem-settings";
+import { getSystemStats } from "@/server/actions/admin";
 
 export default async function TetapanPage() {
   const session = await auth();
   if (!session?.user || !isAdmin(session.user)) redirect("/dashboard");
 
   const currentYear = new Date().getFullYear();
-  const [settings, keywords, holidays] = await Promise.all([
+  const [settings, keywords, holidays, stats] = await Promise.all([
     prisma.settings.findMany(),
     prisma.blacklistKeyword.findMany({ orderBy: { keyword: "asc" } }),
     prisma.publicHoliday.findMany({
       where: { year: { gte: currentYear - 1 } },
       orderBy: { date: "asc" },
     }),
+    getSystemStats(),
   ]);
 
   const s = Object.fromEntries(settings.map((r) => [r.key, r.value]));
@@ -35,13 +38,14 @@ export default async function TetapanPage() {
       </div>
 
       <Tabs defaultValue="am">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="flex flex-wrap h-auto gap-1 justify-start">
           <TabsTrigger value="am">Am</TabsTrigger>
           <TabsTrigger value="peruntukan">Peruntukan</TabsTrigger>
           <TabsTrigger value="peraturan">Peraturan</TabsTrigger>
           <TabsTrigger value="kalendar">Kalendar</TabsTrigger>
           <TabsTrigger value="blacklist">Blacklist</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
+          <TabsTrigger value="sistem">Sistem</TabsTrigger>
         </TabsList>
 
         <TabsContent value="am" className="mt-4">
@@ -90,6 +94,14 @@ export default async function TetapanPage() {
             waRatePerDay={Number(s["wa_rate_limit_per_day"] ?? 500)}
             waQuietStart={Number(s["wa_quiet_hours_start"] ?? 22)}
             waQuietEnd={Number(s["wa_quiet_hours_end"] ?? 7)}
+          />
+        </TabsContent>
+
+        <TabsContent value="sistem" className="mt-4">
+          <SistemSettings
+            maintenanceMode={Boolean(s["maintenance_mode"] ?? false)}
+            logRetentionYears={Number(s["log_retention_years"] ?? 7)}
+            stats={stats}
           />
         </TabsContent>
       </Tabs>

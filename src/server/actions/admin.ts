@@ -1,5 +1,7 @@
 "use server";
 
+import fs from "fs";
+import path from "path";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
@@ -272,5 +274,57 @@ export async function deleteDelegation(id: string) {
   });
 
   return { ok: true };
+}
+
+// ─── System Stats ─────────────────────────────────────────────────────────────
+
+async function storageSizeBytes(dir: string): Promise<number> {
+  try {
+    await fs.promises.access(dir);
+  } catch {
+    return 0;
+  }
+  let total = 0;
+  const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    try {
+      if (entry.isDirectory()) {
+        total += await storageSizeBytes(full);
+      } else {
+        const stat = await fs.promises.stat(full);
+        total += stat.size;
+      }
+    } catch { /* skip inaccessible */ }
+  }
+  return total;
+}
+
+export async function getSystemStats() {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  const [dbResult, claimCount, userCount, receiptCount] = await Promise.all([
+    prisma.$queryRaw<{ size: string }[]>`
+      SELECT pg_size_pretty(pg_database_size(current_database())) AS size
+    `,
+    prisma.claim.count(),
+    prisma.user.count(),
+    prisma.receipt.count(),
+  ]);
+
+  const storageDir = path.join(process.cwd(), "storage");
+  const storageBytes = await storageSizeBytes(storageDir);
+  const storageMb = (storageBytes / 1024 / 1024).toFixed(1);
+
+  return {
+    dbSize: dbResult[0]?.size ?? "N/A",
+    storageMb,
+    claimCount,
+    userCount,
+    receiptCount,
+    version: "0.1.0",
+  };
 }
 
