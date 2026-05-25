@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,6 +95,12 @@ export default function LoginPage() {
             >
               {loading ? "Sedang log masuk..." : "Log Masuk"}
             </Button>
+            <Link
+              href="/lupa-kata-laluan"
+              className="block text-center text-xs text-gray-500 hover:text-green-700 mt-2"
+            >
+              Lupa kata laluan?
+            </Link>
           </form>
         </CardContent>
       </Card>
