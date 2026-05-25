@@ -77,3 +77,31 @@ export async function changePassword(currentPassword: string, newPassword: strin
 
   return { ok: true };
 }
+
+export async function updateProfile(data: { phone?: string }) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+
+  const phone = data.phone?.trim() || null;
+
+  // Basic phone format validation — allow empty (clear), or digits/spaces/+/-/()
+  if (phone && !/^[0-9+\-\s()]{7,20}$/.test(phone)) {
+    throw new Error("Format nombor telefon tidak sah.");
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { phone },
+  });
+
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: AuditAction.USER_UPDATED,
+    entity: "User",
+    entityId: session.user.id,
+    meta: { fields: ["phone"] },
+  });
+
+  return { ok: true };
+}
