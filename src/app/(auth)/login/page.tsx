@@ -39,7 +39,7 @@ export default function LoginPage() {
     try {
       const res = await signIn("credentials", { email, password, redirect: false });
       if (res?.error?.startsWith("TOTP_REQUIRED:")) {
-        setPendingToken(res.error.replace("TOTP_REQUIRED:", ""));
+        setPendingToken(res.error.slice("TOTP_REQUIRED:".length));
         setStep("totp");
         return;
       }
@@ -171,9 +171,11 @@ export default function LoginPage() {
                     id="recovery"
                     type="text"
                     placeholder="A3F892B1CD"
+                    maxLength={10}
                     value={recoveryCode}
-                    onChange={(e) => setRecoveryCode(e.target.value)}
+                    onChange={(e) => setRecoveryCode(e.target.value.toUpperCase().replace(/\s/g, ""))}
                     required
+                    autoComplete="off"
                     autoFocus
                   />
                   <p className="text-xs text-gray-400">Satu kod pemulihan satu kali guna sahaja.</p>
