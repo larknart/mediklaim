@@ -1,0 +1,174 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { markPaidBulk } from "@/server/actions/approval";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Banknote, Link } from "lucide-react";
+import NextLink from "next/link";
+
+interface ClaimItem {
+  id: string;
+  refNo: string;
+  claimantName: string;
+  departmentName: string | null;
+  totalApprovedMyr: number | null;
+  totalClaimedMyr: number;
+}
+
+export function BulkPaidPanel({ claims }: { claims: ClaimItem[] }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [voucherNo, setVoucherNo] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  function toggleAll() {
+    if (selected.size === claims.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(claims.map((c) => c.id)));
+    }
+  }
+
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  const selectedClaims = claims.filter((c) => selected.has(c.id));
+  const totalSelected = selectedClaims.reduce(
+    (s, c) => s + (c.totalApprovedMyr ?? c.totalClaimedMyr),
+    0
+  );
+
+  function confirm() {
+    setError(""); setSuccess("");
+    startTransition(async () => {
+      try {
+        const result = await markPaidBulk([...selected], voucherNo.trim() || undefined);
+        setSuccess(`${result.count} tuntutan berjaya ditandakan dibayar.`);
+        setSelected(new Set());
+        setVoucherNo("");
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Gagal proses pembayaran.");
+      }
+    });
+  }
+
+  if (claims.length === 0) {
+    return (
+      <div className="py-8 text-center text-gray-400 text-sm">
+        Tiada tuntutan menunggu pembayaran.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Claim list with checkboxes */}
+      <div className="divide-y border rounded-lg overflow-hidden bg-white">
+        <label className="flex items-center gap-3 p-3 bg-gray-50 cursor-pointer">
+          <Checkbox
+            checked={selected.size === claims.length && claims.length > 0}
+            onCheckedChange={toggleAll}
+          />
+          <span className="text-sm font-medium text-gray-700">Pilih Semua ({claims.length})</span>
+        </label>
+        {claims.map((claim) => (
+          <div key={claim.id} className="flex items-center gap-3 p-3 hover:bg-gray-50">
+            <Checkbox
+              checked={selected.has(claim.id)}
+              onCheckedChange={() => toggleOne(claim.id)}
+            />
+            <div className="flex-1 min-w-0">
+              <NextLink href={`/tuntutan/${claim.id}`} className="font-medium text-sm hover:underline text-green-800">
+                {claim.refNo}
+              </NextLink>
+              <p className="text-xs text-gray-500">
+                {claim.claimantName} · {claim.departmentName ?? "—"}
+              </p>
+            </div>
+            <span className="text-sm font-semibold text-emerald-700 shrink-0">
+              RM {(claim.totalApprovedMyr ?? claim.totalClaimedMyr).toFixed(2)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Voucher + action */}
+      {selected.size > 0 && (
+        <Card className="border-emerald-200 bg-emerald-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-emerald-800 flex items-center gap-2">
+              <Banknote className="w-4 h-4" />
+              {selected.size} tuntutan dipilih · Jumlah: RM {totalSelected.toFixed(2)}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-xs text-emerald-700 mb-1.5 block">No. Baucer Pembayaran (opsyenal)</Label>
+              <Input
+                value={voucherNo}
+                onChange={(e) => setVoucherNo(e.target.value)}
+                placeholder="cth: BV-2026-001234"
+                className="bg-white text-sm"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                No. baucer yang sama akan direkodkan untuk semua tuntutan yang dipilih.
+              </p>
+            </div>
+            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+            {success && <p className="text-xs text-emerald-700 font-medium">{success}</p>}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button disabled={isPending} className="w-full bg-emerald-700 hover:bg-emerald-800 text-white">
+                  <Banknote className="w-4 h-4 mr-2" />
+                  {isPending ? "Memproses..." : `Tandakan ${selected.size} Tuntutan Dibayar`}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Sahkan Pembayaran Bulk</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tandakan <strong>{selected.size} tuntutan</strong> sebagai dibayar (jumlah: RM {totalSelected.toFixed(2)})?
+                    {voucherNo.trim() && <> No. Baucer: <strong>{voucherNo.trim()}</strong>.</>}
+                    {" "}Tindakan ini tidak boleh dibatalkan.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction onClick={confirm} className="bg-emerald-700 hover:bg-emerald-800">
+                    Ya, Tandakan Dibayar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}

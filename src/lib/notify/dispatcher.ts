@@ -7,9 +7,11 @@ import {
   emailCLAIM_SUBMITTED,
   emailCLAIM_APPROVED,
   emailCLAIM_REJECTED,
+  emailCLAIM_PAID,
   emailACTION_REQUIRED,
   waCLAIM_APPROVED,
   waCLAIM_REJECTED,
+  waCLAIM_PAID,
   waACTION_REQUIRED,
 } from "./templates";
 
@@ -22,10 +24,11 @@ export type NotifyEvent =
   | "APPROVER_PENDING"
   | "CLAIM_APPROVED"
   | "CLAIM_REJECTED"
+  | "CLAIM_PAID"
   | "ACTION_REQUIRED";
 
 // WA-eligible events only (to reduce ban risk)
-const WA_EVENTS: NotifyEvent[] = ["CLAIM_APPROVED", "CLAIM_REJECTED", "ACTION_REQUIRED"];
+const WA_EVENTS: NotifyEvent[] = ["CLAIM_APPROVED", "CLAIM_REJECTED", "CLAIM_PAID", "ACTION_REQUIRED"];
 
 // ─── Main dispatcher ──────────────────────────────────────────────────────────
 
@@ -45,6 +48,7 @@ interface DispatchParams {
     reason?: string;
     role?: string;
     daysPending?: number;
+    voucherNo?: string;
   };
 }
 
@@ -116,7 +120,7 @@ function buildInAppMessage(
   event: NotifyEvent,
   refNo: string,
   claimantName: string,
-  meta?: { reason?: string; role?: string; daysPending?: number }
+  meta?: { reason?: string; role?: string; daysPending?: number; voucherNo?: string }
 ): { title: string; body: string } {
   switch (event) {
     case "CLAIM_SUBMITTED":
@@ -131,6 +135,8 @@ function buildInAppMessage(
       return { title: "Tuntutan Diluluskan ✓", body: `Tuntutan ${refNo} anda telah diluluskan.` };
     case "CLAIM_REJECTED":
       return { title: "Tuntutan Ditolak", body: `Tuntutan ${refNo} anda telah ditolak.${meta?.reason ? ` Sebab: ${meta.reason}` : ""}` };
+    case "CLAIM_PAID":
+      return { title: "Bayaran Telah Diproses ✓", body: `Bayaran bagi tuntutan ${refNo} telah diproses.${meta?.voucherNo ? ` No. Baucer: ${meta.voucherNo}` : ""}` };
     case "ACTION_REQUIRED":
       return { title: "Tindakan Diperlukan", body: `Tuntutan ${refNo} (${claimantName}) tertangguh ${meta?.daysPending ?? 0} hari.` };
   }
@@ -140,7 +146,7 @@ function buildEmailPayload(
   event: NotifyEvent,
   recipientName: string,
   ctx: Parameters<typeof emailCLAIM_SUBMITTED>[0],
-  meta?: { reason?: string; role?: string; daysPending?: number }
+  meta?: { reason?: string; role?: string; daysPending?: number; voucherNo?: string }
 ) {
   switch (event) {
     case "CLAIM_SUBMITTED":
@@ -155,6 +161,8 @@ function buildEmailPayload(
       return emailCLAIM_APPROVED(ctx);
     case "CLAIM_REJECTED":
       return emailCLAIM_REJECTED({ ...ctx, reason: meta?.reason });
+    case "CLAIM_PAID":
+      return emailCLAIM_PAID({ ...ctx, voucherNo: meta?.voucherNo });
     case "ACTION_REQUIRED":
       return emailACTION_REQUIRED(recipientName, meta?.role ?? "Pegawai", ctx);
   }
@@ -164,13 +172,15 @@ function buildWaMessage(
   event: NotifyEvent,
   recipientName: string,
   ctx: Parameters<typeof waCLAIM_APPROVED>[0],
-  meta?: { reason?: string; role?: string; daysPending?: number }
+  meta?: { reason?: string; role?: string; daysPending?: number; voucherNo?: string }
 ): string | null {
   switch (event) {
     case "CLAIM_APPROVED":
       return waCLAIM_APPROVED(ctx);
     case "CLAIM_REJECTED":
       return waCLAIM_REJECTED({ ...ctx, reason: meta?.reason });
+    case "CLAIM_PAID":
+      return waCLAIM_PAID({ ...ctx, voucherNo: meta?.voucherNo });
     case "ACTION_REQUIRED":
       return waACTION_REQUIRED(
         recipientName,

@@ -422,19 +422,22 @@ export async function bulkApprove(claimIds: string[]) {
 
 // ─── Mark paid ────────────────────────────────────────────────────────────────
 
-export async function markPaid(claimId: string) {
+export async function markPaid(claimId: string, voucherNo?: string) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
   const paidOk = isFinance(session.user) ||
     !!(await getActiveDelegation(session.user.id, Role.FINANCE));
   if (!paidOk) throw new Error("UNAUTHORIZED");
 
-  const claim = await prisma.claim.findUnique({ where: { id: claimId } });
+  const claim = await prisma.claim.findUnique({
+    where: { id: claimId },
+    include: { claimant: { select: { id: true, name: true } } },
+  });
   if (!claim || claim.status !== ClaimStatus.APPROVED) throw new Error("INVALID_STATE");
 
   await prisma.claim.update({
     where: { id: claimId },
-    data: { status: ClaimStatus.PAID, paidAt: new Date() },
+    data: { status: ClaimStatus.PAID, paidAt: new Date(), voucherNo: voucherNo || null },
   });
 
   await logAction({
@@ -443,9 +446,76 @@ export async function markPaid(claimId: string) {
     action: AuditAction.CLAIM_PAID,
     entity: "Claim",
     entityId: claimId,
+    meta: voucherNo ? { voucherNo } : undefined,
   });
 
+  dispatch({
+    event: "CLAIM_PAID",
+    recipientId: claim.claimantId,
+    claim: {
+      id: claim.id,
+      refNo: claim.refNo,
+      claimantName: claim.claimant.name,
+      forMonth: claim.forMonth,
+      forYear: claim.forYear,
+      totalMyr: claim.totalApprovedMyr ?? claim.totalClaimedMyr,
+      status: "PAID",
+    },
+    meta: voucherNo ? { voucherNo } : undefined,
+  }).catch(() => {});
+
   return { ok: true };
+}
+
+export async function markPaidBulk(claimIds: string[], voucherNo?: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  const paidOk = isFinance(session.user) ||
+    !!(await getActiveDelegation(session.user.id, Role.FINANCE));
+  if (!paidOk) throw new Error("UNAUTHORIZED");
+
+  const claims = await prisma.claim.findMany({
+    where: { id: { in: claimIds }, status: ClaimStatus.APPROVED },
+    include: { claimant: { select: { id: true, name: true } } },
+  });
+
+  const now = new Date();
+  await prisma.claim.updateMany({
+    where: { id: { in: claims.map((c) => c.id) } },
+    data: { status: ClaimStatus.PAID, paidAt: now, voucherNo: voucherNo || null },
+  });
+
+  await Promise.all(
+    claims.map((claim) =>
+      logAction({
+        actorId: session.user.id,
+        actorName: session.user.name ?? undefined,
+        action: AuditAction.CLAIM_PAID,
+        entity: "Claim",
+        entityId: claim.id,
+        meta: voucherNo ? { voucherNo, bulk: true } : { bulk: true },
+      })
+    )
+  );
+
+  claims.forEach((claim) => {
+    dispatch({
+      event: "CLAIM_PAID",
+      recipientId: claim.claimantId,
+      claim: {
+        id: claim.id,
+        refNo: claim.refNo,
+        claimantName: claim.claimant.name,
+        forMonth: claim.forMonth,
+        forYear: claim.forYear,
+        totalMyr: claim.totalApprovedMyr ?? claim.totalClaimedMyr,
+        status: "PAID",
+      },
+      meta: voucherNo ? { voucherNo } : undefined,
+    }).catch(() => {});
+  });
+
+  return { ok: true, count: claims.length };
 }
 
 // ─── Internal helper ──────────────────────────────────────────────────────────

@@ -224,6 +224,14 @@ export default async function ClaimDetailPage({
               </p>
             </div>
           </div>
+
+          {claim.voucherNo && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 rounded px-3 py-1.5 border border-emerald-200">
+              <span className="font-medium">No. Baucer:</span>
+              <span className="font-mono">{claim.voucherNo}</span>
+            </div>
+          )}
+
         </CardContent>
       </Card>
 

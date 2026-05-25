@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { markPaid } from "@/server/actions/approval";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -29,12 +31,13 @@ export function MarkPaidButton({ claimId, refNo, totalApprovedMyr }: MarkPaidBut
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [voucherNo, setVoucherNo] = useState("");
 
   function confirm() {
     setError("");
     startTransition(async () => {
       try {
-        await markPaid(claimId);
+        await markPaid(claimId, voucherNo.trim() || undefined);
         router.refresh();
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Gagal tandakan dibayar.");
@@ -60,6 +63,15 @@ export function MarkPaidButton({ claimId, refNo, totalApprovedMyr }: MarkPaidBut
             <span className="text-emerald-700">RM {totalApprovedMyr.toFixed(2)}</span>
           </div>
         )}
+        <div>
+          <Label className="text-xs text-emerald-700 mb-1.5 block">No. Baucer Pembayaran (opsyenal)</Label>
+          <Input
+            value={voucherNo}
+            onChange={(e) => setVoucherNo(e.target.value)}
+            placeholder="cth: BV-2026-001234"
+            className="bg-white text-sm"
+          />
+        </div>
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
@@ -79,7 +91,9 @@ export function MarkPaidButton({ claimId, refNo, totalApprovedMyr }: MarkPaidBut
             <AlertDialogHeader>
               <AlertDialogTitle>Sahkan Pembayaran</AlertDialogTitle>
               <AlertDialogDescription>
-                Tandakan tuntutan <strong>{refNo}</strong> sebagai dibayar? Tindakan ini tidak boleh dibatalkan.
+                Tandakan tuntutan <strong>{refNo}</strong> sebagai dibayar?
+                {voucherNo.trim() && <> No. Baucer: <strong>{voucherNo.trim()}</strong>.</>}
+                {" "}Tindakan ini tidak boleh dibatalkan.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

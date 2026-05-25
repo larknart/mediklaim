@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
       totalApprovedMyr: c.totalApprovedMyr ? Number(c.totalApprovedMyr) : null,
       submittedAt: c.submittedAt,
       paidAt: c.paidAt,
+      voucherNo: c.voucherNo,
     })),
     label,
     orgName

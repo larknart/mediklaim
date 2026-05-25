@@ -234,6 +234,7 @@ model Claim {
   totalApprovedMyr Decimal?    @db.Decimal(10, 2)
   submittedAt      DateTime?
   paidAt           DateTime?
+  voucherNo        String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   resubmittedFromId String?

@@ -32,6 +32,10 @@ export function waCLAIM_APPROVED(ctx: ClaimContext): string {
   return `${greeting()} ${ctx.claimantName},\n\nTuntutan perubatan anda *${ctx.refNo}* bagi bulan *${monthName(ctx.forMonth)} ${ctx.forYear}* telah *DILULUSKAN*.\n\nAmaun diluluskan: *RM ${ctx.totalMyr.toFixed(2)}*\n\nBayaran akan diproses oleh bahagian Kewangan. Terima kasih.`;
 }
 
+export function waCLAIM_PAID(ctx: ClaimContext & { voucherNo?: string }): string {
+  return `${greeting()} ${ctx.claimantName},\n\nBayaran bagi tuntutan perubatan anda *${ctx.refNo}* (${monthName(ctx.forMonth)} ${ctx.forYear}) telah diproses.\n\nAmaun: *RM ${ctx.totalMyr.toFixed(2)}*${ctx.voucherNo ? `\nNo. Baucer: *${ctx.voucherNo}*` : ""}\n\nTerima kasih.`;
+}
+
 export function waCLAIM_REJECTED(ctx: ClaimContext & { reason?: string }): string {
   return `${greeting()} ${ctx.claimantName},\n\nMaaf, tuntutan perubatan anda *${ctx.refNo}* bagi bulan *${monthName(ctx.forMonth)} ${ctx.forYear}* telah *DITOLAK*.\n\n${ctx.reason ? `Sebab: ${ctx.reason}\n\n` : ""}Sila hubungi bahagian Kewangan untuk maklumat lanjut.`;
 }
@@ -87,6 +91,22 @@ export function emailCLAIM_APPROVED(ctx: ClaimContext) {
       `<p>Tuntutan perubatan anda <strong>${ctx.refNo}</strong> bagi <strong>${monthName(ctx.forMonth)} ${ctx.forYear}</strong> telah <span style="color:green;font-weight:bold">DILULUSKAN</span>.</p>
        <p>Amaun diluluskan: <strong>RM ${ctx.totalMyr.toFixed(2)}</strong></p>
        <p>Bayaran akan diproses oleh bahagian Kewangan.</p>`,
+      ctx.link
+    ),
+  };
+}
+
+export function emailCLAIM_PAID(ctx: ClaimContext & { voucherNo?: string }) {
+  return {
+    subject: `[MediKlaim] Bayaran Tuntutan ${ctx.refNo} Telah Diproses`,
+    html: emailLayout(
+      "Bayaran Telah Diproses ✓",
+      `<p>Bayaran bagi tuntutan perubatan anda <strong>${ctx.refNo}</strong> (${monthName(ctx.forMonth)} ${ctx.forYear}) telah diproses.</p>
+       <table>
+         <tr><td>Amaun:</td><td><strong>RM ${ctx.totalMyr.toFixed(2)}</strong></td></tr>
+         ${ctx.voucherNo ? `<tr><td>No. Baucer:</td><td><strong>${ctx.voucherNo}</strong></td></tr>` : ""}
+       </table>
+       <p>Simpan maklumat ini sebagai rekod pembayaran anda.</p>`,
       ctx.link
     ),
   };

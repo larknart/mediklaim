@@ -47,9 +47,10 @@ const s = StyleSheet.create({
   cStaff: { width: 50, textAlign: "center" },
   cDept: { width: 85, paddingLeft: 4 },
   cMonth: { width: 44, textAlign: "center" },
-  cFor: { width: 65, textAlign: "center" },
-  cStatus: { width: 70, textAlign: "center" },
-  cAmt: { width: 58, textAlign: "right" },
+  cFor: { width: 55, textAlign: "center" },
+  cStatus: { width: 60, textAlign: "center" },
+  cAmt: { width: 52, textAlign: "right" },
+  cVoucher: { width: 64, paddingLeft: 4 },
 
   // Summary
   summarySection: { marginTop: 10, flexDirection: "row", justifyContent: "flex-end", gap: 8 },
@@ -117,6 +118,7 @@ function LaporanDocument({ data }: { data: LaporanPdfData }) {
           <Text style={[s.th, s.cAmt]}>Tuntut (RM)</Text>
           <Text style={[s.th, s.cAmt]}>Layak (RM)</Text>
           <Text style={[s.th, s.cAmt]}>Lulus (RM)</Text>
+          <Text style={[s.th, s.cVoucher]}>No. Baucer</Text>
         </View>
 
         {data.rows.map((row, i) => {
@@ -138,6 +140,7 @@ function LaporanDocument({ data }: { data: LaporanPdfData }) {
               <Text style={[tdStyle, s.cAmt]}>{fmt(row.totalClaimedMyr)}</Text>
               <Text style={[tdStyle, s.cAmt]}>{fmt(row.totalEligibleMyr)}</Text>
               <Text style={[isApproved ? s.tdGreen : tdStyle, s.cAmt]}>{fmt(row.totalApprovedMyr)}</Text>
+              <Text style={[tdStyle, s.cVoucher]}>{row.voucherNo ?? "—"}</Text>
             </View>
           );
         })}
@@ -155,6 +158,7 @@ function LaporanDocument({ data }: { data: LaporanPdfData }) {
           <Text style={[s.th, s.cAmt, { color: "#1a1a1a" }]}>{fmt(totalClaimed)}</Text>
           <Text style={[s.th, s.cAmt, { color: "#1a1a1a" }]}>{fmt(totalEligible)}</Text>
           <Text style={[s.th, s.cAmt, { color: "#1c5e2f" }]}>{fmt(totalApproved)}</Text>
+          <Text style={[s.th, s.cVoucher]} />
         </View>
 
         {/* Summary boxes */}

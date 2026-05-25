@@ -1,0 +1,1 @@
+ALTER TABLE "Claim" ADD COLUMN "voucherNo" TEXT;
