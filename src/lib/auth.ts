@@ -34,29 +34,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { id: userId },
             include: { roles: true },
           });
-          if (!user || !user.isActive || !user.totpEnabled || !user.totpSecret) return null;
+          if (!user || !user.isActive || user.deletedAt || !user.totpEnabled || !user.totpSecret) return null;
 
           const totpCode = (creds.totpCode as string | undefined)?.replace(/\s/g, "");
           const recoveryCode = creds.recoveryCode as string | undefined;
 
           if (totpCode) {
             if (!verifyTotpCode(totpCode, user.totpSecret)) return null;
+            await prisma.user.update({
+              where: { id: userId },
+              data: { loginFailCount: 0, lockedUntil: null },
+            });
           } else if (recoveryCode) {
             if (!user.totpRecoveryCodes) return null;
             const remaining = await consumeRecoveryCode(recoveryCode, user.totpRecoveryCodes);
             if (remaining === null) return null;
+            // Merge recovery code consumption and lockout reset into one DB round-trip
             await prisma.user.update({
               where: { id: userId },
-              data: { totpRecoveryCodes: remaining },
+              data: { totpRecoveryCodes: remaining, loginFailCount: 0, lockedUntil: null },
             });
           } else {
             return null;
           }
-
-          await prisma.user.update({
-            where: { id: userId },
-            data: { loginFailCount: 0, lockedUntil: null },
-          });
 
           return {
             id: user.id,
