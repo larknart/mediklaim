@@ -55,6 +55,9 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
       try {
         const result = await confirm2fa(enrollCode, secret);
         setRecoveryCodes(result.recoveryCodes);
+        setSecret("");
+        setQrDataUrl("");
+        setEnrollCode("");
         setEnabled(true);
         setState("showing_codes");
         router.refresh();
@@ -81,9 +84,9 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
   }
 
   function copyAllCodes() {
-    navigator.clipboard.writeText(recoveryCodes.join("\n"));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(recoveryCodes.join("\n"))
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
+      .catch(() => setError("Gagal menyalin. Sila salin kod secara manual."));
   }
 
   if (state === "idle") {
@@ -94,6 +97,11 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
             <AlertDescription className="text-amber-700">
               Pentadbir sistem mewajibkan 2FA untuk akaun Admin. Sila aktifkan sebelum meneruskan.
             </AlertDescription>
+          </Alert>
+        )}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         <div className="flex items-center justify-between">
@@ -170,7 +178,7 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
         </div>
         <div className="flex gap-2">
           <Button type="button" variant="outline" className="flex-1"
-            onClick={() => { setState("idle"); setError(""); setEnrollCode(""); }}>
+            onClick={() => { setState("idle"); setError(""); setEnrollCode(""); setSecret(""); setQrDataUrl(""); }}>
             Batal
           </Button>
           <Button
@@ -209,7 +217,7 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
             <><Copy className="w-4 h-4 mr-2" />Salin Semua Kod</>
           )}
         </Button>
-        <Button type="button" className="w-full bg-green-700 hover:bg-green-800" onClick={() => setState("idle")}>
+        <Button type="button" className="w-full bg-green-700 hover:bg-green-800" onClick={() => { setRecoveryCodes([]); setCopied(false); setState("idle"); }}>
           Selesai
         </Button>
       </div>
