@@ -1,26 +1,35 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { Role } from "@/generated/prisma";
 import { ChangePasswordForm } from "./_components/change-password-form";
 import { UpdateProfileForm } from "./_components/update-profile-form";
+import { TotpSection } from "./_components/totp-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Lock, Phone } from "lucide-react";
+import { User, Lock, Phone, ShieldCheck } from "lucide-react";
 
 export default async function ProfilPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      name: true,
-      email: true,
-      staffNo: true,
-      phone: true,
-      roles: { select: { role: true } },
-    },
-  });
+  const [user, require2faSetting] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        name: true,
+        email: true,
+        staffNo: true,
+        phone: true,
+        roles: { select: { role: true } },
+        totpEnabled: true,
+      },
+    }),
+    prisma.settings.findUnique({ where: { key: "require_2fa_admin" } }),
+  ]);
   if (!user) redirect("/login");
+
+  const isAdminUser = session.user.roles.includes(Role.ADMIN);
+  const require2fa = isAdminUser && require2faSetting?.value === true && !user.totpEnabled;
 
   return (
     <div className="space-y-6 max-w-lg">
@@ -29,7 +38,6 @@ export default async function ProfilPage() {
         <p className="text-gray-500 text-sm mt-1">Maklumat akaun dan keselamatan</p>
       </div>
 
-      {/* Account info — read-only */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
@@ -59,7 +67,6 @@ export default async function ProfilPage() {
         </CardContent>
       </Card>
 
-      {/* Phone — editable */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
@@ -72,7 +79,18 @@ export default async function ProfilPage() {
         </CardContent>
       </Card>
 
-      {/* Change password */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4" />
+            Pengesahan 2 Faktor (2FA)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TotpSection totpEnabled={user.totpEnabled} required={require2fa} />
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">

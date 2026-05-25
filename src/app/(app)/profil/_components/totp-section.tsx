@@ -1,0 +1,257 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { initiate2fa, confirm2fa, disable2fa } from "@/server/actions/totp";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { ShieldCheck, ShieldOff, Copy, CheckCircle2 } from "lucide-react";
+
+type State = "idle" | "enrolling" | "showing_codes" | "disabling";
+
+interface Props {
+  totpEnabled: boolean;
+  required?: boolean;
+}
+
+export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<State>("idle");
+  const [enabled, setEnabled] = useState(initialEnabled);
+  const [error, setError] = useState("");
+
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [secret, setSecret] = useState("");
+  const [enrollCode, setEnrollCode] = useState("");
+
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [copied, setCopied] = useState(false);
+
+  const [disableCode, setDisableCode] = useState("");
+
+  function startEnroll() {
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = await initiate2fa();
+        setQrDataUrl(result.qrDataUrl);
+        setSecret(result.secret);
+        setState("enrolling");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Ralat sistem.");
+      }
+    });
+  }
+
+  function submitEnroll(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = await confirm2fa(enrollCode, secret);
+        setRecoveryCodes(result.recoveryCodes);
+        setEnabled(true);
+        setState("showing_codes");
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Ralat sistem.");
+      }
+    });
+  }
+
+  function submitDisable(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    startTransition(async () => {
+      try {
+        await disable2fa(disableCode);
+        setEnabled(false);
+        setDisableCode("");
+        setState("idle");
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Ralat sistem.");
+      }
+    });
+  }
+
+  function copyAllCodes() {
+    navigator.clipboard.writeText(recoveryCodes.join("\n"));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  if (state === "idle") {
+    return (
+      <div className="space-y-4">
+        {required && !enabled && (
+          <Alert>
+            <AlertDescription className="text-amber-700">
+              Pentadbir sistem mewajibkan 2FA untuk akaun Admin. Sila aktifkan sebelum meneruskan.
+            </AlertDescription>
+          </Alert>
+        )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {enabled ? (
+              <>
+                <ShieldCheck className="w-5 h-5 text-green-600" />
+                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Aktif</Badge>
+              </>
+            ) : (
+              <>
+                <ShieldOff className="w-5 h-5 text-gray-400" />
+                <Badge variant="outline" className="text-gray-500">Tidak Aktif</Badge>
+              </>
+            )}
+          </div>
+          {enabled ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 border-red-200 hover:bg-red-50"
+              onClick={() => { setState("disabling"); setError(""); }}
+            >
+              Nyahaktif 2FA
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="bg-green-700 hover:bg-green-800"
+              onClick={startEnroll}
+              disabled={isPending}
+            >
+              {isPending ? "Memuat..." : "Aktifkan 2FA"}
+            </Button>
+          )}
+        </div>
+        {!enabled && (
+          <p className="text-xs text-gray-500">
+            2FA menambah lapisan keselamatan dengan memerlukan kod dari aplikasi authenticator semasa log masuk.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (state === "enrolling") {
+    return (
+      <form onSubmit={submitEnroll} className="space-y-4">
+        <p className="text-sm text-gray-600">
+          Imbas kod QR menggunakan aplikasi authenticator (Google Authenticator, Authy, dll.).
+        </p>
+        <div className="flex justify-center">
+          <Image src={qrDataUrl} alt="QR 2FA" width={200} height={200} className="border rounded" unoptimized />
+        </div>
+        <details className="text-xs text-gray-400">
+          <summary className="cursor-pointer hover:text-gray-600">Tidak dapat imbas? Masukkan kunci manual</summary>
+          <code className="block mt-2 p-2 bg-gray-100 rounded break-all select-all font-mono">{secret}</code>
+        </details>
+        {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+        <div className="space-y-2">
+          <Label htmlFor="enroll-code">Kod 6 digit dari aplikasi</Label>
+          <Input
+            id="enroll-code"
+            type="text"
+            inputMode="numeric"
+            placeholder="000000"
+            maxLength={6}
+            value={enrollCode}
+            onChange={(e) => setEnrollCode(e.target.value.replace(/\D/g, ""))}
+            required
+            autoFocus
+            className="text-center text-xl tracking-widest"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" className="flex-1"
+            onClick={() => { setState("idle"); setError(""); setEnrollCode(""); }}>
+            Batal
+          </Button>
+          <Button
+            type="submit"
+            className="flex-1 bg-green-700 hover:bg-green-800"
+            disabled={isPending || enrollCode.length !== 6}
+          >
+            {isPending ? "Mengesahkan..." : "Aktifkan"}
+          </Button>
+        </div>
+      </form>
+    );
+  }
+
+  if (state === "showing_codes") {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 text-sm text-green-800 bg-green-50 rounded p-4 border border-green-200">
+          <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">2FA berjaya diaktifkan</p>
+            <p className="text-xs text-green-700 mt-1">
+              Simpan kod pemulihan di bawah di tempat selamat. Ia hanya dipaparkan sekali sahaja.
+            </p>
+          </div>
+        </div>
+        <div className="bg-gray-50 rounded p-3 border space-y-1">
+          {recoveryCodes.map((code) => (
+            <code key={code} className="block text-sm font-mono text-gray-700">{code}</code>
+          ))}
+        </div>
+        <Button type="button" variant="outline" size="sm" className="w-full" onClick={copyAllCodes}>
+          {copied ? (
+            <><CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />Disalin!</>
+          ) : (
+            <><Copy className="w-4 h-4 mr-2" />Salin Semua Kod</>
+          )}
+        </Button>
+        <Button type="button" className="w-full bg-green-700 hover:bg-green-800" onClick={() => setState("idle")}>
+          Selesai
+        </Button>
+      </div>
+    );
+  }
+
+  // state === "disabling"
+  return (
+    <form onSubmit={submitDisable} className="space-y-4">
+      <p className="text-sm text-gray-600">
+        Masukkan kod 6 digit dari aplikasi authenticator untuk mengesahkan penyahaktifan 2FA.
+      </p>
+      {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+      <div className="space-y-2">
+        <Label htmlFor="disable-code">Kod Pengesahan</Label>
+        <Input
+          id="disable-code"
+          type="text"
+          inputMode="numeric"
+          placeholder="000000"
+          maxLength={6}
+          value={disableCode}
+          onChange={(e) => setDisableCode(e.target.value.replace(/\D/g, ""))}
+          required
+          autoFocus
+          className="text-center text-xl tracking-widest"
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button type="button" variant="outline" className="flex-1"
+          onClick={() => { setState("idle"); setError(""); setDisableCode(""); }}>
+          Batal
+        </Button>
+        <Button
+          type="submit"
+          variant="destructive"
+          className="flex-1"
+          disabled={isPending || disableCode.length !== 6}
+        >
+          {isPending ? "Memproses..." : "Nyahaktif 2FA"}
+        </Button>
+      </div>
+    </form>
+  );
+}
