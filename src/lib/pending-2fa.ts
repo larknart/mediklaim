@@ -4,7 +4,7 @@ export function signPending2faToken(userId: string): string {
   const expiry = Date.now() + 5 * 60 * 1000; // 5 min
   const payload = `${userId}:${expiry}`;
   const sig = crypto
-    .createHmac("sha256", process.env.AUTH_SECRET!)
+    .createHmac("sha256", (process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET)!)
     .update(payload)
     .digest("hex");
   return Buffer.from(`${payload}:${sig}`).toString("base64url");
@@ -18,7 +18,7 @@ export function verifyPending2faToken(token: string): string | null {
     const [userId, expiry, sig] = parts;
     const payload = `${userId}:${expiry}`;
     const expected = crypto
-      .createHmac("sha256", process.env.AUTH_SECRET!)
+      .createHmac("sha256", (process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET)!)
       .update(payload)
       .digest("hex");
     if (sig.length !== expected.length) return null;

@@ -1,10 +1,9 @@
-import { generateSecret, generateSync, verifySync, generateURI } from "otplib";
+import { generateSecret, verifySync, generateURI } from "otplib";
 import qrcode from "qrcode";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 
 export function generateTotpSecret(): string {
-  // length is the number of base32 chars; 32 chars ≈ 20 bytes of entropy
   return generateSecret({ length: 32 });
 }
 
@@ -44,7 +43,12 @@ export async function consumeRecoveryCode(
   inputCode: string,
   hashedCodesJson: string
 ): Promise<string | null> {
-  const hashes: string[] = JSON.parse(hashedCodesJson);
+  let hashes: string[];
+  try {
+    hashes = JSON.parse(hashedCodesJson);
+  } catch {
+    return null;
+  }
   for (let i = 0; i < hashes.length; i++) {
     if (
       await bcrypt.compare(
