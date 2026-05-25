@@ -1,9 +1,11 @@
-﻿import NextAuth from "next-auth";
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
-import bcrypt from "bcryptjs";
 import { Role } from "@/generated/prisma";
+import { signPending2faToken, verifyPending2faToken } from "@/lib/pending-2fa";
+import { verifyTotpCode, consumeRecoveryCode } from "@/lib/totp";
+import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -18,7 +20,56 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials) return null;
+        // NextAuth v5 narrows credentials to declared keys only; cast to access
+        // extra fields passed via signIn() (pendingToken, totpCode, recoveryCode)
+        const creds = credentials as Record<string, unknown>;
+
+        // ── Path A: second factor (pendingToken present) ──────────────────
+        if (creds.pendingToken) {
+          const userId = verifyPending2faToken(creds.pendingToken as string);
+          if (!userId) return null;
+
+          const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { roles: true },
+          });
+          if (!user || !user.isActive || !user.totpEnabled || !user.totpSecret) return null;
+
+          const totpCode = (creds.totpCode as string | undefined)?.replace(/\s/g, "");
+          const recoveryCode = creds.recoveryCode as string | undefined;
+
+          if (totpCode) {
+            if (!verifyTotpCode(totpCode, user.totpSecret)) return null;
+          } else if (recoveryCode) {
+            if (!user.totpRecoveryCodes) return null;
+            const remaining = await consumeRecoveryCode(recoveryCode, user.totpRecoveryCodes);
+            if (remaining === null) return null;
+            await prisma.user.update({
+              where: { id: userId },
+              data: { totpRecoveryCodes: remaining },
+            });
+          } else {
+            return null;
+          }
+
+          await prisma.user.update({
+            where: { id: userId },
+            data: { loginFailCount: 0, lockedUntil: null },
+          });
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            roles: user.roles.map((r) => r.role),
+            isAhliMajlis: user.isAhliMajlis,
+            departmentId: user.departmentId,
+          };
+        }
+
+        // ── Path B: first factor (email + password) ───────────────────────
+        if (!credentials.email || !credentials.password) return null;
 
         const [user, maxRow, durRow] = await Promise.all([
           prisma.user.findUnique({
@@ -35,7 +86,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        // Check account lockout
         if (user.lockedUntil && user.lockedUntil > new Date()) {
           throw new Error("ACCOUNT_LOCKED");
         }
@@ -46,23 +96,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         );
 
         if (!valid) {
-          // Increment fail count, lock after configurable threshold
           const fails = user.loginFailCount + 1;
           await prisma.user.update({
             where: { id: user.id },
             data: {
               loginFailCount: fails,
-              lockedUntil: fails >= maxFails ? new Date(Date.now() + lockMins * 60 * 1000) : undefined,
+              lockedUntil:
+                fails >= maxFails
+                  ? new Date(Date.now() + lockMins * 60 * 1000)
+                  : undefined,
             },
           });
           return null;
         }
 
-        // Reset fail count on success
         await prisma.user.update({
           where: { id: user.id },
           data: { loginFailCount: 0, lockedUntil: null },
         });
+
+        // Password valid — check if 2FA required before issuing session
+        if (user.totpEnabled && user.totpSecret) {
+          const pending = signPending2faToken(user.id);
+          throw new Error("TOTP_REQUIRED:" + pending);
+        }
 
         return {
           id: user.id,
