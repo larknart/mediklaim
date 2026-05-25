@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
+import { checkPasswordPolicy } from "@/lib/password-policy";
 import bcrypt from "bcryptjs";
 
 function requireAdmin(user: { id: string; roles: Role[]; isAhliMajlis: boolean; departmentId: string | null }) {
@@ -60,6 +61,9 @@ export async function createUser(data: {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
   requireAdmin(session.user);
+
+  const policyError = await checkPasswordPolicy(data.password);
+  if (policyError) throw new Error(policyError);
 
   const passwordHash = await bcrypt.hash(data.password, 10);
   const user = await prisma.user.create({
@@ -133,6 +137,9 @@ export async function resetUserPassword(userId: string, newPassword: string) {
   const session = await auth();
   if (!session?.user) throw new Error("UNAUTHORIZED");
   requireAdmin(session.user);
+
+  const policyError = await checkPasswordPolicy(newPassword);
+  if (policyError) throw new Error(policyError);
 
   const passwordHash = await bcrypt.hash(newPassword, 10);
   await prisma.user.update({ where: { id: userId }, data: { passwordHash, loginFailCount: 0, lockedUntil: null } });
