@@ -21,6 +21,7 @@ import {
   LogOut,
   Building2,
   CalendarRange,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -163,6 +164,13 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
           <p className="text-sm font-medium text-white truncate">{session?.user?.name}</p>
           <p className="text-xs text-green-300 truncate">{session?.user?.email}</p>
         </div>
+        <Link
+          href="/profil"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-200 hover:bg-green-800 hover:text-white transition-colors mb-1"
+        >
+          <UserCircle className="w-4 h-4 shrink-0" />
+          Profil &amp; Kata Laluan
+        </Link>
         <Button
           variant="ghost"
           size="sm"
