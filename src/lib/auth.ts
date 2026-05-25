@@ -110,16 +110,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { loginFailCount: 0, lockedUntil: null },
-        });
-
-        // Password valid — check if 2FA required before issuing session
+        // Password valid — check if 2FA required before issuing session.
+        // Reset fail count only after all factors succeed; resetting here would
+        // let an attacker with a stolen password brute-force TOTP without lockout.
         if (user.totpEnabled && user.totpSecret) {
           const pending = signPending2faToken(user.id);
           throw new Error("TOTP_REQUIRED:" + pending);
         }
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { loginFailCount: 0, lockedUntil: null },
+        });
 
         return {
           id: user.id,

@@ -12,6 +12,7 @@ export function verifyTotpCode(code: string, secret: string): boolean {
     const result = verifySync({
       token: code.replace(/\s/g, ""),
       secret,
+      epochTolerance: 1,
     });
     return result.valid;
   } catch {
