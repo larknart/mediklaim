@@ -122,6 +122,7 @@ export default async function TetapanPage() {
             passwordRequireNumber={s["password_require_number"] !== false}
             passwordRequireSymbol={Boolean(s["password_require_symbol"] ?? false)}
             maxUploadSizeMb={Number(s["max_upload_size_mb"] ?? 10)}
+            require2faAdmin={s["require_2fa_admin"] === true}
           />
         </TabsContent>
 

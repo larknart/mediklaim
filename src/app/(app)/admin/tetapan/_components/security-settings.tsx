@@ -20,6 +20,7 @@ interface SecuritySettingsProps {
   passwordRequireNumber: boolean;
   passwordRequireSymbol: boolean;
   maxUploadSizeMb: number;
+  require2faAdmin: boolean;
 }
 
 export function SecuritySettings(props: SecuritySettingsProps) {
@@ -36,6 +37,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
   const [pwNumber, setPwNumber] = useState(props.passwordRequireNumber);
   const [pwSymbol, setPwSymbol] = useState(props.passwordRequireSymbol);
   const [maxUpload, setMaxUpload] = useState(String(props.maxUploadSizeMb));
+  const [require2fa, setRequire2fa] = useState(props.require2faAdmin);
 
   function save() {
     const attempts = parseInt(maxAttempts, 10);
@@ -67,6 +69,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
         await updateSetting("password_require_number", pwNumber);
         await updateSetting("password_require_symbol", pwSymbol);
         await updateSetting("max_upload_size_mb", upload);
+        await updateSetting("require_2fa_admin", require2fa);
         setSaved(true);
         router.refresh();
       } catch (e: unknown) {
@@ -100,6 +103,15 @@ export function SecuritySettings(props: SecuritySettingsProps) {
             <Input type="number" min="15" max="480" value={sessionTimeout} onChange={(e) => setSessionTimeout(e.target.value)} />
             <p className="text-xs text-gray-400 mt-1">
               Memerlukan kemas kini env var <code className="bg-gray-100 px-1 rounded">SESSION_TIMEOUT_MIN</code> dan restart app di Coolify.
+            </p>
+          </div>
+          <div className="pt-2 border-t">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox checked={require2fa} onCheckedChange={(v) => setRequire2fa(!!v)} />
+              <span className="text-sm">Wajibkan 2FA untuk pengguna Admin</span>
+            </label>
+            <p className="text-xs text-gray-400 mt-1 ml-6">
+              Admin tanpa 2FA akan diarahkan ke halaman profil untuk setup semasa log masuk.
             </p>
           </div>
         </CardContent>
