@@ -42,6 +42,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
   function save() {
     const attempts = parseInt(maxAttempts, 10);
     const lock = parseInt(lockDuration, 10);
+    const timeout = parseInt(sessionTimeout, 10);
     const upload = parseInt(maxUpload, 10);
     const pwLen = parseInt(pwMinLen, 10);
 
@@ -50,6 +51,9 @@ export function SecuritySettings(props: SecuritySettingsProps) {
     }
     if (isNaN(lock) || lock < 5 || lock > 60) {
       setError("Tempoh kunci: antara 5–60 minit."); return;
+    }
+    if (isNaN(timeout) || timeout < 15 || timeout > 480) {
+      setError("Tamat tempoh sesi: antara 15–480 minit."); return;
     }
     if (isNaN(upload) || upload < 1 || upload > 50) {
       setError("Had muat naik: antara 1–50 MB."); return;
@@ -63,7 +67,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
       try {
         await updateSetting("login_max_attempts", attempts);
         await updateSetting("login_lock_duration_min", lock);
-        await updateSetting("session_timeout_min", parseInt(sessionTimeout, 10));
+        await updateSetting("session_timeout_min", timeout);
         await updateSetting("password_min_length", pwLen);
         await updateSetting("password_require_uppercase", pwUpper);
         await updateSetting("password_require_number", pwNumber);

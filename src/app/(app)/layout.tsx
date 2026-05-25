@@ -23,12 +23,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       prisma.user.findUnique({ where: { id: session.user.id }, select: { totpEnabled: true } }),
       headers(),
     ]);
+    // Falls back to "" if x-pathname is absent — empty string won't match /profil,
+    // so the gate stays active (fail-secure default).
     const pathname = hdrs.get("x-pathname") ?? "";
     if (
       require2faSetting?.value === true &&
       userRecord &&
       !userRecord.totpEnabled &&
-      !pathname.startsWith("/profil")
+      pathname !== "/profil" && !pathname.startsWith("/profil/")
     ) {
       redirect("/profil");
     }
