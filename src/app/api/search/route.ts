@@ -172,7 +172,10 @@ async function searchReceipts(
       JOIN "User" u ON u.id = r."ownerId"
       WHERE to_tsvector('simple', coalesce(r.vendor,''))
         @@ plainto_tsquery('simple', ${q})
-      ORDER BY r."createdAt" DESC
+      ORDER BY ts_rank(
+        to_tsvector('simple', coalesce(r.vendor,'')),
+        plainto_tsquery('simple', ${q})
+      ) DESC NULLS LAST
       LIMIT 5
     `;
   } else if (isHead && deptId) {
@@ -185,7 +188,10 @@ async function searchReceipts(
       WHERE to_tsvector('simple', coalesce(r.vendor,''))
         @@ plainto_tsquery('simple', ${q})
       AND (r."ownerId" = ${userId} OR c."departmentId" = ${deptId})
-      ORDER BY r."createdAt" DESC
+      ORDER BY ts_rank(
+        to_tsvector('simple', coalesce(r.vendor,'')),
+        plainto_tsquery('simple', ${q})
+      ) DESC NULLS LAST
       LIMIT 5
     `;
   } else {
@@ -196,7 +202,10 @@ async function searchReceipts(
       WHERE to_tsvector('simple', coalesce(r.vendor,''))
         @@ plainto_tsquery('simple', ${q})
       AND r."ownerId" = ${userId}
-      ORDER BY r."createdAt" DESC
+      ORDER BY ts_rank(
+        to_tsvector('simple', coalesce(r.vendor,'')),
+        plainto_tsquery('simple', ${q})
+      ) DESC NULLS LAST
       LIMIT 5
     `;
   }
