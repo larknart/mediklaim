@@ -58,17 +58,158 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ claims, receipts, users, audit } satisfies SearchResponse);
 }
 
-// ─── Stub functions (replaced in Tasks 3 & 4) ────────────────────────────────
+// ─── Claim + Receipt FTS ──────────────────────────────────────────────────────
+
+// Raw row type — $queryRaw returns Decimal as string, cast::text in SQL
+type RawClaim = {
+  id: string;
+  refNo: string;
+  status: string;
+  totalClaimedMyr: string;  // Decimal → string via ::text cast
+  forMonth: number;
+  forYear: number;
+  claimantName: string;
+};
 
 async function searchClaims(
-  _q: string, _userId: string, _deptId: string | null,
-  _isHead: boolean, _isSupervisor: boolean
-): Promise<SearchResult[]> { return []; }
+  q: string,
+  userId: string,
+  deptId: string | null,
+  isHead: boolean,
+  isSupervisor: boolean
+): Promise<SearchResult[]> {
+  let rows: RawClaim[];
+
+  if (isSupervisor) {
+    // FINANCE / APPROVER / YDP / ADMIN — no scope filter
+    rows = await prisma.$queryRaw<RawClaim[]>`
+      SELECT c.id, c."refNo", c.status::text, c."totalClaimedMyr"::text,
+             c."forMonth", c."forYear", u.name AS "claimantName"
+      FROM "Claim" c
+      JOIN "User" u ON u.id = c."claimantId"
+      WHERE (
+        to_tsvector('simple', coalesce(c."refNo",'') || ' ' || coalesce(c."voucherNo",''))
+          @@ plainto_tsquery('simple', ${q})
+        OR u.name ILIKE ${'%' + q + '%'}
+      )
+      ORDER BY ts_rank(
+        to_tsvector('simple', coalesce(c."refNo",'') || ' ' || coalesce(c."voucherNo",'')),
+        plainto_tsquery('simple', ${q})
+      ) DESC NULLS LAST
+      LIMIT 5
+    `;
+  } else if (isHead && deptId) {
+    // HEAD with a department — own claims + jabatan claims
+    rows = await prisma.$queryRaw<RawClaim[]>`
+      SELECT c.id, c."refNo", c.status::text, c."totalClaimedMyr"::text,
+             c."forMonth", c."forYear", u.name AS "claimantName"
+      FROM "Claim" c
+      JOIN "User" u ON u.id = c."claimantId"
+      WHERE (
+        to_tsvector('simple', coalesce(c."refNo",'') || ' ' || coalesce(c."voucherNo",''))
+          @@ plainto_tsquery('simple', ${q})
+        OR u.name ILIKE ${'%' + q + '%'}
+      )
+      AND (c."claimantId" = ${userId} OR c."departmentId" = ${deptId})
+      ORDER BY ts_rank(
+        to_tsvector('simple', coalesce(c."refNo",'') || ' ' || coalesce(c."voucherNo",'')),
+        plainto_tsquery('simple', ${q})
+      ) DESC NULLS LAST
+      LIMIT 5
+    `;
+  } else {
+    // CLAIMANT or HEAD without departmentId — own claims only
+    rows = await prisma.$queryRaw<RawClaim[]>`
+      SELECT c.id, c."refNo", c.status::text, c."totalClaimedMyr"::text,
+             c."forMonth", c."forYear", u.name AS "claimantName"
+      FROM "Claim" c
+      JOIN "User" u ON u.id = c."claimantId"
+      WHERE (
+        to_tsvector('simple', coalesce(c."refNo",'') || ' ' || coalesce(c."voucherNo",''))
+          @@ plainto_tsquery('simple', ${q})
+        OR u.name ILIKE ${'%' + q + '%'}
+      )
+      AND c."claimantId" = ${userId}
+      ORDER BY ts_rank(
+        to_tsvector('simple', coalesce(c."refNo",'') || ' ' || coalesce(c."voucherNo",'')),
+        plainto_tsquery('simple', ${q})
+      ) DESC NULLS LAST
+      LIMIT 5
+    `;
+  }
+
+  return rows.map((r) => ({
+    id: r.id,
+    type: "claim" as const,
+    label: r.refNo,
+    sublabel: `${r.claimantName} · RM ${Number(r.totalClaimedMyr).toFixed(2)}`,
+    status: r.status,
+    link: `/tuntutan/${r.id}`,
+  }));
+}
+
+type RawReceipt = {
+  id: string;
+  vendor: string | null;
+  status: string;
+  totalMyr: string | null;  // Decimal → string via ::text cast
+  ownerName: string;
+};
 
 async function searchReceipts(
-  _q: string, _userId: string, _deptId: string | null,
-  _isHead: boolean, _isSupervisor: boolean
-): Promise<SearchResult[]> { return []; }
+  q: string,
+  userId: string,
+  deptId: string | null,
+  isHead: boolean,
+  isSupervisor: boolean
+): Promise<SearchResult[]> {
+  let rows: RawReceipt[];
+
+  if (isSupervisor) {
+    rows = await prisma.$queryRaw<RawReceipt[]>`
+      SELECT r.id, r.vendor, r.status::text, r."totalMyr"::text, u.name AS "ownerName"
+      FROM "Receipt" r
+      JOIN "User" u ON u.id = r."ownerId"
+      WHERE to_tsvector('simple', coalesce(r.vendor,''))
+        @@ plainto_tsquery('simple', ${q})
+      ORDER BY r."createdAt" DESC
+      LIMIT 5
+    `;
+  } else if (isHead && deptId) {
+    // HEAD — own receipts + receipts attached to jabatan claims
+    rows = await prisma.$queryRaw<RawReceipt[]>`
+      SELECT r.id, r.vendor, r.status::text, r."totalMyr"::text, u.name AS "ownerName"
+      FROM "Receipt" r
+      JOIN "User" u ON u.id = r."ownerId"
+      LEFT JOIN "Claim" c ON c.id = r."claimId"
+      WHERE to_tsvector('simple', coalesce(r.vendor,''))
+        @@ plainto_tsquery('simple', ${q})
+      AND (r."ownerId" = ${userId} OR c."departmentId" = ${deptId})
+      ORDER BY r."createdAt" DESC
+      LIMIT 5
+    `;
+  } else {
+    rows = await prisma.$queryRaw<RawReceipt[]>`
+      SELECT r.id, r.vendor, r.status::text, r."totalMyr"::text, u.name AS "ownerName"
+      FROM "Receipt" r
+      JOIN "User" u ON u.id = r."ownerId"
+      WHERE to_tsvector('simple', coalesce(r.vendor,''))
+        @@ plainto_tsquery('simple', ${q})
+      AND r."ownerId" = ${userId}
+      ORDER BY r."createdAt" DESC
+      LIMIT 5
+    `;
+  }
+
+  return rows.map((r) => ({
+    id: r.id,
+    type: "receipt" as const,
+    label: r.vendor ?? "(Tiada nama)",
+    sublabel: `${r.ownerName} · RM ${r.totalMyr ? Number(r.totalMyr).toFixed(2) : "?"}`,
+    status: r.status,
+    link: `/resit/${r.id}`,
+  }));
+}
 
 async function searchUsers(_q: string): Promise<SearchResult[]> { return []; }
 
