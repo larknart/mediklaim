@@ -21,7 +21,7 @@ export type SearchResponse = {
   audit: SearchResult[];   // empty for non-ADMIN
 };
 
-const EMPTY: SearchResponse = { claims: [], receipts: [], users: [], audit: [] };
+const EMPTY: SearchResponse = Object.freeze({ claims: [], receipts: [], users: [], audit: [] }) as SearchResponse;
 
 // ─── Route Handler ────────────────────────────────────────────────────────────
 
@@ -37,11 +37,11 @@ export async function GET(req: NextRequest) {
   }
 
   const trimmed = q.trim();
-  const { id: userId, roles, departmentId } = session.user;
-  const deptId = departmentId ?? null;
+  const { id: userId, roles, departmentId: deptId } = session.user;
 
   const isAdmin     = roles.includes(Role.ADMIN);
   const isHead      = roles.includes(Role.HEAD);
+  // isSupervisor: broad claims/receipts access — FINANCE, APPROVER, YDP, ADMIN
   const isSupervisor =
     isAdmin ||
     roles.includes(Role.FINANCE) ||
