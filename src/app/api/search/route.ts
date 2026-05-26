@@ -220,6 +220,69 @@ async function searchReceipts(
   }));
 }
 
-async function searchUsers(_q: string): Promise<SearchResult[]> { return []; }
+// ─── User + AuditLog FTS (ADMIN only) ────────────────────────────────────────
 
-async function searchAudit(_q: string): Promise<SearchResult[]> { return []; }
+type RawUser = {
+  id: string;
+  name: string;
+  email: string;
+  staffNo: string | null;
+  rolesArr: string | null;  // string_agg result, null if no roles
+};
+
+async function searchUsers(q: string): Promise<SearchResult[]> {
+  const rows = await prisma.$queryRaw<RawUser[]>`
+    SELECT u.id, u.name, u.email, u."staffNo",
+           string_agg(ur.role::text, ', ' ORDER BY ur.role::text) AS "rolesArr"
+    FROM "User" u
+    LEFT JOIN "UserRole" ur ON ur."userId" = u.id
+    WHERE to_tsvector('simple',
+        coalesce(u.name,'') || ' ' ||
+        coalesce(u.email,'') || ' ' ||
+        coalesce(u."staffNo",'')
+      ) @@ plainto_tsquery('simple', ${q})
+    AND u."deletedAt" IS NULL
+    GROUP BY u.id
+    ORDER BY u.name
+    LIMIT 5
+  `;
+
+  return rows.map((r) => ({
+    id: r.id,
+    type: "user" as const,
+    label: r.name,
+    sublabel: `${r.email}${r.rolesArr ? ` · ${r.rolesArr}` : ""}`,
+    link: `/admin/pengguna/${r.id}`,
+  }));
+}
+
+type RawAudit = {
+  id: string;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  actorName: string | null;
+};
+
+async function searchAudit(q: string): Promise<SearchResult[]> {
+  const rows = await prisma.$queryRaw<RawAudit[]>`
+    SELECT id, action, entity, "entityId", "actorName"
+    FROM "AuditLog"
+    WHERE to_tsvector('simple',
+        coalesce("actorName",'') || ' ' ||
+        coalesce(action,'') || ' ' ||
+        coalesce(entity,'') || ' ' ||
+        coalesce("entityId",'')
+      ) @@ plainto_tsquery('simple', ${q})
+    ORDER BY "createdAt" DESC
+    LIMIT 5
+  `;
+
+  return rows.map((r) => ({
+    id: r.id,
+    type: "audit" as const,
+    label: `${r.action} · ${r.entity}`,
+    sublabel: r.actorName ?? "System",
+    link: `/admin/audit`,
+  }));
+}
