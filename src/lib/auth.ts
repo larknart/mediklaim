@@ -140,12 +140,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.roles = (user as { roles: Role[] }).roles;
         token.isAhliMajlis = (user as { isAhliMajlis: boolean }).isAhliMajlis;
         token.departmentId = (user as { departmentId: string | null }).departmentId;
+      }
+      if (trigger === "update") {
+        // Called by useSessionTimeout when user is active — bump exp so the
+        // session actually extends. Without this update() is a no-op on exp.
+        token.exp = Math.floor(Date.now() / 1000) +
+          Number(process.env.SESSION_TIMEOUT_MIN ?? "30") * 60;
       }
       return token;
     },

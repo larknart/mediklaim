@@ -18,7 +18,9 @@ export function useSessionTimeout(warningMinutes: number) {
   const [secondsLeft, setSecondsLeft] = useState(0);
 
   // Ref updated on every user interaction — no re-render needed
-  const lastActivityAt = useRef(Date.now());
+  const lastActivityAt  = useRef(Date.now());
+  // Guard: prevent double-signOut if multiple ticks fire on tab wake
+  const signingOut      = useRef(false);
 
   // ── Register activity listeners (once) ───────────────────────────────────
   useEffect(() => {
@@ -38,8 +40,11 @@ export function useSessionTimeout(warningMinutes: number) {
       const sLeft      = Math.floor((expiresAt - now) / 1000);
 
       if (sLeft <= 0) {
-        // Session has expired — force logout
-        signOut({ callbackUrl: "/login" });
+        // Session has expired — force logout (guard prevents double-call on tab wake)
+        if (!signingOut.current) {
+          signingOut.current = true;
+          signOut({ callbackUrl: "/login" });
+        }
         return;
       }
 
