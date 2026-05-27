@@ -2,19 +2,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin, isFinance, isApprover, isYdp } from "@/lib/permissions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import { FileSpreadsheet, Download, FileText } from "lucide-react";
+import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LaporanFilter } from "./_components/laporan-filter";
-
-const MONTHS_BM = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
-const STATUS_LABELS: Record<string, string> = {
-  DRAFT: "Draf", SUBMITTED: "Menunggu Sokongan", HEAD_APPROVED: "Menunggu Kewangan",
-  FINANCE_REVIEWED: "Menunggu Kelulusan", APPROVED: "Diluluskan", REJECTED: "Ditolak", PAID: "Dibayar",
-  WITHDRAWN: "Tarik Balik",
-};
+import { LaporanTable } from "./_components/laporan-table";
+import type { LaporanClaimItem } from "./_components/laporan-table";
 
 export default async function LaporanPage({
   searchParams,
@@ -118,69 +112,22 @@ export default async function LaporanPage({
         </Card>
       </div>
 
-      {/* Table */}
       <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-              <tr>
-                <th className="p-3 text-left">Ref No</th>
-                <th className="p-3 text-left">Kakitangan</th>
-                <th className="p-3 text-left">Jabatan</th>
-                <th className="p-3 text-center">Bulan</th>
-                <th className="p-3 text-right">Tuntut</th>
-                <th className="p-3 text-right">Lulus</th>
-                <th className="p-3 text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {claims.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="p-8 text-center text-gray-400">
-                    <FileSpreadsheet className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                    <p>Tiada tuntutan untuk penapisan ini.</p>
-                  </td>
-                </tr>
-              ) : (
-                claims.map((claim) => (
-                  <tr key={claim.id} className="hover:bg-gray-50">
-                    <td className="p-3">
-                      <Link href={`/tuntutan/${claim.id}`} className="text-green-700 hover:underline font-medium">
-                        {claim.refNo}
-                      </Link>
-                      {claim.resubmittedFrom && (
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          Rujukan asal: {claim.resubmittedFrom.refNo} (Ditolak)
-                        </p>
-                      )}
-                    </td>
-                    <td className="p-3 text-gray-700">{claim.claimant.name}</td>
-                    <td className="p-3 text-gray-500">{claim.department?.name ?? "—"}</td>
-                    <td className="p-3 text-center text-gray-500">
-                      {MONTHS_BM[claim.forMonth - 1]} {claim.forYear}
-                    </td>
-                    <td className="p-3 text-right">RM {Number(claim.totalClaimedMyr).toFixed(2)}</td>
-                    <td className="p-3 text-right text-green-700">
-                      {claim.totalApprovedMyr ? `RM ${Number(claim.totalApprovedMyr).toFixed(2)}` : "—"}
-                    </td>
-                    <td className="p-3 text-center">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        claim.status === "APPROVED" || claim.status === "PAID"
-                          ? "bg-green-100 text-green-700"
-                          : claim.status === "REJECTED"
-                          ? "bg-red-100 text-red-700"
-                          : claim.status === "WITHDRAWN"
-                          ? "bg-gray-100 text-gray-400 line-through"
-                          : "bg-gray-100 text-gray-600"
-                      }`}>
-                        {STATUS_LABELS[claim.status] ?? claim.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <CardContent className="pt-4">
+          <LaporanTable
+            claims={claims.map((claim): LaporanClaimItem => ({
+              id: claim.id,
+              refNo: claim.refNo,
+              claimantName: claim.claimant.name,
+              departmentName: claim.department?.name ?? null,
+              forMonth: claim.forMonth,
+              forYear: claim.forYear,
+              status: claim.status,
+              totalClaimedMyr: Number(claim.totalClaimedMyr),
+              totalApprovedMyr: claim.totalApprovedMyr ? Number(claim.totalApprovedMyr) : null,
+              resubmittedFromRefNo: claim.resubmittedFrom?.refNo ?? null,
+            }))}
+          />
         </CardContent>
       </Card>
     </div>
