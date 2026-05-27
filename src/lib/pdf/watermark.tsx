@@ -33,7 +33,8 @@ export function claimWatermark(status: string): React.ReactElement | null {
           fontFamily: "Helvetica-Bold",
           color: wm.color,
           opacity: 0.12,
-          transform: "rotate(-45deg)" as string,
+          // String form: valid per TransformExpandedStyle (transform: string | Transform[])
+          transform: "rotate(-45deg)",
         }}
       >
         {wm.text}
@@ -65,11 +66,12 @@ export function reportWatermark(orgName: string): React.ReactElement {
           fontFamily: "Helvetica-Bold",
           color: "#888888",
           opacity: 0.10,
-          transform: "rotate(-45deg)" as string,
+          // String form: valid per TransformExpandedStyle (transform: string | Transform[])
+          transform: "rotate(-45deg)",
           textAlign: "center",
         }}
       >
-        {orgName}{"\n"}DOKUMEN RASMI
+        {orgName || "ORGANISASI"}{"\n"}DOKUMEN RASMI
       </Text>
     </View>
   );
