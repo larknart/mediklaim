@@ -33,7 +33,6 @@ export async function GET(req: NextRequest) {
       const interval = setInterval(async () => {
         try {
           const since = lastChecked;
-          lastChecked = new Date();
 
           const [newNotifs, unreadCount] = await Promise.all([
             prisma.notification.findMany({
@@ -45,6 +44,7 @@ export async function GET(req: NextRequest) {
           ]);
 
           // Always send update so client badge stays in sync even when 0
+          lastChecked = new Date();
           encode({ type: "update", unreadCount, newNotifs });
         } catch {
           // DB error — skip this tick, retry in 10s

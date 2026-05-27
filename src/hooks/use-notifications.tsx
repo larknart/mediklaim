@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Bell } from "lucide-react";
-import React from "react";
 
 // Matches the shape sent by /api/notifications/stream
 interface StreamEvent {
@@ -40,7 +39,7 @@ export function useNotifications(initialUnreadCount: number) {
           data.newNotifs.forEach((n) => {
             toast(n.title, {
               description: n.body,
-              icon: React.createElement(Bell, { className: "w-4 h-4 text-green-700" }),
+              icon: <Bell className="w-4 h-4 text-green-700" />,
               action: n.link
                 ? { label: "Lihat →", onClick: () => router.push(n.link!) }
                 : undefined,
