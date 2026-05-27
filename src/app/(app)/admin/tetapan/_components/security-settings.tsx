@@ -15,6 +15,7 @@ interface SecuritySettingsProps {
   loginMaxAttempts: number;
   loginLockDurationMin: number;
   sessionTimeoutMin: number;
+  sessionWarningMin: number;
   passwordMinLength: number;
   passwordRequireUppercase: boolean;
   passwordRequireNumber: boolean;
@@ -32,6 +33,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
   const [maxAttempts, setMaxAttempts] = useState(String(props.loginMaxAttempts));
   const [lockDuration, setLockDuration] = useState(String(props.loginLockDurationMin));
   const [sessionTimeout, setSessionTimeout] = useState(String(props.sessionTimeoutMin));
+  const [sessionWarning, setSessionWarning] = useState(String(props.sessionWarningMin));
   const [pwMinLen, setPwMinLen] = useState(String(props.passwordMinLength));
   const [pwUpper, setPwUpper] = useState(props.passwordRequireUppercase);
   const [pwNumber, setPwNumber] = useState(props.passwordRequireNumber);
@@ -55,6 +57,10 @@ export function SecuritySettings(props: SecuritySettingsProps) {
     if (isNaN(timeout) || timeout < 15 || timeout > 480) {
       setError("Tamat tempoh sesi: antara 15–480 minit."); return;
     }
+    const warning = parseInt(sessionWarning, 10);
+    if (isNaN(warning) || warning < 2 || warning > 30) {
+      setError("Amaran sesi: antara 2–30 minit."); return;
+    }
     if (isNaN(upload) || upload < 1 || upload > 50) {
       setError("Had muat naik: antara 1–50 MB."); return;
     }
@@ -68,6 +74,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
         await updateSetting("login_max_attempts", attempts);
         await updateSetting("login_lock_duration_min", lock);
         await updateSetting("session_timeout_min", timeout);
+        await updateSetting("session_warning_min", warning);
         await updateSetting("password_min_length", pwLen);
         await updateSetting("password_require_uppercase", pwUpper);
         await updateSetting("password_require_number", pwNumber);
@@ -102,12 +109,21 @@ export function SecuritySettings(props: SecuritySettingsProps) {
               <Input type="number" min="5" max="60" value={lockDuration} onChange={(e) => setLockDuration(e.target.value)} />
             </div>
           </div>
-          <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tamat tempoh sesi (minit)</Label>
-            <Input type="number" min="15" max="480" value={sessionTimeout} onChange={(e) => setSessionTimeout(e.target.value)} />
-            <p className="text-xs text-gray-400 mt-1">
-              Memerlukan kemas kini env var <code className="bg-gray-100 px-1 rounded">SESSION_TIMEOUT_MIN</code> dan restart app di Coolify.
-            </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs text-gray-500 mb-1.5 block">Tamat tempoh sesi (minit)</Label>
+              <Input type="number" min="15" max="480" value={sessionTimeout} onChange={(e) => setSessionTimeout(e.target.value)} />
+              <p className="text-xs text-gray-400 mt-1">
+                Memerlukan kemas kini env var <code className="bg-gray-100 px-1 rounded">SESSION_TIMEOUT_MIN</code> dan restart app di Coolify.
+              </p>
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1.5 block">Amaran tamat tempoh sesi (minit)</Label>
+              <Input type="number" min="2" max="30" value={sessionWarning} onChange={(e) => setSessionWarning(e.target.value)} />
+              <p className="text-xs text-gray-400 mt-1">
+                Tunjuk amaran X minit sebelum sesi tamat.
+              </p>
+            </div>
           </div>
           <div className="pt-2 border-t">
             <label className="flex items-center gap-2 cursor-pointer">
