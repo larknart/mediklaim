@@ -7,6 +7,7 @@ import {
   StyleSheet,
   renderToBuffer,
 } from "@react-pdf/renderer";
+import { claimWatermark } from "./watermark";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
 
@@ -253,6 +254,9 @@ function CoverSheet({ data }: { data: CoverSheetData }) {
           <Text style={s.footerText}>{data.orgName} — {data.refNo}</Text>
           <Text style={s.footerText}>Jana: {generatedAt}</Text>
         </View>
+
+        {/* Watermark — renders last so it sits above content in PDF layer order */}
+        {claimWatermark(data.status)}
       </Page>
     </Document>
   );
