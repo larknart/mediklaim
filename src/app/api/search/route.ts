@@ -243,7 +243,14 @@ async function searchUsers(q: string): Promise<SearchResult[]> {
       ) @@ plainto_tsquery('simple', ${q})
     AND u."deletedAt" IS NULL
     GROUP BY u.id
-    ORDER BY u.name
+    ORDER BY ts_rank(
+      to_tsvector('simple',
+        coalesce(u.name,'') || ' ' ||
+        coalesce(u.email,'') || ' ' ||
+        coalesce(u."staffNo",'')
+      ),
+      plainto_tsquery('simple', ${q})
+    ) DESC NULLS LAST
     LIMIT 5
   `;
 
