@@ -122,147 +122,171 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function CoverSheet({ data }: { data: CoverSheetData }) {
+// Extract page content into ClaimPage (returns <Page>, not <Document>)
+function ClaimPage({ data }: { data: CoverSheetData }) {
   const generatedAt = new Date().toLocaleString("ms-MY", { timeZone: "Asia/Kuala_Lumpur" });
 
   return (
-    <Document>
-      <Page size="A4" style={s.page}>
-        {/* Header */}
-        <Text style={s.orgName}>{data.orgName}</Text>
-        <Text style={s.title}>Borang Tuntutan Perubatan</Text>
-        <View style={s.divider} />
+    <Page size="A4" style={s.page}>
+      {/* Header */}
+      <Text style={s.orgName}>{data.orgName}</Text>
+      <Text style={s.title}>Borang Tuntutan Perubatan</Text>
+      <View style={s.divider} />
 
-        {/* Claim info */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Maklumat Tuntutan</Text>
-          <InfoRow label="No. Rujukan" value={data.refNo} />
-          <InfoRow label="Nama Pemohon" value={data.claimantName} />
-          {data.staffNo && <InfoRow label="No. Kakitangan" value={data.staffNo} />}
-          <InfoRow label="Jabatan" value={data.departmentName ?? "—"} />
-          <InfoRow label="Tempoh Tuntutan" value={`${MONTHS_BM[data.forMonth - 1]} ${data.forYear}`} />
-          <InfoRow label="Tarikh Hantar" value={data.submittedAt ? new Date(data.submittedAt).toLocaleDateString("ms-MY") : "—"} />
-          <InfoRow label="Status" value={STATUS_BM[data.status] ?? data.status} />
-        </View>
+      {/* Claim info */}
+      <View style={s.section}>
+        <Text style={s.sectionTitle}>Maklumat Tuntutan</Text>
+        <InfoRow label="No. Rujukan" value={data.refNo} />
+        <InfoRow label="Nama Pemohon" value={data.claimantName} />
+        {data.staffNo && <InfoRow label="No. Kakitangan" value={data.staffNo} />}
+        <InfoRow label="Jabatan" value={data.departmentName ?? "—"} />
+        <InfoRow label="Tempoh Tuntutan" value={`${MONTHS_BM[data.forMonth - 1]} ${data.forYear}`} />
+        <InfoRow label="Tarikh Hantar" value={data.submittedAt ? new Date(data.submittedAt).toLocaleDateString("ms-MY") : "—"} />
+        <InfoRow label="Status" value={STATUS_BM[data.status] ?? data.status} />
+      </View>
 
-        {/* Receipts */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>Senarai Resit</Text>
-          {data.receipts.map((r, ri) => (
-            <View key={ri}>
-              <View style={s.receiptHeader}>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.receiptVendor}>{r.vendor ?? "Vendor tidak diketahui"}</Text>
-                  <Text style={{ fontSize: 7, color: "#3b82f6" }}>
-                    {r.claimFor === "SPOUSE" ? "Isteri / Suami" : r.claimFor === "CHILD" ? `Anak ke-${r.claimForChildNo ?? 1}` : "Diri Sendiri"}
-                  </Text>
-                </View>
-                <Text style={s.receiptDate}>
-                  {r.receiptDate ? new Date(r.receiptDate).toLocaleDateString("ms-MY") : ""}
+      {/* Receipts */}
+      <View style={s.section}>
+        <Text style={s.sectionTitle}>Senarai Resit</Text>
+        {data.receipts.map((r, ri) => (
+          <View key={ri}>
+            <View style={s.receiptHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.receiptVendor}>{r.vendor ?? "Vendor tidak diketahui"}</Text>
+                <Text style={{ fontSize: 7, color: "#3b82f6" }}>
+                  {r.claimFor === "SPOUSE" ? "Isteri / Suami" : r.claimFor === "CHILD" ? `Anak ke-${r.claimForChildNo ?? 1}` : "Diri Sendiri"}
                 </Text>
               </View>
-              <View style={s.table}>
-                <View style={s.tableHeader}>
-                  <Text style={[s.th, s.colDesc]}>Perkara</Text>
-                  <Text style={[s.th, s.colQty]}>Qty</Text>
-                  <Text style={[s.th, s.colUnit]}>Unit (RM)</Text>
-                  <Text style={[s.th, s.colAmt]}>Amaun (RM)</Text>
-                  <Text style={[s.th, s.colStatus]}>Status</Text>
-                </View>
-                {r.items.map((item, ii) => (
-                  <View key={ii} style={ii % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-                    <View style={s.colDesc}>
-                      <Text style={item.isEligible ? s.td : s.tdStrike}>{item.description}</Text>
-                      {item.flaggedReason && (
-                        <Text style={{ fontSize: 7, color: "#c62828" }}>{item.flaggedReason}</Text>
-                      )}
-                    </View>
-                    <Text style={[item.isEligible ? s.td : s.tdStrike, s.colQty]}>{item.qty}</Text>
-                    <Text style={[item.isEligible ? s.td : s.tdStrike, s.colUnit]}>{item.unitMyr.toFixed(2)}</Text>
-                    <Text style={[item.isEligible ? s.td : s.tdStrike, s.colAmt]}>{item.amountMyr.toFixed(2)}</Text>
-                    <Text style={[s.td, s.colStatus, { color: item.isEligible ? "#1c5e2f" : "#c62828" }]}>
-                      {item.isEligible ? "Layak" : "Tidak Layak"}
-                    </Text>
-                  </View>
-                ))}
+              <Text style={s.receiptDate}>
+                {r.receiptDate ? new Date(r.receiptDate).toLocaleDateString("ms-MY") : ""}
+              </Text>
+            </View>
+            <View style={s.table}>
+              <View style={s.tableHeader}>
+                <Text style={[s.th, s.colDesc]}>Perkara</Text>
+                <Text style={[s.th, s.colQty]}>Qty</Text>
+                <Text style={[s.th, s.colUnit]}>Unit (RM)</Text>
+                <Text style={[s.th, s.colAmt]}>Amaun (RM)</Text>
+                <Text style={[s.th, s.colStatus]}>Status</Text>
               </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Summary */}
-        <View style={s.section}>
-          <View style={s.summaryRow}>
-            <Text style={s.summaryLabel}>Jumlah Dituntut (RM)</Text>
-            <Text style={s.summaryValue}>{data.totalClaimedMyr.toFixed(2)}</Text>
-          </View>
-          {data.totalEligibleMyr != null && (
-            <View style={s.summaryRow}>
-              <Text style={s.summaryLabel}>Jumlah Layak (RM)</Text>
-              <Text style={s.summaryValue}>{data.totalEligibleMyr.toFixed(2)}</Text>
-            </View>
-          )}
-          {data.totalApprovedMyr != null && (
-            <View style={s.summaryRow}>
-              <Text style={s.summaryLabel}>Jumlah Diluluskan (RM)</Text>
-              <Text style={s.summaryValueGreen}>{data.totalApprovedMyr.toFixed(2)}</Text>
-            </View>
-          )}
-        </View>
-
-        {/* Approval trail */}
-        {data.approvals.length > 0 && (
-          <View style={s.section}>
-            <Text style={s.sectionTitle}>Rekod Kelulusan</Text>
-            {data.approvals.map((apv, i) => {
-              const isApproved = apv.decision === "APPROVED" || apv.decision === "SKIPPED";
-              const isRejected = apv.decision === "REJECTED";
-              const decisionStyle = isApproved ? s.decisionApproved : isRejected ? s.decisionRejected : s.decisionSkip;
-              return (
-                <View key={i} style={s.approvalRow}>
-                  <Text style={s.approvalStep}>{STEP_BM[apv.step] ?? apv.step}</Text>
-                  <View style={s.approvalActor}>
-                    <Text>{apv.actorName}</Text>
-                    {apv.comment && <Text style={{ fontSize: 7, color: "#666", fontStyle: "italic" }}>"{apv.comment}"</Text>}
+              {r.items.map((item, ii) => (
+                <View key={ii} style={ii % 2 === 0 ? s.tableRow : s.tableRowAlt}>
+                  <View style={s.colDesc}>
+                    <Text style={item.isEligible ? s.td : s.tdStrike}>{item.description}</Text>
+                    {item.flaggedReason && (
+                      <Text style={{ fontSize: 7, color: "#c62828" }}>{item.flaggedReason}</Text>
+                    )}
                   </View>
-                  <View style={{ width: 100, alignItems: "flex-end" }}>
-                    <Text style={decisionStyle}>{DECISION_BM[apv.decision] ?? apv.decision}</Text>
-                    <Text style={{ fontSize: 7, color: "#888" }}>{new Date(apv.decidedAt).toLocaleDateString("ms-MY")}</Text>
-                  </View>
+                  <Text style={[item.isEligible ? s.td : s.tdStrike, s.colQty]}>{item.qty}</Text>
+                  <Text style={[item.isEligible ? s.td : s.tdStrike, s.colUnit]}>{item.unitMyr.toFixed(2)}</Text>
+                  <Text style={[item.isEligible ? s.td : s.tdStrike, s.colAmt]}>{item.amountMyr.toFixed(2)}</Text>
+                  <Text style={[s.td, s.colStatus, { color: item.isEligible ? "#1c5e2f" : "#c62828" }]}>
+                    {item.isEligible ? "Layak" : "Tidak Layak"}
+                  </Text>
                 </View>
-              );
-            })}
+              ))}
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* Summary */}
+      <View style={s.section}>
+        <View style={s.summaryRow}>
+          <Text style={s.summaryLabel}>Jumlah Dituntut (RM)</Text>
+          <Text style={s.summaryValue}>{data.totalClaimedMyr.toFixed(2)}</Text>
+        </View>
+        {data.totalEligibleMyr != null && (
+          <View style={s.summaryRow}>
+            <Text style={s.summaryLabel}>Jumlah Layak (RM)</Text>
+            <Text style={s.summaryValue}>{data.totalEligibleMyr.toFixed(2)}</Text>
           </View>
         )}
+        {data.totalApprovedMyr != null && (
+          <View style={s.summaryRow}>
+            <Text style={s.summaryLabel}>Jumlah Diluluskan (RM)</Text>
+            <Text style={s.summaryValueGreen}>{data.totalApprovedMyr.toFixed(2)}</Text>
+          </View>
+        )}
+      </View>
 
-        {/* Signature block */}
-        <View style={s.signatureBlock}>
-          <View style={s.signatureBox}>
-            <Text style={s.signatureLabel}>Tandatangan Pemohon</Text>
-            <Text style={{ fontSize: 8, marginTop: 12 }}>{data.claimantName}</Text>
-          </View>
-          <View style={s.signatureBox}>
-            <Text style={s.signatureLabel}>Disahkan Oleh</Text>
-          </View>
-          <View style={s.signatureBox}>
-            <Text style={s.signatureLabel}>Cop Rasmi</Text>
-          </View>
+      {/* Approval trail */}
+      {data.approvals.length > 0 && (
+        <View style={s.section}>
+          <Text style={s.sectionTitle}>Rekod Kelulusan</Text>
+          {data.approvals.map((apv, i) => {
+            const isApproved = apv.decision === "APPROVED" || apv.decision === "SKIPPED";
+            const isRejected = apv.decision === "REJECTED";
+            const decisionStyle = isApproved ? s.decisionApproved : isRejected ? s.decisionRejected : s.decisionSkip;
+            return (
+              <View key={i} style={s.approvalRow}>
+                <Text style={s.approvalStep}>{STEP_BM[apv.step] ?? apv.step}</Text>
+                <View style={s.approvalActor}>
+                  <Text>{apv.actorName}</Text>
+                  {apv.comment && <Text style={{ fontSize: 7, color: "#666", fontStyle: "italic" }}>"{apv.comment}"</Text>}
+                </View>
+                <View style={{ width: 100, alignItems: "flex-end" }}>
+                  <Text style={decisionStyle}>{DECISION_BM[apv.decision] ?? apv.decision}</Text>
+                  <Text style={{ fontSize: 7, color: "#888" }}>{new Date(apv.decidedAt).toLocaleDateString("ms-MY")}</Text>
+                </View>
+              </View>
+            );
+          })}
         </View>
+      )}
 
-        {/* Footer */}
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>{data.orgName} — {data.refNo}</Text>
-          <Text style={s.footerText}>Jana: {generatedAt}</Text>
+      {/* Signature block */}
+      <View style={s.signatureBlock}>
+        <View style={s.signatureBox}>
+          <Text style={s.signatureLabel}>Tandatangan Pemohon</Text>
+          <Text style={{ fontSize: 8, marginTop: 12 }}>{data.claimantName}</Text>
         </View>
+        <View style={s.signatureBox}>
+          <Text style={s.signatureLabel}>Disahkan Oleh</Text>
+        </View>
+        <View style={s.signatureBox}>
+          <Text style={s.signatureLabel}>Cop Rasmi</Text>
+        </View>
+      </View>
 
-        {/* Watermark — renders last so it sits above content in PDF layer order */}
-        {claimWatermark(data.status)}
-      </Page>
+      {/* Footer */}
+      <View style={s.footer} fixed>
+        <Text style={s.footerText}>{data.orgName} — {data.refNo}</Text>
+        <Text style={s.footerText}>Jana: {generatedAt}</Text>
+      </View>
+
+      {/* Watermark — renders last so it sits above content in PDF layer order */}
+      {claimWatermark(data.status)}
+    </Page>
+  );
+}
+
+// Single-claim document (used by existing /api/tuntutan/[id]/pdf)
+function CoverSheetDoc({ data }: { data: CoverSheetData }) {
+  return (
+    <Document>
+      <ClaimPage data={data} />
+    </Document>
+  );
+}
+
+// Multi-claim document (used by bulk export)
+function BulkCoverSheetDoc({ claims }: { claims: CoverSheetData[] }) {
+  return (
+    <Document>
+      {claims.map((data, i) => (
+        <ClaimPage key={i} data={data} />
+      ))}
     </Document>
   );
 }
 
 export async function generateCoverSheet(data: CoverSheetData): Promise<Buffer> {
-  const buffer = await renderToBuffer(<CoverSheet data={data} />);
+  const buffer = await renderToBuffer(<CoverSheetDoc data={data} />);
+  return Buffer.from(buffer);
+}
+
+export async function generateBulkCoverSheets(claims: CoverSheetData[]): Promise<Buffer> {
+  const buffer = await renderToBuffer(<BulkCoverSheetDoc claims={claims} />);
   return Buffer.from(buffer);
 }
