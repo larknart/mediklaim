@@ -8,6 +8,7 @@ import {
   renderToBuffer,
 } from "@react-pdf/renderer";
 import type { ClaimRow } from "@/lib/excel/laporan";
+import { reportWatermark } from "./watermark";
 
 const MONTHS_BM = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
 
@@ -206,6 +207,9 @@ function LaporanDocument({ data }: { data: LaporanPdfData }) {
           <Text style={s.footerText}>Dijana: {data.generatedAt}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `Muka surat ${pageNumber} / ${totalPages}`} />
         </View>
+
+        {/* Watermark — org identity, renders on every page via fixed prop */}
+        {reportWatermark(data.orgName)}
       </Page>
     </Document>
   );
