@@ -174,6 +174,7 @@ export function GlobalSearch() {
     setResults(null);
     setPanelOpen(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (abortRef.current) abortRef.current.abort();
   };
 
   const hasResults =
