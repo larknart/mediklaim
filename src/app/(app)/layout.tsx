@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { SessionProvider } from "next-auth/react";
-import { AppSidebar } from "@/components/app-sidebar";
+import { LiveNotifications } from "@/components/live-notifications";
 import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
@@ -48,7 +48,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <SessionProvider session={session}>
       <SessionTimeoutModal warningMinutes={warningMinutes} />
       <div className="flex min-h-screen bg-gray-50">
-        <AppSidebar unreadCount={unreadCount} />
+        <LiveNotifications initialUnreadCount={unreadCount} />
         <div className="flex-1 ml-64 flex flex-col min-h-screen">
           <header className="h-14 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40 flex items-center px-6">
             <GlobalSearch />
