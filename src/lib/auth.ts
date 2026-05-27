@@ -9,7 +9,12 @@ import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    // SESSION_TIMEOUT_MIN is set in Coolify env vars and managed via Admin → Keselamatan.
+    // Falls back to 30 minutes if unset.
+    maxAge: Number(process.env.SESSION_TIMEOUT_MIN ?? "30") * 60,  // seconds
+  },
   pages: {
     signIn: "/login",
   },
