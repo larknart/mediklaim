@@ -9,7 +9,12 @@ import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    // SESSION_TIMEOUT_MIN is set in Coolify env vars and managed via Admin → Keselamatan.
+    // Falls back to 30 minutes if unset.
+    maxAge: Number(process.env.SESSION_TIMEOUT_MIN ?? "30") * 60,  // seconds
+  },
   pages: {
     signIn: "/login",
   },
@@ -135,12 +140,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.roles = (user as { roles: Role[] }).roles;
         token.isAhliMajlis = (user as { isAhliMajlis: boolean }).isAhliMajlis;
         token.departmentId = (user as { departmentId: string | null }).departmentId;
+      }
+      if (trigger === "update") {
+        // Called by useSessionTimeout when user is active — bump exp so the
+        // session actually extends. Without this update() is a no-op on exp.
+        token.exp = Math.floor(Date.now() / 1000) +
+          Number(process.env.SESSION_TIMEOUT_MIN ?? "30") * 60;
       }
       return token;
     },

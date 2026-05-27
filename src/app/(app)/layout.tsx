@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
 import { GlobalSearch } from "@/components/global-search";
+import { SessionTimeoutModal } from "@/components/session-timeout-modal";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -37,12 +38,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }
   }
 
-  const unreadCount = await prisma.notification.count({
-    where: { userId: session.user.id, readAt: null },
-  });
+  const [unreadCount, warningSetting] = await Promise.all([
+    prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
+    prisma.settings.findUnique({ where: { key: "session_warning_min" } }),
+  ]);
+  const warningMinutes = Number(warningSetting?.value ?? 5);
 
   return (
     <SessionProvider session={session}>
+      <SessionTimeoutModal warningMinutes={warningMinutes} />
       <div className="flex min-h-screen bg-gray-50">
         <AppSidebar unreadCount={unreadCount} />
         <div className="flex-1 ml-64 flex flex-col min-h-screen">

@@ -117,6 +117,7 @@ export default async function TetapanPage() {
             loginMaxAttempts={Number(s["login_max_attempts"] ?? 5)}
             loginLockDurationMin={Number(s["login_lock_duration_min"] ?? 15)}
             sessionTimeoutMin={Number(s["session_timeout_min"] ?? 30)}
+            sessionWarningMin={Number(s["session_warning_min"] ?? 5)}
             passwordMinLength={Number(s["password_min_length"] ?? 10)}
             passwordRequireUppercase={s["password_require_uppercase"] !== false}
             passwordRequireNumber={s["password_require_number"] !== false}
