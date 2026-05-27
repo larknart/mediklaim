@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const ids: string[] = Array.isArray(body?.ids) ? body.ids : [];
+  const ids: string[] = Array.isArray(body?.ids)
+    ? (body.ids as unknown[]).filter((x): x is string => typeof x === "string")
+    : [];
   if (ids.length === 0) return NextResponse.json({ error: "ids array required" }, { status: 400 });
   if (ids.length > 200) return NextResponse.json({ error: "Terlalu banyak tuntutan (maks 200)" }, { status: 400 });
 

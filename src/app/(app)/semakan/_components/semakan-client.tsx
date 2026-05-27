@@ -31,8 +31,6 @@ export interface SemukanClaimItem {
   departmentName: string | null;
   totalApprovedMyr: number | null;
   totalClaimedMyr: number;
-  /** "HEAD_APPROVED" | "APPROVED" */
-  status: string;
 }
 
 interface SemukanClientProps {

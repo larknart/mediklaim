@@ -42,7 +42,8 @@ async function triggerDownload(ids: string[], format: ExportFormat): Promise<voi
     a.download = `eksport-coversheet-${date}.pdf`;
   }
   a.click();
-  URL.revokeObjectURL(url);
+  // Revoke after 60s — download manager holds internal ref, but some WebViews release early
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function ExportButton({ getIds, disabled }: ExportButtonProps) {

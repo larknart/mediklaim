@@ -38,7 +38,6 @@ export default async function SemulaPage() {
           departmentName: c.department?.name ?? null,
           totalApprovedMyr: null,
           totalClaimedMyr: Number(c.totalClaimedMyr),
-          status: "HEAD_APPROVED",
         }))}
         approvedClaims={approvedClaims.map((c) => ({
           id: c.id,
@@ -47,7 +46,6 @@ export default async function SemulaPage() {
           departmentName: c.department?.name ?? null,
           totalApprovedMyr: c.totalApprovedMyr ? Number(c.totalApprovedMyr) : null,
           totalClaimedMyr: Number(c.totalClaimedMyr),
-          status: "APPROVED",
         }))}
       />
     </div>
