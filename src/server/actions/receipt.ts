@@ -11,7 +11,7 @@ import path from "path";
 import fs from "fs/promises";
 
 const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+const DEFAULT_MAX_BYTES = 10 * 1024 * 1024; // 10MB fallback
 
 // ─── Upload ───────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,10 @@ export async function uploadReceipt(formData: FormData) {
   const file = formData.get("file") as File | null;
   if (!file) throw new Error("NO_FILE");
   if (!ALLOWED_MIME.includes(file.type)) throw new Error("INVALID_MIME");
-  if (file.size > MAX_FILE_BYTES) throw new Error("FILE_TOO_LARGE");
+
+  const limitRow = await prisma.settings.findUnique({ where: { key: "max_upload_size_mb" } });
+  const maxBytes = typeof limitRow?.value === "number" ? limitRow.value * 1024 * 1024 : DEFAULT_MAX_BYTES;
+  if (file.size > maxBytes) throw new Error("FILE_TOO_LARGE");
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const hash = crypto.createHash("sha256").update(buffer).digest("hex");

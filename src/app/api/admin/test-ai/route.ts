@@ -13,6 +13,10 @@ export async function POST(req: Request) {
   const file = formData.get("file") as File | null;
   if (!file) return Response.json({ error: "Tiada fail." }, { status: 400 });
 
+  const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+  if (!ALLOWED_MIME.includes(file.type)) return Response.json({ error: "Jenis fail tidak dibenarkan." }, { status: 400 });
+  if (file.size > 20 * 1024 * 1024) return Response.json({ error: "Fail terlalu besar (max 20 MB)." }, { status: 400 });
+
   const rows = await prisma.settings.findMany({
     where: { key: { in: ["ai_provider", "ai_ollama_base_url", "ai_ollama_model", "ai_timeout_seconds"] } },
   });

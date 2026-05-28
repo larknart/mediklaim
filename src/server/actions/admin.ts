@@ -150,6 +150,9 @@ export async function resetUserPassword(userId: string, newPassword: string) {
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
 export async function getSetting(key: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
   const row = await prisma.settings.findUnique({ where: { key } });
   return row?.value ?? null;
 }

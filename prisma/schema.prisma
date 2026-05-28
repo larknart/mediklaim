@@ -156,6 +156,8 @@ model Department {
 
   members   User[]   @relation("DepartmentMembers")
   claims    Claim[]  @relation("DepartmentClaims")
+
+  @@index([headId])
 }
 
 model UserRole {
@@ -175,6 +177,7 @@ model AnnualAllocation {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, year])
+  @@index([userId])
   @@index([year])
 }
 
@@ -267,6 +270,7 @@ model Approval {
   actor User  @relation(fields: [actorId], references: [id])
 
   @@index([claimId])
+  @@index([actorId])
 }
 
 model ClaimComment {
@@ -280,6 +284,7 @@ model ClaimComment {
   author User  @relation(fields: [authorId], references: [id])
 
   @@index([claimId])
+  @@index([authorId])
 }
 
 // ─── Config ──────────────────────────────────────────────────────────────────
@@ -343,6 +348,7 @@ model Notification {
 
   @@index([userId, readAt])
   @@index([createdAt])
+  @@index([type])
 }
 
 model WhatsAppOutbox {

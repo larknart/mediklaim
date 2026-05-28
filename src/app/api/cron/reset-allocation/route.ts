@@ -2,8 +2,9 @@ import { resetAnnualAllocation } from "@/jobs/reset-annual-allocation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
-  if (token !== process.env.CRON_SECRET) {
+  const bearer = req.headers.get("authorization")?.replace("Bearer ", "");
+  const token = bearer ?? req.nextUrl.searchParams.get("token");
+  if (!token || token !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

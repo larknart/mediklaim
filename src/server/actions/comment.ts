@@ -49,5 +49,13 @@ export async function deleteComment(commentId: string) {
 
   await prisma.claimComment.delete({ where: { id: commentId } });
 
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: AuditAction.CLAIM_COMMENT_DELETED,
+    entity: "ClaimComment",
+    entityId: commentId,
+  });
+
   return { ok: true };
 }
