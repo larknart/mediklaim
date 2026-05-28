@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
-import { getPasswordPolicy } from "@/lib/password-policy";
+import { getPasswordPolicy } from "@/lib/password-policy-server";
 import { UserForm } from "../_components/user-form";
 import { BackButton } from "@/components/back-button";
 

@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Role } from "@/generated/prisma";
-import { getPasswordPolicy } from "@/lib/password-policy";
+import { getPasswordPolicy } from "@/lib/password-policy-server";
 import { ChangePasswordForm } from "./_components/change-password-form";
 import { UpdateProfileForm } from "./_components/update-profile-form";
 import { TotpSection } from "./_components/totp-section";

@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { sendEmail } from "@/lib/notify/channels/email";
-import { checkPasswordPolicy } from "@/lib/password-policy";
+import { checkPasswordPolicy } from "@/lib/password-policy-server";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 

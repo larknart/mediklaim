@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
-import { checkPasswordPolicy } from "@/lib/password-policy";
+import { checkPasswordPolicy } from "@/lib/password-policy-server";
 import bcrypt from "bcryptjs";
 
 export async function changePassword(currentPassword: string, newPassword: string) {

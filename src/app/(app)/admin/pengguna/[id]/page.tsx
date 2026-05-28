@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
-import { getPasswordPolicy } from "@/lib/password-policy";
+import { getPasswordPolicy } from "@/lib/password-policy-server";
 import { UserForm } from "../_components/user-form";
 import { BackButton } from "@/components/back-button";
 

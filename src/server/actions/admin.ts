@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
-import { checkPasswordPolicy } from "@/lib/password-policy";
+import { checkPasswordPolicy } from "@/lib/password-policy-server";
 import bcrypt from "bcryptjs";
 
 function requireAdmin(user: { id: string; roles: Role[]; isAhliMajlis: boolean; departmentId: string | null }) {

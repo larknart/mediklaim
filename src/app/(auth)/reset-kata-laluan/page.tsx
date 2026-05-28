@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getPasswordPolicy } from "@/lib/password-policy";
+import { getPasswordPolicy } from "@/lib/password-policy-server";
 import { ResetForm } from "./_components/reset-form";
 
 export default async function ResetKataLaluanPage() {
