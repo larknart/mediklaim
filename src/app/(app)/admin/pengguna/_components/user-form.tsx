@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createUser, updateUser, resetUserPassword } from "@/server/actions/admin";
+import { validatePasswordPolicy, type PasswordPolicy } from "@/lib/password-policy";
+import { PasswordPolicyHints } from "@/components/password-policy-hints";
 import { Role } from "@/generated/prisma";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +27,7 @@ interface Department { id: string; name: string }
 
 interface UserFormProps {
   departments: Department[];
+  policy: PasswordPolicy;
   user?: {
     id: string;
     name: string;
@@ -38,7 +41,7 @@ interface UserFormProps {
   };
 }
 
-export function UserForm({ departments, user }: UserFormProps) {
+export function UserForm({ departments, policy, user }: UserFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -66,6 +69,8 @@ export function UserForm({ departments, user }: UserFormProps) {
     if (!name.trim() || !email.trim()) { setError("Nama dan email diperlukan."); return; }
     if (!user && !password.trim()) { setError("Password diperlukan untuk pengguna baru."); return; }
     if (roles.size === 0) { setError("Pilih sekurang-kurangnya satu peranan."); return; }
+    const pwErr = password.trim() ? validatePasswordPolicy(password, policy) : null;
+    if (pwErr) { setError(pwErr); return; }
     setError("");
 
     startTransition(async () => {
@@ -137,8 +142,8 @@ export function UserForm({ departments, user }: UserFormProps) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 8 aksara..."
             />
+            {password && <PasswordPolicyHints policy={policy} password={password} />}
           </div>
           <div>
             <Label className="text-xs text-gray-500 mb-1.5 block">Jabatan</Label>

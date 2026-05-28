@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Role } from "@/generated/prisma";
+import { getPasswordPolicy } from "@/lib/password-policy";
 import { ChangePasswordForm } from "./_components/change-password-form";
 import { UpdateProfileForm } from "./_components/update-profile-form";
 import { TotpSection } from "./_components/totp-section";
@@ -12,7 +13,7 @@ export default async function ProfilPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const [user, require2faSetting] = await Promise.all([
+  const [user, require2faSetting, policy] = await Promise.all([
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
@@ -25,6 +26,7 @@ export default async function ProfilPage() {
       },
     }),
     prisma.settings.findUnique({ where: { key: "require_2fa_admin" } }),
+    getPasswordPolicy(),
   ]);
   if (!user) redirect("/login");
 
@@ -99,7 +101,7 @@ export default async function ProfilPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ChangePasswordForm />
+          <ChangePasswordForm policy={policy} />
         </CardContent>
       </Card>
     </div>

@@ -2,13 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { changePassword } from "@/server/actions/profile";
+import { validatePasswordPolicy, type PasswordPolicy } from "@/lib/password-policy";
+import { PasswordPolicyHints } from "@/components/password-policy-hints";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, Eye, EyeOff } from "lucide-react";
 
-export function ChangePasswordForm() {
+export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -27,10 +29,8 @@ export function ChangePasswordForm() {
       setError("Kata laluan baru tidak sepadan.");
       return;
     }
-    if (newPassword.length < 6) {
-      setError("Kata laluan baru terlalu pendek.");
-      return;
-    }
+    const policyError = validatePasswordPolicy(newPassword, policy);
+    if (policyError) { setError(policyError); return; }
 
     startTransition(async () => {
       try {
@@ -87,6 +87,7 @@ export function ChangePasswordForm() {
             {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
+        <PasswordPolicyHints policy={policy} password={newPassword} />
       </div>
 
       <div>

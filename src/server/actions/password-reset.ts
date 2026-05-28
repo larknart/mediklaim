@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { sendEmail } from "@/lib/notify/channels/email";
+import { checkPasswordPolicy } from "@/lib/password-policy";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
@@ -82,33 +83,8 @@ export async function resetPasswordWithToken(token: string, newPassword: string)
   });
   if (!user || !user.isActive) throw new Error("TOKEN_INVALID");
 
-  // Validate password policy from DB settings
-  const policyRows = await prisma.settings.findMany({
-    where: {
-      key: {
-        in: [
-          "password_min_length",
-          "password_require_uppercase",
-          "password_require_number",
-          "password_require_symbol",
-        ],
-      },
-    },
-  });
-  const p = Object.fromEntries(policyRows.map((r) => [r.key, r.value]));
-  const minLength = typeof p["password_min_length"] === "number" ? p["password_min_length"] : 8;
-  const requireUppercase = p["password_require_uppercase"] !== false;
-  const requireNumber = p["password_require_number"] !== false;
-  const requireSymbol = Boolean(p["password_require_symbol"] ?? false);
-
-  if (newPassword.length < minLength)
-    throw new Error(`Kata laluan perlu sekurang-kurangnya ${minLength} aksara.`);
-  if (requireUppercase && !/[A-Z]/.test(newPassword))
-    throw new Error("Kata laluan perlu mengandungi sekurang-kurangnya satu huruf besar.");
-  if (requireNumber && !/[0-9]/.test(newPassword))
-    throw new Error("Kata laluan perlu mengandungi sekurang-kurangnya satu nombor.");
-  if (requireSymbol && !/[^A-Za-z0-9]/.test(newPassword))
-    throw new Error("Kata laluan perlu mengandungi sekurang-kurangnya satu simbol.");
+  const policyError = await checkPasswordPolicy(newPassword);
+  if (policyError) throw new Error(policyError);
 
   const newHash = await bcrypt.hash(newPassword, 10);
 

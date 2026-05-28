@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
+import { getPasswordPolicy } from "@/lib/password-policy";
 import { UserForm } from "../_components/user-form";
 import { BackButton } from "@/components/back-button";
 
@@ -11,13 +12,15 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
   if (!session?.user || !isAdmin(session.user)) redirect("/dashboard");
 
   const { id } = await params;
-  const user = await prisma.user.findUnique({
-    where: { id },
-    include: { roles: true },
-  });
+  const [user, departments, policy] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id },
+      include: { roles: true },
+    }),
+    prisma.department.findMany({ orderBy: { name: "asc" } }),
+    getPasswordPolicy(),
+  ]);
   if (!user) notFound();
-
-  const departments = await prisma.department.findMany({ orderBy: { name: "asc" } });
 
   return (
     <div className="max-w-lg space-y-6">
@@ -28,6 +31,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
       </div>
       <UserForm
         departments={departments}
+        policy={policy}
         user={{
           id: user.id,
           name: user.name,
