@@ -7,13 +7,23 @@ import { signPending2faToken, verifyPending2faToken } from "@/lib/pending-2fa";
 import { verifyTotpCode, consumeRecoveryCode } from "@/lib/totp";
 import bcrypt from "bcryptjs";
 
+async function readSessionTimeoutSeconds(): Promise<number> {
+  try {
+    const row = await prisma.settings.findUnique({ where: { key: "session_timeout_min" } });
+    const mins = typeof row?.value === "number" ? row.value : 30;
+    return Math.min(Math.max(mins, 15), 480) * 60;
+  } catch {
+    return 30 * 60;
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
-    // SESSION_TIMEOUT_MIN is set in Coolify env vars and managed via Admin → Keselamatan.
-    // Falls back to 30 minutes if unset.
-    maxAge: Number(process.env.SESSION_TIMEOUT_MIN ?? "30") * 60,  // seconds
+    // Ceiling matches admin UI max (480 min). Real per-user expiry enforced
+    // via token.exp in jwt callback, driven by Settings.session_timeout_min.
+    maxAge: 480 * 60,
   },
   pages: {
     signIn: "/login",
@@ -146,12 +156,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.roles = (user as { roles: Role[] }).roles;
         token.isAhliMajlis = (user as { isAhliMajlis: boolean }).isAhliMajlis;
         token.departmentId = (user as { departmentId: string | null }).departmentId;
+        token.exp = Math.floor(Date.now() / 1000) + await readSessionTimeoutSeconds();
       }
       if (trigger === "update") {
-        // Called by useSessionTimeout when user is active — bump exp so the
-        // session actually extends. Without this update() is a no-op on exp.
-        token.exp = Math.floor(Date.now() / 1000) +
-          Number(process.env.SESSION_TIMEOUT_MIN ?? "30") * 60;
+        token.exp = Math.floor(Date.now() / 1000) + await readSessionTimeoutSeconds();
       }
       return token;
     },

@@ -114,7 +114,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
               <Label className="text-xs text-gray-500 mb-1.5 block">Tamat tempoh sesi (minit)</Label>
               <Input type="number" min="15" max="480" value={sessionTimeout} onChange={(e) => setSessionTimeout(e.target.value)} />
               <p className="text-xs text-gray-400 mt-1">
-                Memerlukan kemas kini env var <code className="bg-gray-100 px-1 rounded">SESSION_TIMEOUT_MIN</code> dan restart app di Coolify.
+                Berkuat kuasa serta-merta untuk log masuk baru. Sesi sedia ada akan diperbaharui pada tindakan seterusnya.
               </p>
             </div>
             <div>
