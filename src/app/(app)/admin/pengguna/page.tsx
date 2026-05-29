@@ -47,6 +47,12 @@ export default async function PenggunaPage() {
 
       <Card>
         <CardContent className="p-0">
+          {users.length === 0 ? (
+            <div className="py-12 text-center text-gray-400">
+              <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>Tiada pengguna berdaftar.</p>
+            </div>
+          ) : (
           <div className="divide-y">
             {users.map((user) => (
               <div key={user.id} className={`flex items-center gap-3 p-4 ${!user.isActive ? "opacity-50" : ""}`}>
@@ -75,6 +81,7 @@ export default async function PenggunaPage() {
               </div>
             ))}
           </div>
+          )}
         </CardContent>
       </Card>
     </div>

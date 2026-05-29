@@ -1,8 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { MarkReadButton } from "./_components/mark-read-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Bell } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "@/lib/format";

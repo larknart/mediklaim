@@ -218,7 +218,6 @@ model ReceiptItem {
   amountMyr     Decimal @db.Decimal(10, 2)
   isEligible    Boolean @default(true)
   flaggedReason String?
-  category      String?
 
   receipt Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
 

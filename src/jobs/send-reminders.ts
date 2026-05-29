@@ -29,17 +29,22 @@ export async function sendPendingReminders(): Promise<{ sent: number; skipped: n
   let sent = 0;
   let skipped = 0;
 
-  async function alreadyRemindedToday(claimId: string, recipientId: string): Promise<boolean> {
-    const existing = await prisma.notification.findFirst({
-      where: {
-        userId: recipientId,
-        type: "ACTION_REQUIRED",
-        link: { contains: claimId },
-        createdAt: { gte: todayStart },
-      },
-      select: { id: true },
-    });
-    return existing !== null;
+  // Batch-load today's ACTION_REQUIRED notifications to avoid per-call DB lookups
+  const todayReminders = await prisma.notification.findMany({
+    where: { type: "ACTION_REQUIRED", createdAt: { gte: todayStart } },
+    select: { userId: true, link: true },
+  });
+  const remindedSet = new Set(
+    todayReminders
+      .map((n) => {
+        const match = n.link?.match(/\/tuntutan\/([^/?#]+)/);
+        return match ? `${n.userId}:${match[1]}` : null;
+      })
+      .filter((k): k is string => k !== null)
+  );
+
+  function alreadyRemindedToday(claimId: string, recipientId: string): boolean {
+    return remindedSet.has(`${recipientId}:${claimId}`);
   }
 
   async function remind(
@@ -48,7 +53,7 @@ export async function sendPendingReminders(): Promise<{ sent: number; skipped: n
     status: string, recipientId: string, role: string,
     workingDaysElapsed: number, step: string
   ) {
-    if (await alreadyRemindedToday(claimId, recipientId)) { skipped++; return; }
+    if (alreadyRemindedToday(claimId, recipientId)) { skipped++; return; }
     await dispatch({
       event: "ACTION_REQUIRED",
       recipientId,

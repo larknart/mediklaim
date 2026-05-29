@@ -11,39 +11,39 @@ export async function resetAnnualAllocation(year?: number): Promise<{ created: n
   const defaultLimit = Number(limitSetting?.value ?? process.env.DEFAULT_ANNUAL_LIMIT ?? 1200);
   const proRataEnabled = proRataSetting?.value !== false;
 
-  const users = await prisma.user.findMany({
-    where: { isActive: true, deletedAt: null },
-    select: { id: true, joinDate: true },
-  });
+  const [users, existing] = await Promise.all([
+    prisma.user.findMany({
+      where: { isActive: true, deletedAt: null },
+      select: { id: true, joinDate: true },
+    }),
+    prisma.annualAllocation.findMany({
+      where: { year: targetYear },
+      select: { userId: true },
+    }),
+  ]);
 
-  let created = 0;
+  const existingIds = new Set(existing.map((a) => a.userId));
 
-  for (const user of users) {
-    const existing = await prisma.annualAllocation.findUnique({
-      where: { userId_year: { userId: user.id, year: targetYear } },
-    });
-
-    if (!existing) {
+  const toCreate = users
+    .filter((u) => !existingIds.has(u.id))
+    .map((u) => {
       let limitMyr = defaultLimit;
-      if (proRataEnabled && user.joinDate) {
-        const jd = new Date(user.joinDate);
+      if (proRataEnabled && u.joinDate) {
+        const jd = new Date(u.joinDate);
         if (jd.getFullYear() === targetYear) {
           // getMonth() is 0-indexed: July=6 → 12-6=6 months remaining (Jul–Dec)
           const monthsRemaining = 12 - jd.getMonth();
           limitMyr = Math.round((monthsRemaining / 12) * defaultLimit * 100) / 100;
         }
       }
-      await prisma.annualAllocation.create({
-        data: {
-          userId: user.id,
-          year: targetYear,
-          limitMyr,
-          usedMyr: 0,
-        },
-      });
-      created++;
-    }
+      return { userId: u.id, year: targetYear, limitMyr, usedMyr: 0 };
+    });
+
+  if (toCreate.length > 0) {
+    await prisma.annualAllocation.createMany({ data: toCreate, skipDuplicates: true });
   }
+
+  const created = toCreate.length;
 
   await logAction({
     action: `${AuditAction.LIMIT_RESET}_${targetYear}`,

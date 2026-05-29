@@ -55,6 +55,9 @@ export default async function AuditPage({
 
       <Card>
         <CardContent className="p-0">
+          {logs.length === 0 ? (
+            <div className="py-12 text-center text-gray-400 text-sm">Tiada rekod audit.</div>
+          ) : (
           <div className="divide-y text-sm">
             {logs.map((log) => {
               const colorClass = ACTION_COLORS[log.action] ?? "bg-gray-50 text-gray-600";
@@ -94,6 +97,7 @@ export default async function AuditPage({
               );
             })}
           </div>
+          )}
         </CardContent>
       </Card>
 
