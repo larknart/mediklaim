@@ -7,6 +7,7 @@ import { dispatch } from "@/lib/notify/dispatcher";
 import { notifyApproverTeam } from "./claim";
 import { isHead, isFinance, isApprover, isYdp, canApproveAsHead, shouldSkipApproverStep } from "@/lib/permissions";
 import { getActiveDelegation } from "@/lib/delegation";
+import { getDefaultAnnualLimit } from "@/lib/allocation";
 import { ClaimStatus, ApprovalStep, Decision, Role } from "@/generated/prisma";
 import Decimal from "decimal.js";
 
@@ -178,7 +179,7 @@ export async function financeReview(
       create: {
         userId: claim.claimantId,
         year: claim.forYear,
-        limitMyr: parseFloat(process.env.DEFAULT_ANNUAL_LIMIT ?? "1200"),
+        limitMyr: await getDefaultAnnualLimit(),
         usedMyr: finalMyr.toNumber(),
       },
       update: { usedMyr: { increment: finalMyr.toNumber() } },
@@ -290,7 +291,7 @@ export async function approverDecide(
       create: {
         userId: claim.claimantId,
         year,
-        limitMyr: parseFloat(process.env.DEFAULT_ANNUAL_LIMIT ?? "1200"),
+        limitMyr: await getDefaultAnnualLimit(),
         usedMyr: finalApprovedMyr.toDecimalPlaces(2).toNumber(),
       },
       update: {
@@ -382,7 +383,7 @@ export async function bulkApprove(claimIds: string[]) {
         create: {
           userId: claim.claimantId,
           year: claim.forYear,
-          limitMyr: parseFloat(process.env.DEFAULT_ANNUAL_LIMIT ?? "1200"),
+          limitMyr: await getDefaultAnnualLimit(),
           usedMyr: finalMyr.toNumber(),
         },
         update: { usedMyr: { increment: finalMyr.toNumber() } },

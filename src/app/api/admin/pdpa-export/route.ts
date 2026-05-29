@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { isAdmin } from "@/lib/permissions";
 import { prisma } from "@/lib/db";
-import { logAction } from "@/lib/audit";
+import { logAction, AuditAction } from "@/lib/audit";
 
 export async function GET() {
   const session = await auth();
@@ -39,7 +39,7 @@ export async function GET() {
   await logAction({
     actorId: session.user.id,
     actorName: session.user.name ?? session.user.email ?? undefined,
-    action: "PDPA_EXPORT",
+    action: AuditAction.PDPA_EXPORT,
     entity: "System",
     entityId: "pdpa-export",
     meta: { exportedAt: new Date().toISOString(), userCount: users.length, claimCount: claims.length },

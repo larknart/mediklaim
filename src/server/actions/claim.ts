@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 import { dispatch } from "@/lib/notify/dispatcher";
 import { generateRefNo } from "@/lib/refno";
+import { getDefaultAnnualLimit } from "@/lib/allocation";
 import { shouldSkipHeadStep } from "@/lib/permissions";
 import { ClaimStatus, ClaimFor, ReceiptStatus, Role, ApprovalStep, Decision } from "@/generated/prisma";
 import Decimal from "decimal.js";
@@ -70,7 +71,7 @@ export async function createClaim(data: {
   const allocation = await prisma.annualAllocation.findUnique({
     where: { userId_year: { userId: session.user.id, year } },
   });
-  const limit = new Decimal(allocation?.limitMyr?.toString() ?? process.env.DEFAULT_ANNUAL_LIMIT ?? "1200");
+  const limit = new Decimal(allocation?.limitMyr?.toString() ?? (await getDefaultAnnualLimit()).toString());
   const used = new Decimal(allocation?.usedMyr?.toString() ?? "0");
   const remaining = limit.minus(used);
 

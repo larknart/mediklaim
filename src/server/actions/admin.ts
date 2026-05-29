@@ -249,7 +249,7 @@ export async function addPublicHoliday(date: string, name: string) {
     update: { name: name.trim() },
   });
 
-  await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: "HOLIDAY_ADDED", entity: "PublicHoliday", entityId: holiday.id, meta: { date, name } });
+  await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: AuditAction.HOLIDAY_ADDED, entity: "PublicHoliday", entityId: holiday.id, meta: { date, name } });
   return { id: holiday.id };
 }
 
@@ -259,7 +259,7 @@ export async function deletePublicHoliday(id: string) {
   requireAdmin(session.user);
 
   await prisma.publicHoliday.delete({ where: { id } });
-  await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: "HOLIDAY_DELETED", entity: "PublicHoliday", entityId: id });
+  await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: AuditAction.HOLIDAY_DELETED, entity: "PublicHoliday", entityId: id });
   return { ok: true };
 }
 
@@ -294,7 +294,7 @@ export async function createDelegation(data: {
   await logAction({
     actorId: session.user.id,
     actorName: session.user.name ?? undefined,
-    action: "DELEGATION_CREATED",
+    action: AuditAction.DELEGATION_CREATED,
     entity: "ApprovalDelegation",
     entityId: delegation.id,
     meta: data,
@@ -313,7 +313,7 @@ export async function deleteDelegation(id: string) {
   await logAction({
     actorId: session.user.id,
     actorName: session.user.name ?? undefined,
-    action: "DELEGATION_DELETED",
+    action: AuditAction.DELEGATION_DELETED,
     entity: "ApprovalDelegation",
     entityId: id,
   });

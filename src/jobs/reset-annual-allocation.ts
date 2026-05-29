@@ -1,14 +1,14 @@
 import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
+import { getDefaultAnnualLimit } from "@/lib/allocation";
 
 export async function resetAnnualAllocation(year?: number): Promise<{ created: number; year: number }> {
   const targetYear = year ?? new Date().getFullYear();
 
-  const [limitSetting, proRataSetting] = await Promise.all([
-    prisma.settings.findUnique({ where: { key: "default_annual_limit" } }),
+  const [defaultLimit, proRataSetting] = await Promise.all([
+    getDefaultAnnualLimit(),
     prisma.settings.findUnique({ where: { key: "pro_rata_enabled" } }),
   ]);
-  const defaultLimit = Number(limitSetting?.value ?? process.env.DEFAULT_ANNUAL_LIMIT ?? 1200);
   const proRataEnabled = proRataSetting?.value !== false;
 
   const [users, existing] = await Promise.all([
@@ -46,7 +46,7 @@ export async function resetAnnualAllocation(year?: number): Promise<{ created: n
   const created = toCreate.length;
 
   await logAction({
-    action: `${AuditAction.LIMIT_RESET}_${targetYear}`,
+    action: AuditAction.LIMIT_RESET,
     entity: "AnnualAllocation",
     meta: { year: targetYear, usersProcessed: users.length, created, defaultLimit },
   });
