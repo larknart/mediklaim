@@ -9,7 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Building2, Plus, Pencil, Trash2, Check, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface Dept { id: string; name: string; headId: string | null; headName: string | null; memberCount: number }
 interface User { id: string; name: string; email: string }
@@ -20,6 +31,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
   const [error, setError] = useState("");
   const [newName, setNewName] = useState("");
   const [editing, setEditing] = useState<{ id: string; name: string; headId: string } | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   function add() {
     if (!newName.trim()) return;
@@ -29,6 +41,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
         await createDepartment(newName.trim());
         setNewName("");
         router.refresh();
+        toast.success("Jabatan berjaya ditambah.");
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Gagal cipta jabatan.");
       }
@@ -42,6 +55,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
         await updateDepartment(editing.id, { name: editing.name, headId: editing.headId || null });
         setEditing(null);
         router.refresh();
+        toast.success("Jabatan berjaya dikemaskini.");
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Gagal kemaskini.");
       }
@@ -50,11 +64,18 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
 
   function remove(id: string, count: number) {
     if (count > 0) { setError("Pindahkan semua ahli jabatan dahulu."); return; }
-    if (!confirm("Padam jabatan ini?")) return;
+    setDeleteId(id);
+  }
+
+  function confirmDelete() {
+    if (!deleteId) return;
+    const id = deleteId;
+    setDeleteId(null);
     startTransition(async () => {
       try {
         await deleteDepartment(id);
         router.refresh();
+        toast.success("Jabatan berjaya dipadam.");
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Gagal padam.");
       }
@@ -140,6 +161,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="Edit jabatan"
                           onClick={() => setEditing({ id: dept.id, name: dept.name, headId: dept.headId ?? "" })}
                         >
                           <Pencil className="w-4 h-4" />
@@ -147,6 +169,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="Padam jabatan"
                           onClick={() => remove(dept.id, dept.memberCount)}
                           disabled={isPending}
                         >
@@ -161,6 +184,23 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteId !== null} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Padam jabatan?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak boleh dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Padam
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

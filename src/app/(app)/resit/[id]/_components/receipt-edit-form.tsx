@@ -9,6 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ExtractionStatus } from "@/generated/prisma";
 import { Plus, Trash2, RefreshCw, Save } from "lucide-react";
 
@@ -112,8 +122,10 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
     });
   }
 
+  const [showDelete, setShowDelete] = useState(false);
+
   function handleDelete() {
-    if (!confirm("Padam resit ini dari inbox?")) return;
+    setShowDelete(false);
     startTransition(async () => {
       await deleteReceipt(receipt.id);
       router.push("/resit");
@@ -267,7 +279,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
         </Button>
         <Button
           variant="outline"
-          onClick={handleDelete}
+          onClick={() => setShowDelete(true)}
           disabled={isPending}
           className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
         >
@@ -275,6 +287,23 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
           Padam Resit
         </Button>
       </div>
+
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Padam resit ini?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Resit akan dibuang dari inbox dan tidak boleh dipulihkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Padam
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

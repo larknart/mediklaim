@@ -10,8 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Trash2, Plus, CalendarRange } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 const DELEGATABLE_ROLES: { value: Role; label: string }[] = [
   { value: Role.HEAD, label: "Ketua Jabatan" },
@@ -53,6 +64,7 @@ export function DelegationList({ delegations, users }: Props) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [delegatorId, setDelegatorId] = useState("");
   const [delegateId, setDelegateId] = useState("");
@@ -72,6 +84,7 @@ export function DelegationList({ delegations, users }: Props) {
         setShowForm(false);
         setDelegatorId(""); setDelegateId(""); setRole(""); setFromDate(""); setToDate("");
         router.refresh();
+        toast.success("Delegasi berjaya dicipta.");
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : "Gagal cipta delegasi.";
         if (msg === "SAME_USER") setError("Delegator dan penolong tidak boleh sama.");
@@ -81,10 +94,14 @@ export function DelegationList({ delegations, users }: Props) {
     });
   }
 
-  function handleDelete(id: string) {
+  function confirmDelete() {
+    if (!deleteId) return;
+    const id = deleteId;
+    setDeleteId(null);
     startTransition(async () => {
       await deleteDelegation(id);
       router.refresh();
+      toast.success("Delegasi berjaya dipadam.");
     });
   }
 
@@ -203,10 +220,10 @@ export function DelegationList({ delegations, users }: Props) {
                     <Badge className="bg-green-100 text-green-700 text-xs shrink-0">Aktif</Badge>
                   )}
                   <button
-                    onClick={() => handleDelete(d.id)}
+                    onClick={() => setDeleteId(d.id)}
                     disabled={isPending}
                     className="text-gray-300 hover:text-red-400 disabled:opacity-30 shrink-0"
-                    aria-label="Padam"
+                    aria-label="Padam delegasi"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -216,6 +233,23 @@ export function DelegationList({ delegations, users }: Props) {
           ))}
         </div>
       )}
+
+      <AlertDialog open={deleteId !== null} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Padam delegasi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak boleh dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Padam
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

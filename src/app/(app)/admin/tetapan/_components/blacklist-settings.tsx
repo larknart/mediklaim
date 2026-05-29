@@ -7,6 +7,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, Trash2, ShieldAlert } from "lucide-react";
 
 interface Keyword { id: string; keyword: string; reason: string | null }
@@ -17,6 +27,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
   const [error, setError] = useState("");
   const [newKw, setNewKw] = useState("");
   const [newReason, setNewReason] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   function add() {
     if (!newKw.trim()) return;
@@ -32,8 +43,10 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
     });
   }
 
-  function remove(id: string) {
-    if (!confirm("Padam keyword ini?")) return;
+  function confirmDelete() {
+    if (!deleteId) return;
+    const id = deleteId;
+    setDeleteId(null);
     startTransition(async () => {
       try {
         await deleteBlacklistKeyword(id);
@@ -85,9 +98,10 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => remove(kw.id)}
+                  onClick={() => setDeleteId(kw.id)}
                   disabled={isPending}
                   className="shrink-0 h-7 w-7"
+                  aria-label="Padam keyword"
                 >
                   <Trash2 className="w-3.5 h-3.5 text-red-500" />
                 </Button>
@@ -96,6 +110,23 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
           </div>
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteId !== null} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Padam keyword ini?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak boleh dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Padam
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

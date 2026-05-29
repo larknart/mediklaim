@@ -5,6 +5,17 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { uploadReceipt, deleteReceipt, retryExtraction } from "@/server/actions/receipt";
 import { ExtractionStatus, ReceiptStatus } from "@/generated/prisma";
 import {
@@ -50,6 +61,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Poll while any receipt is still being processed by AI
   const hasPending = initialReceipts.some((r) => r.extractionStatus === ExtractionStatus.PENDING);
@@ -91,10 +103,14 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
     handleFiles(e.dataTransfer.files);
   }, [handleFiles]);
 
-  function handleDelete(id: string) {
+  function confirmDelete() {
+    if (!deleteId) return;
+    const id = deleteId;
+    setDeleteId(null);
     startTransition(async () => {
       await deleteReceipt(id);
       router.refresh();
+      toast.success("Resit berjaya dipadam.");
     });
   }
 
@@ -263,6 +279,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                         size="sm"
                         onClick={() => handleRetry(r.id)}
                         disabled={isPending}
+                        aria-label="Cuba semula ekstrak"
                       >
                         <RefreshCw className="w-3.5 h-3.5" />
                       </Button>
@@ -271,8 +288,9 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                       variant="ghost"
                       size="sm"
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => handleDelete(r.id)}
+                      onClick={() => setDeleteId(r.id)}
                       disabled={isPending}
+                      aria-label="Padam resit"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
@@ -283,6 +301,23 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
           })}
         </div>
       )}
+
+      <AlertDialog open={deleteId !== null} onOpenChange={(o) => !o && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Padam resit ini?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Resit akan dibuang dari inbox dan tidak boleh dipulihkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Padam
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
