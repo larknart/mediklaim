@@ -124,7 +124,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
               disabled={!!user}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs text-gray-500 mb-1.5 block">No. Staf</Label>
               <Input value={staffNo} onChange={(e) => setStaffNo(e.target.value)} placeholder="MDS-XXX-001" />

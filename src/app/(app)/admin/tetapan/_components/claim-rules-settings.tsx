@@ -109,7 +109,7 @@ export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths
         <div>
           <p className="text-xs font-medium text-gray-600 mb-2">Had SLA (hari bekerja)</p>
           <p className="text-xs text-gray-400 mb-3">Amaran kuning ≥ 75% had, merah apabila melepasi had.</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <Label className="text-xs text-gray-500 mb-1.5 block">Sokongan (HEAD)</Label>
               <Input type="number" min="1" max="30" value={slaHead} onChange={(e) => setSlaHead(e.target.value)} />

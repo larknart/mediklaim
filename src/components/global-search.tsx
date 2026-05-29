@@ -219,12 +219,21 @@ export function GlobalSearch() {
         </div>
       </div>
 
+      {/* ── Mobile backdrop (dismiss panel by tapping outside) ── */}
+      {panelOpen && (
+        <div
+          className="fixed inset-0 z-20 sm:hidden"
+          onClick={clearSearch}
+          aria-hidden="true"
+        />
+      )}
+
       {/* ── Slide-in results panel ── */}
       {panelOpen && (
         <div
           role="region"
           aria-label="Keputusan carian"
-          className="fixed right-0 top-14 bottom-0 w-[320px] z-30 bg-white border-l border-gray-200 shadow-xl flex flex-col"
+          className="fixed right-0 top-14 bottom-0 w-full sm:w-[320px] z-30 bg-white border-l border-gray-200 shadow-xl flex flex-col"
         >
           {/* Panel header */}
           <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">

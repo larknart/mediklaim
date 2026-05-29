@@ -112,7 +112,7 @@ export function DelegationList({ delegations, users }: Props) {
             <CardTitle className="text-sm">Delegasi Baru</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-gray-500 mb-1.5 block">Delegator (yang cuti)</Label>
                 <Select value={delegatorId} onValueChange={(v) => setDelegatorId(v ?? delegatorId)}>
@@ -153,7 +153,7 @@ export function DelegationList({ delegations, users }: Props) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh Mula</Label>
                 <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} min={today} />

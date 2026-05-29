@@ -102,7 +102,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="text-xs text-gray-500 mb-1.5 block">Maksimum cubaan gagal</Label>
               <Input type="number" min="3" max="10" value={maxAttempts} onChange={(e) => setMaxAttempts(e.target.value)} />
@@ -112,7 +112,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
               <Input type="number" min="5" max="60" value={lockDuration} onChange={(e) => setLockDuration(e.target.value)} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="text-xs text-gray-500 mb-1.5 block">Tamat tempoh sesi (minit)</Label>
               <Input type="number" min="15" max="480" value={sessionTimeout} onChange={(e) => setSessionTimeout(e.target.value)} />

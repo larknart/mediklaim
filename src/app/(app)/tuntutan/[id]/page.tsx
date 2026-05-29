@@ -200,7 +200,7 @@ export default async function ClaimDetailPage({
 
           <Separator className="my-3" />
 
-          <div className="grid grid-cols-3 gap-3 text-center text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs">
             <div>
               <p className="text-gray-500">Dituntut</p>
               <p className="font-semibold text-sm mt-0.5">

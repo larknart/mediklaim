@@ -112,7 +112,7 @@ export function NotifSettings(props: NotifSettingsProps) {
         </label>
 
         <div className={`space-y-3 ${!waEnabled ? "opacity-50 pointer-events-none" : ""}`}>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs text-gray-500 mb-1.5 block">Had / minit</Label>
               <Input
@@ -133,7 +133,7 @@ export function NotifSettings(props: NotifSettingsProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs text-gray-500 mb-1.5 block">Quiet hours mula (jam)</Label>
               <Input
