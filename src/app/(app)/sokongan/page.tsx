@@ -20,6 +20,7 @@ export default async function SokonganPage() {
     },
     include: { claimant: true },
     orderBy: { submittedAt: "asc" },
+    take: 200,
   });
 
   return (

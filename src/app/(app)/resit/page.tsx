@@ -15,6 +15,7 @@ export default async function ResitPage() {
     },
     include: { items: true },
     orderBy: { createdAt: "desc" },
+    take: 200,
   });
 
   const serialized = receipts.map((r) => ({

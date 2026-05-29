@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
   }
 
+  try {
   const body = await req.json().catch(() => ({}));
   const ids: string[] = Array.isArray(body?.ids)
     ? (body.ids as unknown[]).filter((x): x is string => typeof x === "string")
@@ -75,4 +76,8 @@ export async function POST(req: NextRequest) {
       "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });
+  } catch (err) {
+    console.error("export/excel error:", err);
+    return NextResponse.json({ error: "Ralat menjana eksport." }, { status: 500 });
+  }
 }

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { logAction, AuditAction } from "@/lib/audit";
 
 export async function GET() {
+  try {
   const session = await auth();
   if (!session?.user || !isAdmin(session.user)) {
     return Response.json({ error: "UNAUTHORIZED" }, { status: 401 });
@@ -59,4 +60,8 @@ export async function GET() {
       "Content-Disposition": `attachment; filename="mediklaim-pdpa-export-${new Date().toISOString().split("T")[0]}.json"`,
     },
   });
+  } catch (err) {
+    console.error("pdpa-export error:", err);
+    return Response.json({ error: "Ralat menjana eksport." }, { status: 500 });
+  }
 }

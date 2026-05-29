@@ -5,6 +5,7 @@ import { isAdmin, isFinance, isApprover, isYdp } from "@/lib/permissions";
 import { generateLaporanPdf } from "@/lib/pdf/laporan";
 
 export async function GET(req: NextRequest) {
+  try {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
 
@@ -79,4 +80,8 @@ export async function GET(req: NextRequest) {
       "Content-Disposition": `attachment; filename="${filename}"`,
     },
   });
+  } catch (err) {
+    console.error("laporan/pdf error:", err);
+    return NextResponse.json({ error: "Ralat menjana laporan." }, { status: 500 });
+  }
 }

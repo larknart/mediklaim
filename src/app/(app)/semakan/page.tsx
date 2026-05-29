@@ -14,11 +14,13 @@ export default async function SemulaPage() {
       where: { status: ClaimStatus.HEAD_APPROVED },
       include: { claimant: true, department: true },
       orderBy: { submittedAt: "asc" },
+      take: 200,
     }),
     prisma.claim.findMany({
       where: { status: ClaimStatus.APPROVED },
       include: { claimant: true, department: true },
       orderBy: { updatedAt: "asc" },
+      take: 200,
     }),
   ]);
 

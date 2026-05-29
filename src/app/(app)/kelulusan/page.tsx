@@ -19,6 +19,7 @@ export default async function KelulusanPage() {
     where: { status: { in: statuses } },
     include: { claimant: true, department: true },
     orderBy: { submittedAt: "asc" },
+    take: 200,
   });
 
   const rows: ClaimRow[] = claims.map((c) => ({

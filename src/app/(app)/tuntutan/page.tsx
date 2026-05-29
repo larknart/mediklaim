@@ -29,6 +29,7 @@ export default async function TuntutanPage() {
     where: { claimantId: session.user.id },
     orderBy: { createdAt: "desc" },
     include: { receipts: true, approvals: true },
+    take: 200,
   });
 
   return (

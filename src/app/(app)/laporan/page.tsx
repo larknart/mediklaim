@@ -41,6 +41,7 @@ export default async function LaporanPage({
       resubmittedFrom: { select: { refNo: true } },
     },
     orderBy: [{ forMonth: "asc" }, { submittedAt: "asc" }],
+    take: 500,
   });
 
   const departments = await prisma.department.findMany({ orderBy: { name: "asc" } });
