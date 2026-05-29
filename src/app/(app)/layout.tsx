@@ -8,6 +8,9 @@ import { isAdmin } from "@/lib/permissions";
 import { Role } from "@/generated/prisma";
 import { GlobalSearch } from "@/components/global-search";
 import { SessionTimeoutModal } from "@/components/session-timeout-modal";
+import { SidebarProvider } from "@/components/sidebar-context";
+import { SidebarToggle } from "@/components/sidebar-toggle";
+import { SidebarBackdrop } from "@/components/sidebar-backdrop";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -61,20 +64,24 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <SessionProvider session={session}>
-      <SessionTimeoutModal warningMinutes={warningMinutes} />
-      <div className="flex min-h-screen bg-gray-50">
-        <LiveNotifications initialUnreadCount={unreadCount} />
-        <div className="flex-1 ml-64 flex flex-col min-h-screen">
-          <header className="h-14 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40 flex items-center px-6">
-            <GlobalSearch />
-          </header>
-          <main className="flex-1">
-            <div className="p-6 max-w-7xl mx-auto">
-              {children}
-            </div>
-          </main>
+      <SidebarProvider>
+        <SessionTimeoutModal warningMinutes={warningMinutes} />
+        <div className="flex min-h-screen bg-gray-50">
+          <LiveNotifications initialUnreadCount={unreadCount} />
+          <SidebarBackdrop />
+          <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
+            <header className="h-14 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40 flex items-center px-4">
+              <SidebarToggle />
+              <GlobalSearch />
+            </header>
+            <main className="flex-1">
+              <div className="p-6 max-w-7xl mx-auto">
+                {children}
+              </div>
+            </main>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </SessionProvider>
   );
 }

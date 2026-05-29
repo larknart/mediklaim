@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { Role } from "@/generated/prisma";
+import { useSidebar } from "@/components/sidebar-context";
 import {
   LayoutDashboard,
   FileText,
@@ -117,13 +119,27 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const userRoles = session?.user?.roles ?? [];
+  const { open, close } = useSidebar();
+
+  // Close drawer on navigation (mobile)
+  useEffect(() => {
+    close();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   const visibleItems = navItems.filter(
     (item) => !item.roles || item.roles.some((r) => userRoles.includes(r))
   );
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-green-900 text-white flex flex-col">
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-green-900 text-white flex flex-col",
+        "transition-transform duration-200",
+        "-translate-x-full md:translate-x-0",
+        open && "translate-x-0"
+      )}
+    >
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-green-700">
         <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center flex-shrink-0">
