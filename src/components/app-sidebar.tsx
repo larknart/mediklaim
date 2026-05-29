@@ -22,6 +22,7 @@ import {
   Building2,
   CalendarRange,
   UserCircle,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -102,6 +103,12 @@ const navItems: NavItem[] = [
     href: "/admin/audit",
     label: "Log Audit",
     icon: ScrollText,
+    roles: [Role.ADMIN],
+  },
+  {
+    href: "/admin/whatsapp",
+    label: "Outbox WA",
+    icon: MessageSquare,
     roles: [Role.ADMIN],
   },
 ];

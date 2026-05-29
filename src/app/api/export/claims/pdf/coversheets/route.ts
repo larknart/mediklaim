@@ -4,8 +4,14 @@ import { prisma } from "@/lib/db";
 import { isAdmin, isFinance } from "@/lib/permissions";
 import { generateBulkCoverSheets } from "@/lib/pdf/cover-sheet";
 import type { CoverSheetData } from "@/lib/pdf/cover-sheet";
+import { allow } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  if (!allow(`export:${ip}`, 10, 60_000)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
   if (!isFinance(session.user) && !isAdmin(session.user)) {

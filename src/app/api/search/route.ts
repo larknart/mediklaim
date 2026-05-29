@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Role } from "@/generated/prisma";
+import { allow } from "@/lib/rate-limit";
 
 // ─── Shared types (imported by GlobalSearch component) ────────────────────────
 
@@ -26,6 +27,11 @@ const EMPTY: SearchResponse = Object.freeze({ claims: [], receipts: [], users: [
 // ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  if (!allow(`search:${ip}`, 30, 60_000)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

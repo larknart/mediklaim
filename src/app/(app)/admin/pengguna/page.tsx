@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, UserPlus } from "lucide-react";
@@ -18,24 +18,37 @@ const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Admin",
 };
 
-export default async function PenggunaPage() {
+const PAGE_SIZE = 30;
+
+export default async function PenggunaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
   if (!session?.user || !isAdmin(session.user)) redirect("/dashboard");
 
-  const users = await prisma.user.findMany({
-    include: {
-      roles: true,
-      department: true,
-    },
-    orderBy: [{ isActive: "desc" }, { name: "asc" }],
-  });
+  const sp = await searchParams;
+  const page = Math.max(1, parseInt(sp.page ?? "1"));
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      include: { roles: true, department: true },
+      orderBy: [{ isActive: "desc" }, { name: "asc" }],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.user.count(),
+  ]);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pengguna</h1>
-          <p className="text-gray-500 text-sm mt-1">{users.length} pengguna terdaftar</p>
+          <p className="text-gray-500 text-sm mt-1">{total} pengguna terdaftar</p>
         </div>
         <Button asChild className="bg-green-700 hover:bg-green-800">
           <Link href="/admin/pengguna/baru">
@@ -84,6 +97,20 @@ export default async function PenggunaPage() {
           )}
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-gray-500">
+          <span>Halaman {page} / {totalPages}</span>
+          <div className="flex gap-2">
+            {page > 1 && (
+              <a href={`?page=${page - 1}`} className="px-3 py-1 border rounded hover:bg-gray-50">← Sebelum</a>
+            )}
+            {page < totalPages && (
+              <a href={`?page=${page + 1}`} className="px-3 py-1 border rounded hover:bg-gray-50">Seterusnya →</a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
