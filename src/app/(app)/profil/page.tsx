@@ -7,11 +7,19 @@ import { ChangePasswordForm } from "./_components/change-password-form";
 import { UpdateProfileForm } from "./_components/update-profile-form";
 import { TotpSection } from "./_components/totp-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Lock, Phone, ShieldCheck } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { User, Lock, Phone, ShieldCheck, AlertTriangle } from "lucide-react";
 
-export default async function ProfilPage() {
+export default async function ProfilPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ expired?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) redirect("/login");
+
+  const sp = await searchParams;
+  const isExpired = sp.expired === "1";
 
   const [user, require2faSetting, policy] = await Promise.all([
     prisma.user.findUnique({
@@ -39,6 +47,15 @@ export default async function ProfilPage() {
         <h1 className="text-2xl font-bold text-gray-900">Profil Saya</h1>
         <p className="text-gray-500 text-sm mt-1">Maklumat akaun dan keselamatan</p>
       </div>
+
+      {isExpired && (
+        <Alert className="border-amber-300 bg-amber-50">
+          <AlertTriangle className="w-4 h-4 text-amber-600" />
+          <AlertDescription className="text-amber-800">
+            Kata laluan anda telah tamat tempoh. Sila tukar kata laluan sebelum meneruskan.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Card>
         <CardHeader className="pb-3">

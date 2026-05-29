@@ -89,7 +89,7 @@ export async function resetPasswordWithToken(token: string, newPassword: string)
   const newHash = await bcrypt.hash(newPassword, 10);
 
   await Promise.all([
-    prisma.user.update({ where: { id: user.id }, data: { passwordHash: newHash, loginFailCount: 0, lockedUntil: null } }),
+    prisma.user.update({ where: { id: user.id }, data: { passwordHash: newHash, loginFailCount: 0, lockedUntil: null, passwordChangedAt: new Date() } }),
     prisma.verificationToken.delete({ where: { token } }),
   ]);
 

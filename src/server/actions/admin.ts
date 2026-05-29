@@ -142,7 +142,7 @@ export async function resetUserPassword(userId: string, newPassword: string) {
   if (policyError) throw new Error(policyError);
 
   const passwordHash = await bcrypt.hash(newPassword, 10);
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash, loginFailCount: 0, lockedUntil: null } });
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash, loginFailCount: 0, lockedUntil: null, passwordChangedAt: new Date() } });
   await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: AuditAction.USER_PASSWORD_RESET, entity: "User", entityId: userId });
   return { ok: true };
 }
@@ -171,6 +171,41 @@ export async function updateSetting(key: string, value: string | number | boolea
   });
   await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: AuditAction.SETTINGS_UPDATED, entity: "Settings", entityId: key, meta: { value: String(value) } });
   return { ok: true };
+}
+
+export async function testSmtp() {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+  const { testEmailConnection } = await import("@/lib/notify/channels/email");
+  return { ok: await testEmailConnection() };
+}
+
+export async function testWaConnection() {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+  const { checkEvolutionConnection } = await import("@/lib/notify/channels/whatsapp");
+  return checkEvolutionConnection();
+}
+
+export async function testWaSend(toPhone: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+  const clean = toPhone.replace(/\s/g, "");
+  if (!/^60[0-9]{9,10}$/.test(clean)) throw new Error("Format nombor tidak sah. Guna format 60XXXXXXXXX.");
+  const { sendWhatsAppDirect } = await import("@/lib/notify/channels/whatsapp");
+  const result = await sendWhatsAppDirect(clean, "Test mesej dari MediKlaim MDS — abaikan jika diterima.");
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: AuditAction.SETTINGS_UPDATED,
+    entity: "Settings",
+    entityId: "wa_test_send",
+    meta: { test: "wa_send", toPhone: clean },
+  });
+  return result;
 }
 
 // ─── Blacklist keywords ───────────────────────────────────────────────────────

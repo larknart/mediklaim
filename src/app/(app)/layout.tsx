@@ -38,6 +38,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }
   }
 
+  // Password expiry gate (all roles)
+  const hdrsForExpiry = await headers();
+  const pathnameForExpiry = hdrsForExpiry.get("x-pathname") ?? "";
+  if (!pathnameForExpiry.startsWith("/profil")) {
+    const [expirySetting, userPw] = await Promise.all([
+      prisma.settings.findUnique({ where: { key: "password_expiry_days" } }),
+      prisma.user.findUnique({ where: { id: session.user.id }, select: { passwordChangedAt: true } }),
+    ]);
+    const expiryDays = typeof expirySetting?.value === "number" ? expirySetting.value : 0;
+    if (expiryDays > 0 && userPw?.passwordChangedAt) {
+      const ageDays = (Date.now() - userPw.passwordChangedAt.getTime()) / 86_400_000;
+      if (ageDays > expiryDays) redirect("/profil?expired=1");
+    }
+  }
+
   const [unreadCount, warningSetting] = await Promise.all([
     prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
     prisma.settings.findUnique({ where: { key: "session_warning_min" } }),

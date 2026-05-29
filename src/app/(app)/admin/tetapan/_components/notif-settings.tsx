@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { updateSetting } from "@/server/actions/admin";
+import { updateSetting, testSmtp, testWaConnection, testWaSend } from "@/server/actions/admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Save, MessageCircle } from "lucide-react";
+import { Save, MessageCircle, Mail, Wifi } from "lucide-react";
 
 interface NotifSettingsProps {
   waEnabled: boolean;
@@ -25,7 +25,50 @@ export function NotifSettings(props: NotifSettingsProps) {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
+  const [smtpResult, setSmtpResult] = useState<"ok" | "fail" | null>(null);
+  const [smtpTesting, setSmtpTesting] = useState(false);
+
   const [waEnabled, setWaEnabled] = useState(props.waEnabled);
+  const [waConnResult, setWaConnResult] = useState<string | null>(null);
+  const [waConnTesting, setWaConnTesting] = useState(false);
+  const [waSendResult, setWaSendResult] = useState<string | null>(null);
+  const [waSending, setWaSending] = useState(false);
+  const waPhoneRef = useRef<HTMLInputElement>(null);
+
+  function testSmtpHandler() {
+    setSmtpResult(null); setSmtpTesting(true);
+    startTransition(async () => {
+      try {
+        const r = await testSmtp();
+        setSmtpResult(r.ok ? "ok" : "fail");
+      } catch { setSmtpResult("fail"); }
+      setSmtpTesting(false);
+    });
+  }
+
+  function testWaConnHandler() {
+    setWaConnResult(null); setWaConnTesting(true);
+    startTransition(async () => {
+      try {
+        const r = await testWaConnection();
+        setWaConnResult(r.connected ? `✓ ${r.state ?? "open"}` : `✗ ${r.state ?? "disconnected"}`);
+      } catch (e) { setWaConnResult(`✗ ${e instanceof Error ? e.message : "Ralat"}`); }
+      setWaConnTesting(false);
+    });
+  }
+
+  function testWaSendHandler() {
+    const phone = waPhoneRef.current?.value.trim() ?? "";
+    if (!phone) { setWaSendResult("Masukkan nombor telefon."); return; }
+    setWaSendResult(null); setWaSending(true);
+    startTransition(async () => {
+      try {
+        const r = await testWaSend(phone);
+        setWaSendResult(r.success ? "✓ Mesej dihantar." : `✗ ${r.error ?? "Gagal"}`);
+      } catch (e) { setWaSendResult(`✗ ${e instanceof Error ? e.message : "Ralat"}`); }
+      setWaSending(false);
+    });
+  }
   const [ratePerMin, setRatePerMin] = useState(String(props.waRatePerMin));
   const [ratePerDay, setRatePerDay] = useState(String(props.waRatePerDay));
   const [quietStart, setQuietStart] = useState(String(props.waQuietStart));
@@ -49,6 +92,7 @@ export function NotifSettings(props: NotifSettingsProps) {
   }
 
   return (
+    <div className="space-y-4">
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
@@ -117,6 +161,39 @@ export function NotifSettings(props: NotifSettingsProps) {
           </p>
         </div>
 
+        {waEnabled && (
+          <div className="pt-3 border-t space-y-3">
+            <div>
+              <p className="text-xs text-gray-500 mb-2">Uji Sambungan Evolution API</p>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="sm" onClick={testWaConnHandler} disabled={waConnTesting}>
+                  <Wifi className="w-3.5 h-3.5 mr-1.5" />
+                  {waConnTesting ? "Menyemak..." : "Semak Sambungan"}
+                </Button>
+                {waConnResult && (
+                  <span className={`text-xs font-mono ${waConnResult.startsWith("✓") ? "text-green-600" : "text-red-500"}`}>
+                    {waConnResult}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 mb-2">Hantar Mesej Ujian</p>
+              <div className="flex items-center gap-2">
+                <Input ref={waPhoneRef} placeholder="60123456789" className="w-40 text-sm" />
+                <Button variant="outline" size="sm" onClick={testWaSendHandler} disabled={waSending}>
+                  {waSending ? "Menghantar..." : "Hantar"}
+                </Button>
+              </div>
+              {waSendResult && (
+                <p className={`text-xs font-mono mt-1 ${waSendResult.startsWith("✓") ? "text-green-600" : "text-red-500"}`}>
+                  {waSendResult}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {saved && <p className="text-xs text-green-600">Tetapan disimpan.</p>}
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
 
@@ -126,5 +203,25 @@ export function NotifSettings(props: NotifSettingsProps) {
         </Button>
       </CardContent>
     </Card>
+
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Mail className="w-4 h-4" />
+          E-mel (SMTP)
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-gray-500">Uji sambungan SMTP menggunakan tetapan semasa dalam .env.</p>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={testSmtpHandler} disabled={smtpTesting}>
+            {smtpTesting ? "Menguji..." : "Uji Sambungan SMTP"}
+          </Button>
+          {smtpResult === "ok" && <span className="text-xs text-green-600 font-mono">✓ Sambungan berjaya.</span>}
+          {smtpResult === "fail" && <span className="text-xs text-red-500 font-mono">✗ Gagal. Semak SMTP_HOST/PORT/USER/PASS.</span>}
+        </div>
+      </CardContent>
+    </Card>
+    </div>
   );
 }

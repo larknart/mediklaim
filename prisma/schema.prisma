@@ -121,8 +121,9 @@ model User {
   isActive       Boolean     @default(true)
   deletedAt      DateTime?
   // Login security
-  loginFailCount Int         @default(0)
-  lockedUntil    DateTime?
+  loginFailCount    Int       @default(0)
+  lockedUntil       DateTime?
+  passwordChangedAt DateTime?
   // 2FA
   totpSecret          String?
   totpEnabled         Boolean  @default(false)
@@ -385,4 +386,6 @@ model AuditLog {
   @@index([actorId])
   @@index([createdAt])
   @@index([action])
+  @@index([entity, createdAt])
+  @@index([action, createdAt])
 }

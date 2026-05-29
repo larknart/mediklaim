@@ -95,4 +95,5 @@ export const AuditAction = {
 
   // Jobs
   REMINDER_SENT: "REMINDER_SENT",
+  AUDIT_PURGE: "AUDIT_PURGE",
 } as const;

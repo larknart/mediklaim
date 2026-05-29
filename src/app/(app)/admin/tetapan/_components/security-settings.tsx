@@ -22,6 +22,7 @@ interface SecuritySettingsProps {
   passwordRequireSymbol: boolean;
   maxUploadSizeMb: number;
   require2faAdmin: boolean;
+  passwordExpiryDays: number;
 }
 
 export function SecuritySettings(props: SecuritySettingsProps) {
@@ -40,6 +41,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
   const [pwSymbol, setPwSymbol] = useState(props.passwordRequireSymbol);
   const [maxUpload, setMaxUpload] = useState(String(props.maxUploadSizeMb));
   const [require2fa, setRequire2fa] = useState(props.require2faAdmin);
+  const [pwExpiry, setPwExpiry] = useState(String(props.passwordExpiryDays));
 
   function save() {
     const attempts = parseInt(maxAttempts, 10);
@@ -81,6 +83,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
         await updateSetting("password_require_symbol", pwSymbol);
         await updateSetting("max_upload_size_mb", upload);
         await updateSetting("require_2fa_admin", require2fa);
+        await updateSetting("password_expiry_days", parseInt(pwExpiry, 10) || 0);
         setSaved(true);
         router.refresh();
       } catch (e: unknown) {
@@ -159,6 +162,20 @@ export function SecuritySettings(props: SecuritySettingsProps) {
               <Checkbox checked={pwSymbol} onCheckedChange={(v) => setPwSymbol(!!v)} />
               <span className="text-sm">Wajib simbol (!@#$...)</span>
             </label>
+          </div>
+          <div className="pt-2 border-t">
+            <Label className="text-xs text-gray-500 mb-1.5 block">Tempoh luput kata laluan (hari)</Label>
+            <Input
+              type="number"
+              min="0"
+              max="365"
+              value={pwExpiry}
+              onChange={(e) => setPwExpiry(e.target.value)}
+              className="w-32"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              0 = tidak luput. Pengguna akan diarahkan ke /profil untuk tukar kata laluan bila tempoh tamat.
+            </p>
           </div>
         </CardContent>
       </Card>

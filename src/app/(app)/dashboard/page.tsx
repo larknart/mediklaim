@@ -10,7 +10,9 @@ import { ChartSpendingTrend } from "./_components/chart-spending-trend";
 import { ChartClaimStatus } from "./_components/chart-claim-status";
 import { ChartMiniMonthly } from "./_components/chart-mini-monthly";
 import { ChartMiniSystemStatus } from "./_components/chart-mini-system-status";
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus } from "lucide-react";
+import { ChartDeptBreakdown } from "./_components/chart-dept-breakdown";
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus, Timer } from "lucide-react";
+import { computeSla } from "@/lib/sla";
 
 const STATUS_LABELS: Record<ClaimStatus, { label: string; color: string }> = {
   DRAFT:            { label: "Draf",              color: "secondary" },
@@ -86,6 +88,7 @@ export default async function DashboardPage() {
 
   let miniMonthlyData: { month: number; total: number; count: number }[] = [];
   let miniStatusData: { status: string; count: number }[] = [];
+  let deptBreakdownData: { deptName: string | null; claimCount: number; totalClaimed: number }[] = [];
 
   if (isMgmt && !(isHeadOnly && !session.user.departmentId)) {
     let rawMiniMonthly: Array<{ forMonth: number; total: string; count: string }>;
@@ -131,6 +134,24 @@ export default async function DashboardPage() {
     });
 
     miniStatusData = rawMiniStatus.map((r) => ({ status: r.status, count: Number(r.count) }));
+
+    // Per-dept breakdown (global view only — not HEAD-scoped)
+    if (!mgmtDeptId) {
+      const rawDept = await prisma.$queryRaw<Array<{ deptName: string | null; claimCount: string; totalClaimed: string }>>`
+        SELECT d.name AS "deptName", COUNT(*)::text AS "claimCount", COALESCE(SUM(c."totalClaimedMyr"),0)::text AS "totalClaimed"
+        FROM "Claim" c
+        LEFT JOIN "Department" d ON d.id = c."departmentId"
+        WHERE c."forYear" = ${currentYear}
+        GROUP BY d.id, d.name
+        ORDER BY COUNT(*) DESC
+        LIMIT 15
+      `;
+      deptBreakdownData = rawDept.map((r) => ({
+        deptName: r.deptName,
+        claimCount: Number(r.claimCount),
+        totalClaimed: Number(r.totalClaimed),
+      }));
+    }
   }
 
   // Pending actions count (role-aware)
@@ -162,12 +183,67 @@ export default async function DashboardPage() {
 
   const pendingTotal = pendingHead + pendingFinance + pendingApprover;
 
+  // SLA overdue counts — only computed for relevant roles
+  let overdueHead = 0;
+  let overdueFinance = 0;
+  let overdueApprover = 0;
+
+  const hasMgmtRole = roles.includes(Role.HEAD) || roles.includes(Role.FINANCE) || roles.includes(Role.APPROVER) || roles.includes(Role.YDP) || roles.includes(Role.ADMIN);
+  if (hasMgmtRole) {
+    const [slaSettings, holidays] = await Promise.all([
+      prisma.settings.findMany({ where: { key: { in: ["sla_head_days", "sla_finance_days", "sla_approver_days"] } } }),
+      prisma.publicHoliday.findMany({ where: { year: { in: [currentYear, currentYear - 1] } }, select: { date: true } }),
+    ]);
+    const slaMap = Object.fromEntries(slaSettings.map((s) => [s.key, Number(s.value)]));
+    const slaHeadDays = slaMap["sla_head_days"] ?? 3;
+    const slaFinanceDays = slaMap["sla_finance_days"] ?? 5;
+    const slaApproverDays = slaMap["sla_approver_days"] ?? 3;
+    const holidaySet = new Set(holidays.map((h) => h.date.toISOString().split("T")[0]));
+
+    if (roles.includes(Role.HEAD)) {
+      const submitted = await prisma.claim.findMany({
+        where: { status: ClaimStatus.SUBMITTED, departmentId: session.user.departmentId ?? undefined, submittedAt: { not: null }, claimantId: { not: userId } },
+        select: { submittedAt: true },
+      });
+      overdueHead = submitted.filter((c) => c.submittedAt && computeSla(c.submittedAt, slaHeadDays, holidaySet).status === "OVERDUE").length;
+    }
+    if (roles.includes(Role.FINANCE)) {
+      const haApprovals = await prisma.approval.findMany({
+        where: { step: "HEAD", claim: { status: ClaimStatus.HEAD_APPROVED } },
+        select: { decidedAt: true },
+      });
+      overdueFinance = haApprovals.filter((a) => computeSla(a.decidedAt, slaFinanceDays, holidaySet).status === "OVERDUE").length;
+    }
+    if (roles.includes(Role.APPROVER) || roles.includes(Role.YDP)) {
+      const frApprovals = await prisma.approval.findMany({
+        where: { step: "FINANCE", claim: { status: ClaimStatus.FINANCE_REVIEWED } },
+        select: { decidedAt: true },
+      });
+      overdueApprover = frApprovals.filter((a) => computeSla(a.decidedAt, slaApproverDays, holidaySet).status === "OVERDUE").length;
+    }
+  }
+
+  const overdueTotal = overdueHead + overdueFinance + overdueApprover;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Papan Pemuka</h1>
         <p className="text-gray-500 text-sm mt-1">Selamat datang, {session.user.name}</p>
       </div>
+
+      {/* SLA overdue alert banner — role-aware */}
+      {overdueTotal > 0 && (
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-red-200 bg-red-50">
+          <Timer className="w-4 h-4 text-red-600 shrink-0" />
+          <div className="flex-1 text-sm text-red-800">
+            <span className="font-semibold">{overdueTotal} tuntutan</span> telah melebihi SLA.
+            {overdueHead > 0 && <span> Sokongan: {overdueHead}.</span>}
+            {overdueFinance > 0 && <span> Kewangan: {overdueFinance}.</span>}
+            {overdueApprover > 0 && <span> Kelulusan: {overdueApprover}.</span>}
+          </div>
+        </div>
+      )}
 
       {/* Allocation card */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -270,6 +346,9 @@ export default async function DashboardPage() {
             <ChartMiniMonthly data={miniMonthlyData} year={currentYear} />
             <ChartMiniSystemStatus data={miniStatusData} year={currentYear} />
           </div>
+          {deptBreakdownData.length > 0 && (
+            <ChartDeptBreakdown data={deptBreakdownData} year={currentYear} />
+          )}
         </div>
       )}
 
