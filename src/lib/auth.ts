@@ -19,6 +19,7 @@ async function readSessionTimeoutSeconds(): Promise<number> {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   session: {
     strategy: "jwt",
     // Ceiling matches admin UI max (480 min). Real per-user expiry enforced
