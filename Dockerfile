@@ -14,6 +14,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
+# NextAuth checks AUTH_SECRET at module init during static build; placeholder overridden at runtime
+ENV AUTH_SECRET=next-build-placeholder
+ENV NEXTAUTH_SECRET=next-build-placeholder
+ENV NEXTAUTH_URL=http://localhost:3000
 RUN npm run build
 
 # Production image
