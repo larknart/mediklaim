@@ -21,7 +21,21 @@ export default function manifest(): MetadataRoute.Manifest {
         src: "/icons/icon-512x512.png",
         sizes: "512x512",
         type: "image/png",
-        purpose: "any",
+        purpose: "maskable",
+      },
+    ],
+    shortcuts: [
+      {
+        name: "Upload Resit",
+        short_name: "Resit",
+        url: "/resit",
+        icons: [{ src: "/icons/icon-192x192.png", sizes: "192x192" }],
+      },
+      {
+        name: "Buat Tuntutan",
+        short_name: "Tuntutan",
+        url: "/tuntutan/baru",
+        icons: [{ src: "/icons/icon-192x192.png", sizes: "192x192" }],
       },
     ],
   };

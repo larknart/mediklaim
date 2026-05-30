@@ -136,15 +136,35 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
           {uploading ? (
             <Loader2 className="w-10 h-10 text-green-600 animate-spin" />
           ) : (
-            <Upload className="w-10 h-10 text-gray-300" />
+            <Upload className="w-10 h-10 text-gray-300 hidden sm:block" />
           )}
-          <div>
+          <div className="hidden sm:block">
             <p className="font-medium text-gray-700">
               {uploading ? "Sedang upload..." : "Drag & drop resit di sini"}
             </p>
             <p className="text-sm text-gray-400 mt-1">JPG, PNG, WebP, PDF · Max 10MB</p>
           </div>
+          {uploading && (
+            <p className="font-medium text-gray-700 sm:hidden">Sedang upload...</p>
+          )}
           <div className="flex gap-2 flex-wrap justify-center">
+            {/* Camera first on mobile */}
+            <label className="cursor-pointer order-first sm:order-last">
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50" asChild>
+                <span>
+                  <Camera className="w-4 h-4 mr-2" />
+                  Snap Kamera
+                </span>
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => handleFiles(e.target.files)}
+                disabled={uploading}
+              />
+            </label>
             <label className="cursor-pointer">
               <Button variant="outline" asChild>
                 <span>
@@ -156,22 +176,6 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                 type="file"
                 accept="image/jpeg,image/png,image/webp,application/pdf"
                 multiple
-                className="hidden"
-                onChange={(e) => handleFiles(e.target.files)}
-                disabled={uploading}
-              />
-            </label>
-            <label className="cursor-pointer">
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50" asChild>
-                <span>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Snap Kamera
-                </span>
-              </Button>
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
                 className="hidden"
                 onChange={(e) => handleFiles(e.target.files)}
                 disabled={uploading}
