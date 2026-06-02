@@ -134,7 +134,7 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-green-900 text-white flex flex-col",
+        "fixed inset-y-0 left-0 z-50 w-64 max-w-64 overflow-hidden bg-green-900 text-white flex flex-col",
         "transition-transform duration-200",
         "-translate-x-full md:translate-x-0",
         open && "translate-x-0"
