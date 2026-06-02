@@ -46,7 +46,10 @@ export default async function NotifikasiPage() {
                     <p className="text-sm text-gray-600 mt-0.5">{n.body}</p>
                     <p className="text-xs text-gray-400 mt-1">{formatDistanceToNow(new Date(n.createdAt))}</p>
                     {n.link && (
-                      <Link href={n.link} className="text-xs text-green-700 hover:underline mt-1 inline-block">
+                      <Link
+                        href={n.link.startsWith("http") ? new URL(n.link).pathname : n.link}
+                        className="text-xs text-green-700 hover:underline mt-1 inline-block"
+                      >
                         Lihat tuntutan →
                       </Link>
                     )}

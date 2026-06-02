@@ -62,8 +62,7 @@ export async function dispatch(params: DispatchParams): Promise<void> {
   });
   if (!recipient) return;
 
-  const appUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
-  const claimLink = `${appUrl}/tuntutan/${claim.id}`;
+  const claimLink = `/tuntutan/${claim.id}`;
 
   const ctx = {
     claimantName: claim.claimantName,
