@@ -66,7 +66,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <SessionProvider session={session}>
       <SidebarProvider>
         <SessionTimeoutModal warningMinutes={warningMinutes} />
-        <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+        <div className="flex min-h-screen bg-gray-50">
           <LiveNotifications initialUnreadCount={unreadCount} />
           <SidebarBackdrop />
           <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
