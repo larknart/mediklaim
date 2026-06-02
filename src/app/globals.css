@@ -126,6 +126,5 @@
   }
   html {
     @apply font-sans;
-    overflow-x: clip;
   }
 }
