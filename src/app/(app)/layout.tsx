@@ -70,11 +70,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <LiveNotifications initialUnreadCount={unreadCount} />
           <SidebarBackdrop />
           <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-            <header className="h-14 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40 flex items-center px-4">
+            <header className="h-14 bg-white border-b border-gray-200 shadow-sm fixed top-0 left-0 right-0 md:left-64 z-40 flex items-center px-4">
               <SidebarToggle />
               <GlobalSearch />
             </header>
-            <main className="flex-1">
+            <main className="flex-1 pt-14">
               <div className="p-6 max-w-7xl mx-auto">
                 {children}
               </div>
