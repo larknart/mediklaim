@@ -175,8 +175,10 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
   try {
     await writeFile(inputPath, buffer);
     // pdftocairo: single-page → out.png, multi-page → out-1.png, out-2.png, ...
+    // -scale-to-x 1200: fix width at 1200px, scale height proportionally
+    // avoids Cairo surface-too-large error for PDFs with unusual page dimensions
     await execFileAsync("pdftocairo", [
-      "-png", "-r", "200",
+      "-png", "-scale-to-x", "1200",
       inputPath, outputPrefix,
     ]);
 
@@ -197,7 +199,7 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
     const pages = await Promise.all(
       pngFiles.map(async (f) => {
         const raw = await readFile(join(dir, f));
-        return sharp(raw).grayscale().normalise().sharpen().png().toBuffer();
+        return sharp(raw).grayscale().normalise().png().toBuffer();
       })
     );
     return pages;
