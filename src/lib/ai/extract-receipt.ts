@@ -47,7 +47,9 @@ Extract structured data and return ONLY valid JSON with this exact structure:
   "confidence": 0.0 to 1.0
 }
 Rules:
+- Line items are usually numbered (1, 2, 3...). Count them first, then extract EVERY numbered item — your items array must contain the same count
 - Extract EVERY SINGLE item listed on the receipt — do not skip, truncate, or summarise any line item
+- Read item names EXACTLY as printed — do not guess or substitute medicine names
 - All monetary values in MYR as plain numbers (no RM symbol)
 - If item qty/unit unclear, set qty=1 and unitMyr=amountMyr
 - For non-itemized receipts (lump sum, only total visible): create ONE item with description = the receipt purpose/reason (e.g. "Rawatan", "Konsultasi", "Perubatan"), qty=1, unitMyr=totalMyr, amountMyr=totalMyr
@@ -174,7 +176,7 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
     await writeFile(inputPath, buffer);
     await execFileAsync("gs", [
       "-dQUIET", "-dNOPAUSE", "-dBATCH", "-dSAFER",
-      "-sDEVICE=png16m", "-r250",
+      "-sDEVICE=png16m", "-r300",
       `-sOutputFile=${outputPattern}`,
       inputPath,
     ]);
