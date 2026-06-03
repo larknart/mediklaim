@@ -65,8 +65,33 @@ export class OllamaExtractor implements ReceiptExtractor {
     this.timeoutMs = timeoutMs;
   }
 
-  async extract(file: Buffer, _mime: string): Promise<ExtractedReceipt> {
-    const base64 = file.toString("base64");
+  async extract(file: Buffer, mime: string): Promise<ExtractedReceipt> {
+    let body: Record<string, unknown>;
+
+    if (mime === "application/pdf") {
+      const { PDFParse } = await import("pdf-parse");
+      const parser = new PDFParse({ data: file });
+      const pdfData = await parser.getText();
+      await parser.destroy();
+      const text = pdfData.text?.trim() ?? "";
+      if (!text) throw new Error("PDF tiada teks — kemungkinan PDF imbasan sahaja");
+      body = {
+        model: this.model,
+        prompt: EXTRACTION_PROMPT + "\n\nTeks resit (dari PDF):\n" + text,
+        format: "json",
+        stream: false,
+        options: { temperature: 0.1 },
+      };
+    } else {
+      body = {
+        model: this.model,
+        prompt: EXTRACTION_PROMPT,
+        images: [file.toString("base64")],
+        format: "json",
+        stream: false,
+        options: { temperature: 0.1 },
+      };
+    }
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
@@ -76,14 +101,7 @@ export class OllamaExtractor implements ReceiptExtractor {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
-        body: JSON.stringify({
-          model: this.model,
-          prompt: EXTRACTION_PROMPT,
-          images: [base64],
-          format: "json",
-          stream: false,
-          options: { temperature: 0.1 },
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) throw new Error(`Ollama ${res.status}: ${await res.text()}`);
