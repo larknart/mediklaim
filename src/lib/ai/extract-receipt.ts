@@ -175,10 +175,10 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
   try {
     await writeFile(inputPath, buffer);
     // pdftocairo: single-page → out.png, multi-page → out-1.png, out-2.png, ...
-    // -scale-to-x 1200: fix width at 1200px, scale height proportionally
-    // avoids Cairo surface-too-large error for PDFs with unusual page dimensions
+    // -f 1 -l 1: first page only — avoids duplicate items from multi-copy receipt PDFs
+    // -scale-to-x 1200: fixed width bypasses Cairo surface-size limit on large-dimension PDFs
     await execFileAsync("pdftocairo", [
-      "-png", "-scale-to-x", "1200",
+      "-png", "-f", "1", "-l", "1", "-scale-to-x", "1200",
       inputPath, outputPrefix,
     ]);
 
