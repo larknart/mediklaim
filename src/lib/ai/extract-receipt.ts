@@ -76,11 +76,11 @@ export class OllamaExtractor implements ReceiptExtractor {
     let body: Record<string, unknown>;
 
     if (mime === "application/pdf") {
-      const pngBuffer = await pdfToImageBuffer(file);
+      const pages = await pdfToImageBuffers(file);
       body = {
         model: this.model,
         prompt: EXTRACTION_PROMPT,
-        images: [pngBuffer.toString("base64")],
+        images: pages.map((p) => p.toString("base64")),
         format: "json",
         stream: false,
         options: { temperature: 0.1 },
@@ -162,25 +162,35 @@ export class ManualExtractor implements ReceiptExtractor {
   }
 }
 
-// ─── PDF → PNG via Ghostscript (first page only) ─────────────────────────────
+// ─── PDF → PNG pages via Ghostscript (all pages, 250dpi) ─────────────────────
 
-async function pdfToImageBuffer(buffer: Buffer): Promise<Buffer> {
+async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
   const dir = await mkdtemp(join(tmpdir(), "receipt-pdf-"));
   const inputPath = join(dir, "input.pdf");
-  const outputPath = join(dir, "out.png");
+  // %d expands to page number: out-1.png, out-2.png, ...
+  const outputPattern = join(dir, "out-%d.png");
   try {
     await writeFile(inputPath, buffer);
     await execFileAsync("gs", [
       "-dQUIET", "-dNOPAUSE", "-dBATCH", "-dSAFER",
-      "-sDEVICE=png16m", "-r150",
-      "-dFirstPage=1", "-dLastPage=1",
-      `-sOutputFile=${outputPath}`,
+      "-sDEVICE=png16m", "-r250",
+      `-sOutputFile=${outputPattern}`,
       inputPath,
     ]);
-    return await readFile(outputPath);
+    // Collect all generated pages in order
+    const pages: Buffer[] = [];
+    for (let i = 1; ; i++) {
+      const pagePath = join(dir, `out-${i}.png`);
+      try {
+        pages.push(await readFile(pagePath));
+        await unlink(pagePath).catch(() => {});
+      } catch {
+        break; // no more pages
+      }
+    }
+    return pages.length > 0 ? pages : (() => { throw new Error("Ghostscript: no pages rendered"); })();
   } finally {
     await unlink(inputPath).catch(() => {});
-    await unlink(outputPath).catch(() => {});
     await rmdir(dir).catch(() => {});
   }
 }
