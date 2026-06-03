@@ -47,6 +47,7 @@ Extract structured data and return ONLY valid JSON with this exact structure:
   "confidence": 0.0 to 1.0
 }
 Rules:
+- Extract EVERY SINGLE item listed on the receipt — do not skip, truncate, or summarise any line item
 - All monetary values in MYR as plain numbers (no RM symbol)
 - If item qty/unit unclear, set qty=1 and unitMyr=amountMyr
 - For non-itemized receipts (lump sum, only total visible): create ONE item with description = the receipt purpose/reason (e.g. "Rawatan", "Konsultasi", "Perubatan"), qty=1, unitMyr=totalMyr, amountMyr=totalMyr
@@ -83,7 +84,7 @@ export class OllamaExtractor implements ReceiptExtractor {
         images: pages.map((p) => p.toString("base64")),
         format: "json",
         stream: false,
-        options: { temperature: 0.1 },
+        options: { temperature: 0.1, num_predict: 2048 },
       };
     } else {
       body = {
@@ -92,7 +93,7 @@ export class OllamaExtractor implements ReceiptExtractor {
         images: [file.toString("base64")],
         format: "json",
         stream: false,
-        options: { temperature: 0.1 },
+        options: { temperature: 0.1, num_predict: 2048 },
       };
     }
 
