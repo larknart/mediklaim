@@ -69,7 +69,7 @@ export class OllamaExtractor implements ReceiptExtractor {
     let body: Record<string, unknown>;
 
     if (mime === "application/pdf") {
-      const text = await extractPdfText(file);
+      const text = extractPdfText(file);
       if (!text) throw new Error("PDF tiada teks — kemungkinan PDF imbasan sahaja");
       body = {
         model: this.model,
@@ -155,23 +155,30 @@ export class ManualExtractor implements ReceiptExtractor {
   }
 }
 
-// ─── PDF text extraction (Node.js, no worker) ────────────────────────────────
+// ─── PDF text extraction (zero-dep, regex on raw PDF stream) ─────────────────
+// Works for digitally generated PDFs (clinic receipts). Scanned-only PDFs
+// will return empty string and fall through to the "no text" error.
 
-async function extractPdfText(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.cjs") as typeof import("pdfjs-dist");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "";
+function extractPdfText(buffer: Buffer): string {
+  const content = buffer.toString("binary");
+  const results: string[] = [];
 
-  const data = new Uint8Array(buffer);
-  const pdf = await pdfjsLib.getDocument({ data, useWorkerFetch: false, useSystemFonts: true }).promise;
-
-  const pages: string[] = [];
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    pages.push(content.items.map((item) => ("str" in item ? (item as { str: string }).str : "")).join(" "));
+  // Extract text between BT (Begin Text) and ET (End Text) operators
+  const btEtRe = /BT\s([\s\S]*?)\sET/g;
+  let block: RegExpExecArray | null;
+  while ((block = btEtRe.exec(content)) !== null) {
+    // Match parenthesised strings: (text)Tj / [(text)]TJ
+    const strRe = /\(([^)\\]|\\.)*\)/g;
+    let s: RegExpExecArray | null;
+    while ((s = strRe.exec(block[1])) !== null) {
+      const raw = s[0].slice(1, -1)
+        .replace(/\\n/g, " ").replace(/\\r/g, " ").replace(/\\t/g, " ")
+        .replace(/\\\(/g, "(").replace(/\\\)/g, ")").replace(/\\\\/g, "\\");
+      if (raw.trim()) results.push(raw.trim());
+    }
   }
-  return pages.join("\n").trim();
+
+  return results.join(" ").trim();
 }
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
