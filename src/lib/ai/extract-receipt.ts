@@ -1,7 +1,8 @@
 import { z } from "zod";
+import sharp from "sharp";
 import { execFile } from "child_process";
 import { promisify } from "util";
-import { writeFile, readFile, unlink, mkdtemp, rmdir } from "fs/promises";
+import { writeFile, readFile, readdir, unlink, mkdtemp, rmdir } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 
@@ -165,36 +166,46 @@ export class ManualExtractor implements ReceiptExtractor {
   }
 }
 
-// ─── PDF → PNG pages via Ghostscript (all pages, 250dpi) ─────────────────────
+// ─── PDF → PNG pages via pdftocairo (Cairo renderer, matches browser quality) ──
 
 async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
   const dir = await mkdtemp(join(tmpdir(), "receipt-pdf-"));
   const inputPath = join(dir, "input.pdf");
-  // %d expands to page number: out-1.png, out-2.png, ...
-  const outputPattern = join(dir, "out-%d.png");
+  const outputPrefix = join(dir, "out");
   try {
     await writeFile(inputPath, buffer);
-    await execFileAsync("gs", [
-      "-dQUIET", "-dNOPAUSE", "-dBATCH", "-dSAFER",
-      "-sDEVICE=png16m", "-r400",
-      "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
-      `-sOutputFile=${outputPattern}`,
-      inputPath,
+    // pdftocairo: single-page → out.png, multi-page → out-1.png, out-2.png, ...
+    await execFileAsync("pdftocairo", [
+      "-png", "-r", "300", "-aa", "yes", "-aaVector", "yes",
+      inputPath, outputPrefix,
     ]);
-    // Collect all generated pages in order
-    const pages: Buffer[] = [];
-    for (let i = 1; ; i++) {
-      const pagePath = join(dir, `out-${i}.png`);
-      try {
-        pages.push(await readFile(pagePath));
-        await unlink(pagePath).catch(() => {});
-      } catch {
-        break; // no more pages
-      }
-    }
-    return pages.length > 0 ? pages : (() => { throw new Error("Ghostscript: no pages rendered"); })();
+
+    // Collect all generated .png files sorted by page number
+    const allFiles = await readdir(dir);
+    const pngFiles = allFiles
+      .filter((f) => f.startsWith("out") && f.endsWith(".png"))
+      .sort((a, b) => {
+        // "out.png" = page 1, "out-N.png" = page N
+        const numA = parseInt(a.replace(/^out-?(\d*)\.png$/, "$1") || "1");
+        const numB = parseInt(b.replace(/^out-?(\d*)\.png$/, "$1") || "1");
+        return numA - numB;
+      });
+
+    if (pngFiles.length === 0) throw new Error("pdftocairo: no pages rendered");
+
+    // Post-process with sharp: grayscale + normalise + sharpen → crisper text for OCR
+    const pages = await Promise.all(
+      pngFiles.map(async (f) => {
+        const raw = await readFile(join(dir, f));
+        return sharp(raw).grayscale().normalise().sharpen().png().toBuffer();
+      })
+    );
+    return pages;
   } finally {
     await unlink(inputPath).catch(() => {});
+    // Clean up any leftover pngs
+    const remaining = await readdir(dir).catch(() => [] as string[]);
+    await Promise.all(remaining.map((f) => unlink(join(dir, f)).catch(() => {})));
     await rmdir(dir).catch(() => {});
   }
 }
