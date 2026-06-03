@@ -112,6 +112,13 @@ async function extractReceiptBackground(
       result.items[0] = { ...result.items[0], unitMyr: result.totalMyr, amountMyr: result.totalMyr };
     }
 
+    // Lower confidence if item sum doesn't match receipt total (likely missing items)
+    if (result.totalMyr && result.items.length > 0) {
+      const itemsSum = result.items.reduce((s, i) => s + i.amountMyr, 0);
+      const diff = Math.abs(itemsSum - result.totalMyr);
+      if (diff > 0.05) result.confidence = Math.min(result.confidence, 0.4);
+    }
+
     // Flag items against blacklist
     const keywords = await prisma.blacklistKeyword.findMany({ select: { keyword: true, reason: true } });
     const blacklistItems = result.items.map((item) => {
