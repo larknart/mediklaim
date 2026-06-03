@@ -199,7 +199,8 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
     const pages = await Promise.all(
       pngFiles.map(async (f) => {
         const raw = await readFile(join(dir, f));
-        return sharp(raw).grayscale().normalise().png().toBuffer();
+        // trim() removes blank whitespace borders — receipt sits at top of tall empty page
+        return sharp(raw).trim({ threshold: 10 }).grayscale().normalise().png().toBuffer();
       })
     );
     return pages;
