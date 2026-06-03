@@ -263,6 +263,25 @@ export async function deletePublicHoliday(id: string) {
   return { ok: true };
 }
 
+export async function importPublicHolidays(year: number) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  const { syncPublicHolidays } = await import("@/jobs/sync-holidays");
+  const result = await syncPublicHolidays(year);
+
+  await logAction({
+    actorId: session.user.id,
+    actorName: session.user.name ?? undefined,
+    action: AuditAction.HOLIDAY_IMPORTED,
+    entity: "PublicHoliday",
+    meta: { year, imported: result.imported },
+  });
+
+  return { imported: result.imported };
+}
+
 // ─── Approval Delegation ──────────────────────────────────────────────────────
 
 export async function createDelegation(data: {

@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { addPublicHoliday, deletePublicHoliday } from "@/server/actions/admin";
+import { addPublicHoliday, deletePublicHoliday, importPublicHolidays } from "@/server/actions/admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Trash2, Plus, CalendarDays } from "lucide-react";
+import { Trash2, Plus, CalendarDays, Download } from "lucide-react";
 
 export interface HolidayRow {
   id: string;
@@ -22,6 +22,9 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
   const [date, setDate] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const currentYear = new Date().getFullYear();
+  const [importYear, setImportYear] = useState(currentYear);
+  const [importMsg, setImportMsg] = useState("");
 
   function handleAdd() {
     if (!date || !name.trim()) { setError("Tarikh dan nama diperlukan."); return; }
@@ -33,6 +36,20 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
         router.refresh();
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "Gagal tambah.");
+      }
+    });
+  }
+
+  function handleImport() {
+    setImportMsg("");
+    setError("");
+    startTransition(async () => {
+      try {
+        const result = await importPublicHolidays(importYear);
+        setImportMsg(`${result.imported} cuti diimport untuk ${importYear}.`);
+        router.refresh();
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Gagal import.");
       }
     });
   }
@@ -63,6 +80,33 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
           Hujung minggu Terengganu (Jumaat + Sabtu) dikecualikan secara automatik.
           Tambah cuti umum di bawah.
         </p>
+
+        {/* Import from API */}
+        <div className="flex gap-2 items-end border border-green-200 bg-green-50 rounded-lg p-3">
+          <div>
+            <Label className="text-xs text-gray-500 mb-1.5 block">Tahun</Label>
+            <select
+              value={importYear}
+              onChange={(e) => setImportYear(Number(e.target.value))}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {[currentYear - 1, currentYear, currentYear + 1].map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          <Button
+            onClick={handleImport}
+            disabled={isPending}
+            size="sm"
+            variant="outline"
+            className="border-green-700 text-green-700 hover:bg-green-100"
+          >
+            <Download className="w-4 h-4 mr-1.5" />
+            Import dari API (TRG)
+          </Button>
+          {importMsg && <p className="text-xs text-green-700 font-medium">{importMsg}</p>}
+        </div>
 
         {/* Add form */}
         <div className="flex gap-2 items-end">
