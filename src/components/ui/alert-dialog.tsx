@@ -17,15 +17,23 @@ function AlertDialogTrigger({
   ...props
 }: DialogPrimitive.Trigger.Props & { asChild?: boolean }) {
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children, {
-      ...props,
-    } as any);
+    const element = children as React.ReactElement<{ children?: React.ReactNode; [key: string]: unknown }>;
+    const { children: elementChildren, ...elementProps } = element.props;
+    return (
+      <DialogPrimitive.Trigger
+        data-slot="alert-dialog-trigger"
+        render={React.createElement(element.type as React.ElementType, elementProps)}
+        {...props}
+      >
+        {elementChildren}
+      </DialogPrimitive.Trigger>
+    );
   }
   return (
     <DialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props}>
       {children}
     </DialogPrimitive.Trigger>
-  )
+  );
 }
 
 function AlertDialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
@@ -155,12 +163,12 @@ function AlertDialogAction({
   ...props
 }: React.ComponentProps<"button">) {
   return (
-    <Button
+    <DialogPrimitive.Close
       data-slot="alert-dialog-action"
-      className={cn("", className)}
+      render={<Button className={cn("", className)} />}
       {...props}
     />
-  )
+  );
 }
 
 function AlertDialogCancel({
