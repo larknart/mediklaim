@@ -176,7 +176,7 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
     await writeFile(inputPath, buffer);
     // pdftocairo: single-page → out.png, multi-page → out-1.png, out-2.png, ...
     await execFileAsync("pdftocairo", [
-      "-png", "-r", "300", "-aa", "yes", "-aaVector", "yes",
+      "-png", "-r", "300",
       inputPath, outputPrefix,
     ]);
 
