@@ -1,4 +1,11 @@
 import { z } from "zod";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import { writeFile, readFile, unlink, mkdtemp, rmdir } from "fs/promises";
+import { tmpdir } from "os";
+import { join } from "path";
+
+const execFileAsync = promisify(execFile);
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -69,11 +76,11 @@ export class OllamaExtractor implements ReceiptExtractor {
     let body: Record<string, unknown>;
 
     if (mime === "application/pdf") {
-      const text = extractPdfText(file);
-      if (!text) throw new Error("PDF tiada teks — kemungkinan PDF imbasan sahaja");
+      const pngBuffer = await pdfToImageBuffer(file);
       body = {
         model: this.model,
-        prompt: EXTRACTION_PROMPT + "\n\nTeks resit (dari PDF):\n" + text,
+        prompt: EXTRACTION_PROMPT,
+        images: [pngBuffer.toString("base64")],
         format: "json",
         stream: false,
         options: { temperature: 0.1 },
@@ -155,30 +162,27 @@ export class ManualExtractor implements ReceiptExtractor {
   }
 }
 
-// ─── PDF text extraction (zero-dep, regex on raw PDF stream) ─────────────────
-// Works for digitally generated PDFs (clinic receipts). Scanned-only PDFs
-// will return empty string and fall through to the "no text" error.
+// ─── PDF → PNG via Ghostscript (first page only) ─────────────────────────────
 
-function extractPdfText(buffer: Buffer): string {
-  const content = buffer.toString("binary");
-  const results: string[] = [];
-
-  // Extract text between BT (Begin Text) and ET (End Text) operators
-  const btEtRe = /BT\s([\s\S]*?)\sET/g;
-  let block: RegExpExecArray | null;
-  while ((block = btEtRe.exec(content)) !== null) {
-    // Match parenthesised strings: (text)Tj / [(text)]TJ
-    const strRe = /\(([^)\\]|\\.)*\)/g;
-    let s: RegExpExecArray | null;
-    while ((s = strRe.exec(block[1])) !== null) {
-      const raw = s[0].slice(1, -1)
-        .replace(/\\n/g, " ").replace(/\\r/g, " ").replace(/\\t/g, " ")
-        .replace(/\\\(/g, "(").replace(/\\\)/g, ")").replace(/\\\\/g, "\\");
-      if (raw.trim()) results.push(raw.trim());
-    }
+async function pdfToImageBuffer(buffer: Buffer): Promise<Buffer> {
+  const dir = await mkdtemp(join(tmpdir(), "receipt-pdf-"));
+  const inputPath = join(dir, "input.pdf");
+  const outputPath = join(dir, "out.png");
+  try {
+    await writeFile(inputPath, buffer);
+    await execFileAsync("gs", [
+      "-dQUIET", "-dNOPAUSE", "-dBATCH", "-dSAFER",
+      "-sDEVICE=png16m", "-r150",
+      "-dFirstPage=1", "-dLastPage=1",
+      `-sOutputFile=${outputPath}`,
+      inputPath,
+    ]);
+    return await readFile(outputPath);
+  } finally {
+    await unlink(inputPath).catch(() => {});
+    await unlink(outputPath).catch(() => {});
+    await rmdir(dir).catch(() => {});
   }
-
-  return results.join(" ").trim();
 }
 
 // ─── Factory ──────────────────────────────────────────────────────────────────

@@ -27,7 +27,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV TZ=Asia/Kuala_Lumpur
 
-RUN apk add --no-cache curl su-exec && \
+RUN apk add --no-cache curl su-exec ghostscript && \
     addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
