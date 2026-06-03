@@ -69,11 +69,7 @@ export class OllamaExtractor implements ReceiptExtractor {
     let body: Record<string, unknown>;
 
     if (mime === "application/pdf") {
-      const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: file });
-      const pdfData = await parser.getText();
-      await parser.destroy();
-      const text = pdfData.text?.trim() ?? "";
+      const text = await extractPdfText(file);
       if (!text) throw new Error("PDF tiada teks — kemungkinan PDF imbasan sahaja");
       body = {
         model: this.model,
@@ -157,6 +153,25 @@ export class ManualExtractor implements ReceiptExtractor {
   async extract(): Promise<ExtractedReceipt> {
     return { items: [], confidence: 0 };
   }
+}
+
+// ─── PDF text extraction (Node.js, no worker) ────────────────────────────────
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.cjs") as typeof import("pdfjs-dist");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "";
+
+  const data = new Uint8Array(buffer);
+  const pdf = await pdfjsLib.getDocument({ data, useWorkerFetch: false, useSystemFonts: true }).promise;
+
+  const pages: string[] = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    pages.push(content.items.map((item) => ("str" in item ? (item as { str: string }).str : "")).join(" "));
+  }
+  return pages.join("\n").trim();
 }
 
 // ─── Factory ──────────────────────────────────────────────────────────────────
