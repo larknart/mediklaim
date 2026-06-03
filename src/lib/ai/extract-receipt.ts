@@ -176,7 +176,8 @@ async function pdfToImageBuffers(buffer: Buffer): Promise<Buffer[]> {
     await writeFile(inputPath, buffer);
     await execFileAsync("gs", [
       "-dQUIET", "-dNOPAUSE", "-dBATCH", "-dSAFER",
-      "-sDEVICE=png16m", "-r300",
+      "-sDEVICE=png16m", "-r400",
+      "-dTextAlphaBits=4", "-dGraphicsAlphaBits=4",
       `-sOutputFile=${outputPattern}`,
       inputPath,
     ]);
