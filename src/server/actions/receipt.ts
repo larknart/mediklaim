@@ -158,7 +158,7 @@ async function extractReceiptBackground(
     await prisma.receipt.update({
       where: { id: receiptId },
       data: {
-        receiptDate: result.receiptDate ? new Date(result.receiptDate) : null,
+        receiptDate: (() => { const d = result.receiptDate ? new Date(result.receiptDate) : null; return d && !isNaN(d.getTime()) ? d : null; })(),
         vendor: result.vendor,
         totalMyr: result.totalMyr,
         extractedJson: result as object,
