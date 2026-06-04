@@ -5,7 +5,6 @@ import { isAdmin } from "@/lib/permissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import Link from "next/link";
 import { AuditFilter } from "./_components/audit-filter";
 import { buildAuditWhere } from "./_lib/build-where";
 
@@ -87,10 +86,10 @@ export default async function AuditPage({
           <p className="text-gray-500 text-sm mt-1">{total.toLocaleString()} rekod</p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link href={`/api/admin/audit/export?${exportParams}`}>
+          <a href={`/api/admin/audit/export?${exportParams}`}>
             <Download className="w-4 h-4 mr-2" />
             Export CSV
-          </Link>
+          </a>
         </Button>
       </div>
 

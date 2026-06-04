@@ -3,7 +3,6 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin, isFinance, isApprover, isYdp } from "@/lib/permissions";
 import { Card, CardContent } from "@/components/ui/card";
-import Link from "next/link";
 import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LaporanFilter } from "./_components/laporan-filter";
@@ -65,17 +64,17 @@ export default async function LaporanPage({
           <p className="text-gray-500 text-sm mt-1">{claims.length} tuntutan</p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link href={`/api/laporan/pdf?${exportParams}`}>
+          <Button variant="outline" asChild>
+            <a href={`/api/laporan/pdf?${exportParams}`}>
               <FileText className="w-4 h-4 mr-2" />
               PDF
-            </Link>
+            </a>
           </Button>
-          <Button asChild className="bg-green-700 hover:bg-green-800">
-            <Link href={`/api/laporan/excel?${exportParams}`}>
+          <Button className="bg-green-700 hover:bg-green-800" asChild>
+            <a href={`/api/laporan/excel?${exportParams}`}>
               <Download className="w-4 h-4 mr-2" />
               Excel
-            </Link>
+            </a>
           </Button>
         </div>
       </div>
