@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Download } from "lucide-react";
+import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Download, ExternalLink } from "lucide-react";
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
@@ -296,7 +296,7 @@ export default async function ClaimDetailPage({
               : r.items.reduce((s, i) => s + Number(i.amountMyr), 0);
             return (
               <div key={r.id} className="border rounded-lg overflow-hidden">
-                <div className="flex items-center justify-between p-3 bg-gray-50">
+                <div className="flex items-start justify-between p-3 bg-gray-50">
                   <div>
                     <p className="font-medium text-sm">{r.vendor ?? "Vendor tidak diketahui"}</p>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -310,10 +310,36 @@ export default async function ClaimDetailPage({
                       </span>
                     </div>
                   </div>
-                  <span className="font-semibold text-sm text-green-700">
-                    RM {rTotal.toFixed(2)}
-                  </span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <a
+                      href={`/api/files/${r.fileUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
+                      title="Lihat resit asal"
+                    >
+                      {r.fileMime === "application/pdf" ? (
+                        <FileText className="w-4 h-4" />
+                      ) : (
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      )}
+                      Resit Asal
+                    </a>
+                    <span className="font-semibold text-sm text-green-700">
+                      RM {rTotal.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
+                {r.fileMime.startsWith("image/") && (
+                  <a href={`/api/files/${r.fileUrl}`} target="_blank" rel="noopener noreferrer">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/api/files/${r.fileUrl}`}
+                      alt={`Resit ${r.vendor ?? ""}`}
+                      className="w-full max-h-48 object-contain bg-gray-100 border-b cursor-zoom-in"
+                    />
+                  </a>
+                )}
                 {r.items.length > 0 && (
                   <div className="divide-y">
                     {r.items.map((item) => (
