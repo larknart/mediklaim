@@ -25,6 +25,7 @@ import {
   CalendarRange,
   UserCircle,
   MessageSquare,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,12 @@ const navItems: NavItem[] = [
     href: "/admin/pengguna",
     label: "Pengguna",
     icon: Users,
+    roles: [Role.ADMIN],
+  },
+  {
+    href: "/admin/peruntukan",
+    label: "Peruntukan",
+    icon: Wallet,
     roles: [Role.ADMIN],
   },
   {

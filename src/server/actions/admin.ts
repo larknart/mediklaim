@@ -147,6 +147,81 @@ export async function resetUserPassword(userId: string, newPassword: string) {
   return { ok: true };
 }
 
+// ─── Allocation ───────────────────────────────────────────────────────────────
+
+export async function setAllocationUsage(
+  year: number,
+  entries: { userId: string; usedMyr: number; limitMyr?: number }[]
+) {
+  const session = await auth();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  requireAdmin(session.user);
+
+  if (!Number.isInteger(year) || year < 2020 || year > 2100) throw new Error("INVALID_YEAR");
+
+  const { getDefaultAnnualLimit } = await import("@/lib/allocation");
+  const defaultLimit = await getDefaultAnnualLimit();
+
+  const [limitSetting, proRataSetting, users] = await Promise.all([
+    prisma.settings.findUnique({ where: { key: "default_annual_limit" } }),
+    prisma.settings.findUnique({ where: { key: "pro_rata_enabled" } }),
+    prisma.user.findMany({ where: { id: { in: entries.map((e) => e.userId) } }, select: { id: true, joinDate: true } }),
+  ]);
+  const configLimit = Number(limitSetting?.value ?? defaultLimit);
+  const proRataEnabled = proRataSetting?.value !== false;
+  const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
+
+  const existing = await prisma.annualAllocation.findMany({
+    where: { year, userId: { in: entries.map((e) => e.userId) } },
+    select: { userId: true, usedMyr: true, limitMyr: true },
+  });
+  const existingMap = Object.fromEntries(existing.map((a) => [a.userId, a]));
+
+  let updated = 0;
+  for (const entry of entries) {
+    if (entry.usedMyr < 0) throw new Error(`INVALID_USED: ${entry.userId}`);
+
+    const old = existingMap[entry.userId];
+    const u = userMap[entry.userId];
+
+    let fallbackLimit = configLimit;
+    if (proRataEnabled && u?.joinDate) {
+      const jd = new Date(u.joinDate);
+      if (jd.getFullYear() === year) {
+        const monthsRemaining = 12 - jd.getMonth();
+        fallbackLimit = Math.round((monthsRemaining / 12) * configLimit * 100) / 100;
+      }
+    }
+    const finalLimit = entry.limitMyr ?? old?.limitMyr?.toNumber() ?? fallbackLimit;
+
+    await prisma.annualAllocation.upsert({
+      where: { userId_year: { userId: entry.userId, year } },
+      create: { userId: entry.userId, year, limitMyr: finalLimit, usedMyr: entry.usedMyr },
+      update: {
+        usedMyr: entry.usedMyr,
+        ...(entry.limitMyr !== undefined && { limitMyr: entry.limitMyr }),
+      },
+    });
+
+    await logAction({
+      actorId: session.user.id,
+      actorName: session.user.name ?? undefined,
+      action: AuditAction.LIMIT_UPDATED,
+      entity: "AnnualAllocation",
+      entityId: entry.userId,
+      meta: {
+        year,
+        oldUsed: old ? Number(old.usedMyr) : 0,
+        newUsed: entry.usedMyr,
+        limitMyr: finalLimit,
+      },
+    });
+    updated++;
+  }
+
+  return { ok: true, updated };
+}
+
 // ─── Settings ─────────────────────────────────────────────────────────────────
 
 export async function getSetting(key: string) {
