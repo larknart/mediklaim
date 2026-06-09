@@ -18,6 +18,7 @@ const STATUSES = [
 
 interface LaporanFilterProps {
   currentYear: number;
+  earliestYear: number;
   filterYear: number;
   filterMonth: number | null;
   filterStatus: string | null;
@@ -27,6 +28,7 @@ interface LaporanFilterProps {
 
 export function LaporanFilter({
   currentYear,
+  earliestYear,
   filterYear,
   filterMonth,
   filterStatus,
@@ -50,7 +52,10 @@ export function LaporanFilter({
     router.push(`/laporan?${params}`);
   }
 
-  const years = [currentYear - 1, currentYear, currentYear + 1];
+  const years = Array.from(
+    { length: currentYear + 1 - earliestYear + 1 },
+    (_, i) => earliestYear + i
+  );
 
   return (
     <Card>

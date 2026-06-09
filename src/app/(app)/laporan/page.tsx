@@ -43,7 +43,11 @@ export default async function LaporanPage({
     take: 500,
   });
 
-  const departments = await prisma.department.findMany({ orderBy: { name: "asc" } });
+  const [departments, earliestClaim] = await Promise.all([
+    prisma.department.findMany({ orderBy: { name: "asc" } }),
+    prisma.claim.findFirst({ orderBy: { forYear: "asc" }, select: { forYear: true } }),
+  ]);
+  const earliestYear = earliestClaim?.forYear ?? currentYear;
 
   const totalApproved = claims
     .filter((c) => c.status === "APPROVED" || c.status === "PAID")
@@ -81,6 +85,7 @@ export default async function LaporanPage({
 
       <LaporanFilter
         currentYear={currentYear}
+        earliestYear={earliestYear}
         filterYear={filterYear}
         filterMonth={filterMonth ?? null}
         filterStatus={filterStatus ?? null}
