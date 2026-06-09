@@ -94,7 +94,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
     <div className="space-y-4">
       {/* Select-all row */}
       {allClaims.length > 0 && (
-        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
           <Checkbox
             checked={selected.size === allClaims.length && allClaims.length > 0}
             onCheckedChange={toggleAll}
@@ -106,18 +106,18 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
       {/* Queue 1: Needs finance review */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+          <CardTitle className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <Calculator className="w-4 h-4" />
             Menunggu Semakan ({reviewClaims.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {reviewClaims.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 text-sm">Tiada tuntutan menunggu semakan.</div>
+            <div className="py-8 text-center text-muted-foreground text-sm">Tiada tuntutan menunggu semakan.</div>
           ) : (
             <div className="divide-y">
               {reviewClaims.map((claim) => (
-                <div key={claim.id} className="flex items-center gap-3 p-4 hover:bg-gray-50">
+                <div key={claim.id} className="flex items-center gap-3 p-4 hover:bg-accent">
                   <Checkbox
                     checked={selected.has(claim.id)}
                     onCheckedChange={() => toggleOne(claim.id)}
@@ -129,7 +129,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                     >
                       {claim.refNo}
                     </NextLink>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {claim.claimantName} · {claim.departmentName ?? "—"} · RM {claim.totalClaimedMyr.toFixed(2)}
                     </p>
                   </div>
@@ -143,18 +143,18 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
       {/* Queue 2: Ready for payment */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+          <CardTitle className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <Banknote className="w-4 h-4" />
             Menunggu Pembayaran ({approvedClaims.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {approvedClaims.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 text-sm">Tiada tuntutan menunggu pembayaran.</div>
+            <div className="py-8 text-center text-muted-foreground text-sm">Tiada tuntutan menunggu pembayaran.</div>
           ) : (
             <div className="divide-y">
               {approvedClaims.map((claim) => (
-                <div key={claim.id} className="flex items-center gap-3 p-4 hover:bg-gray-50">
+                <div key={claim.id} className="flex items-center gap-3 p-4 hover:bg-accent">
                   <Checkbox
                     checked={selected.has(claim.id)}
                     onCheckedChange={() => toggleOne(claim.id)}
@@ -166,7 +166,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                     >
                       {claim.refNo}
                     </NextLink>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {claim.claimantName} · {claim.departmentName ?? "—"}
                     </p>
                   </div>
@@ -202,7 +202,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                   placeholder="cth: BV-2026-001234"
                   className="bg-white text-sm"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   No. baucer yang sama akan direkodkan untuk semua tuntutan yang dipilih.
                 </p>
               </div>

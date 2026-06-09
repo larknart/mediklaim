@@ -78,7 +78,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+          <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
             <tr>
               <th className="p-3 w-10">
                 <Checkbox
@@ -99,7 +99,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
           <tbody className="divide-y">
             {claims.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-gray-400">
+                <td colSpan={8} className="p-8 text-center text-muted-foreground">
                   <FileSpreadsheet className="w-10 h-10 mx-auto mb-2 opacity-30" />
                   <p>Tiada tuntutan untuk penapisan ini.</p>
                 </td>
@@ -108,7 +108,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
               claims.map((claim) => (
                 <tr
                   key={claim.id}
-                  className={`hover:bg-gray-50 ${selected.has(claim.id) ? "bg-blue-50" : ""}`}
+                  className={`hover:bg-accent ${selected.has(claim.id) ? "bg-blue-50" : ""}`}
                 >
                   <td className="p-3">
                     <Checkbox
@@ -121,14 +121,14 @@ export function LaporanTable({ claims }: LaporanTableProps) {
                       {claim.refNo}
                     </Link>
                     {claim.resubmittedFromRefNo && (
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         Rujukan asal: {claim.resubmittedFromRefNo} (Ditolak)
                       </p>
                     )}
                   </td>
-                  <td className="p-3 text-gray-700">{claim.claimantName}</td>
-                  <td className="p-3 text-gray-500">{claim.departmentName ?? "—"}</td>
-                  <td className="p-3 text-center text-gray-500">
+                  <td className="p-3 text-muted-foreground">{claim.claimantName}</td>
+                  <td className="p-3 text-muted-foreground">{claim.departmentName ?? "—"}</td>
+                  <td className="p-3 text-center text-muted-foreground">
                     {MONTHS_BM[claim.forMonth - 1]} {claim.forYear}
                   </td>
                   <td className="p-3 text-right">RM {claim.totalClaimedMyr.toFixed(2)}</td>
@@ -145,8 +145,8 @@ export function LaporanTable({ claims }: LaporanTableProps) {
                           : claim.status === "REJECTED"
                           ? "bg-red-100 text-red-700"
                           : claim.status === "WITHDRAWN"
-                          ? "bg-gray-100 text-gray-400 line-through"
-                          : "bg-gray-100 text-gray-600"
+                          ? "bg-muted text-muted-foreground line-through"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {STATUS_LABELS[claim.status] ?? claim.status}

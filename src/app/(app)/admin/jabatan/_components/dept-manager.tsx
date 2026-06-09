@@ -111,7 +111,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
       <Card>
         <CardContent className="p-0">
           {departments.length === 0 ? (
-            <div className="py-10 text-center text-gray-400">
+            <div className="py-10 text-center text-muted-foreground">
               <Building2 className="w-10 h-10 mx-auto mb-2 opacity-30" />
               <p className="text-sm">Tiada jabatan.</p>
             </div>
@@ -127,7 +127,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
                         className="text-sm"
                       />
                       <div>
-                        <Label className="text-xs text-gray-500 mb-1 block">Ketua Jabatan</Label>
+                        <Label className="text-xs text-muted-foreground mb-1 block">Ketua Jabatan</Label>
                         <Select value={editing.headId} onValueChange={(v) => setEditing({ ...editing, headId: v ?? "" })}>
                           <SelectTrigger className="text-sm">
                             <span>{users.find((u) => u.id === editing.headId)?.name ?? "Pilih ketua..."}</span>
@@ -150,10 +150,10 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <Building2 className="w-5 h-5 text-gray-400 shrink-0" />
+                      <Building2 className="w-5 h-5 text-muted-foreground shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm">{dept.name}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           Ketua: {dept.headName ?? "Belum ditetapkan"} · {dept.memberCount} ahli
                         </p>
                       </div>

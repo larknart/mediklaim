@@ -105,15 +105,15 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
     <div className="space-y-4">
       {/* Year selector + search + save */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-muted rounded-lg p-1">
           {years.map((y) => (
             <a
               key={y}
               href={`/admin/peruntukan?year=${y}`}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 y === year
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-white text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-muted-foreground"
               }`}
             >
               {y}
@@ -122,7 +122,7 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
         </div>
 
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
           <Input
             placeholder="Cari nama, no. staf, jabatan..."
             value={search}
@@ -155,7 +155,7 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50 text-left text-xs text-gray-500">
+                <tr className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
                   <th className="px-4 py-3 font-medium">Nama</th>
                   <th className="px-4 py-3 font-medium hidden sm:table-cell">No. Staf</th>
                   <th className="px-4 py-3 font-medium hidden md:table-cell">Jabatan</th>
@@ -167,7 +167,7 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
               <tbody className="divide-y">
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">
+                    <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground text-sm">
                       Tiada staf dijumpai.
                     </td>
                   </tr>
@@ -185,12 +185,12 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
                   return (
                     <tr key={row.userId} className={isOver ? "bg-red-50" : isChanged ? "bg-amber-50" : ""}>
                       <td className="px-4 py-2.5">
-                        <div className="font-medium text-gray-900">{row.name}</div>
+                        <div className="font-medium text-foreground">{row.name}</div>
                       </td>
-                      <td className="px-4 py-2.5 text-gray-500 hidden sm:table-cell">
+                      <td className="px-4 py-2.5 text-muted-foreground hidden sm:table-cell">
                         {row.staffNo ?? "—"}
                       </td>
-                      <td className="px-4 py-2.5 text-gray-500 hidden md:table-cell">
+                      <td className="px-4 py-2.5 text-muted-foreground hidden md:table-cell">
                         {row.deptName ?? "—"}
                       </td>
                       <td className="px-4 py-2.5 text-right">
@@ -226,7 +226,7 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
             </table>
           </div>
 
-          <div className="px-4 py-2.5 border-t bg-gray-50 text-xs text-gray-400 flex items-center gap-4">
+          <div className="px-4 py-2.5 border-t bg-muted/50 text-xs text-muted-foreground flex items-center gap-4">
             <span>{rows.length} staf · Had lalai: RM {defaultLimit.toFixed(2)}</span>
             <span className="flex items-center gap-1">
               <span className="w-3 h-3 rounded-sm bg-amber-100 border border-amber-300 inline-block" />

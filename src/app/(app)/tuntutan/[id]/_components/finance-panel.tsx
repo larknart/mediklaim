@@ -89,11 +89,11 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
 
         {receipts.map((r) => (
           <div key={r.id} className="border rounded-lg bg-white overflow-hidden">
-            <div className="px-3 py-2 bg-gray-50 border-b flex items-start justify-between gap-2">
+            <div className="px-3 py-2 bg-muted/50 border-b flex items-start justify-between gap-2">
               <div>
                 <p className="text-sm font-medium">{r.vendor ?? "Vendor tidak diketahui"}</p>
                 {r.receiptDate && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
                   </p>
                 )}
@@ -119,7 +119,7 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
                 <img
                   src={`/api/files/${r.fileUrl}`}
                   alt={`Resit ${r.vendor ?? ""}`}
-                  className="w-full max-h-48 object-contain bg-gray-100 border-b cursor-zoom-in"
+                  className="w-full max-h-48 object-contain bg-muted border-b cursor-zoom-in"
                 />
               </a>
             )}
@@ -142,7 +142,7 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <p className={`text-sm ${!isElig ? "line-through text-gray-400" : ""}`}>
+                        <p className={`text-sm ${!isElig ? "line-through text-muted-foreground" : ""}`}>
                           {item.description}
                           {item.qty > 1 && ` × ${item.qty}`}
                         </p>
@@ -159,7 +159,7 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
                         </p>
                       )}
                     </div>
-                    <span className={`text-sm font-medium shrink-0 ${!isElig ? "text-gray-400" : ""}`}>
+                    <span className={`text-sm font-medium shrink-0 ${!isElig ? "text-muted-foreground" : ""}`}>
                       RM {item.amountMyr.toFixed(2)}
                     </span>
                   </label>

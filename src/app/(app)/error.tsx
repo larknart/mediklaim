@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,8 +19,8 @@ export default function Error({
     <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4 text-center">
       <AlertTriangle className="w-10 h-10 text-red-500" />
       <div>
-        <h2 className="text-lg font-semibold text-gray-900">Ralat sistem</h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <h2 className="text-lg font-semibold text-foreground">Ralat sistem</h2>
+        <p className="text-sm text-muted-foreground mt-1">
           {error.message || "Sesuatu tidak kena. Sila cuba semula."}
         </p>
       </div>

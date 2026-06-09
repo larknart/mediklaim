@@ -57,16 +57,16 @@ export function RefNoSettings(props: RefNoSettingsProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Awalan (prefix)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Awalan (prefix)</Label>
               <Input
                 value={prefix}
                 onChange={(e) => setPrefix(e.target.value)}
                 placeholder="MDS/MK"
               />
-              <p className="text-xs text-gray-400 mt-1">Contoh: MDS/MK atau PBT/TUNTUTAN</p>
+              <p className="text-xs text-muted-foreground mt-1">Contoh: MDS/MK atau PBT/TUNTUTAN</p>
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Bilangan digit</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Bilangan digit</Label>
               <Input
                 type="number"
                 min="3"
@@ -74,14 +74,14 @@ export function RefNoSettings(props: RefNoSettingsProps) {
                 value={padding}
                 onChange={(e) => setPadding(e.target.value)}
               />
-              <p className="text-xs text-gray-400 mt-1">Nombor diisi sifar di hadapan</p>
+              <p className="text-xs text-muted-foreground mt-1">Nombor diisi sifar di hadapan</p>
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-md p-3 border">
-            <p className="text-xs text-gray-500 mb-1">Nombor rujukan seterusnya:</p>
-            <p className="text-lg font-mono font-bold text-gray-800">{previewNext}</p>
-            <p className="text-xs text-gray-400 mt-1">Tuntutan semasa tahun ini: {props.currentCounter}</p>
+          <div className="bg-muted/50 rounded-md p-3 border">
+            <p className="text-xs text-muted-foreground mb-1">Nombor rujukan seterusnya:</p>
+            <p className="text-lg font-mono font-bold text-foreground">{previewNext}</p>
+            <p className="text-xs text-muted-foreground mt-1">Tuntutan semasa tahun ini: {props.currentCounter}</p>
           </div>
 
           <p className="text-xs text-amber-600 bg-amber-50 rounded p-2 border border-amber-200">

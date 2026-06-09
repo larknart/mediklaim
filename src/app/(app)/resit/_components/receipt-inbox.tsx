@@ -129,7 +129,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-          dragOver ? "border-primary bg-success/5" : "border-gray-200 hover:border-primary/70"
+          dragOver ? "border-primary bg-success/5" : "border-border hover:border-primary/70"
         }`}
       >
         <div className="flex flex-col items-center gap-3">
@@ -139,13 +139,13 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
             <Upload className="w-10 h-10 text-gray-300 hidden sm:block" />
           )}
           <div className="hidden sm:block">
-            <p className="font-medium text-gray-700">
+            <p className="font-medium text-muted-foreground">
               {uploading ? "Sedang upload..." : "Drag & drop resit di sini"}
             </p>
-            <p className="text-sm text-gray-400 mt-1">JPG, PNG, WebP, PDF · Max 10MB</p>
+            <p className="text-sm text-muted-foreground mt-1">JPG, PNG, WebP, PDF · Max 10MB</p>
           </div>
           {uploading && (
-            <p className="font-medium text-gray-700 sm:hidden">Sedang upload...</p>
+            <p className="font-medium text-muted-foreground sm:hidden">Sedang upload...</p>
           )}
           <div className="flex gap-2 flex-wrap justify-center">
             {/* Camera first on mobile */}
@@ -195,7 +195,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
       {/* Receipt grid */}
       {initialReceipts.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-gray-400">
+          <CardContent className="py-12 text-center text-muted-foreground">
             <FileImage className="w-12 h-12 mx-auto mb-3 opacity-30" />
             <p>Tiada resit dalam inbox.</p>
             <p className="text-sm mt-1">Upload resit anda untuk mula membuat tuntutan.</p>
@@ -211,7 +211,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
               <Card key={r.id} className="group hover:shadow-md transition-shadow">
                 <CardContent className="p-4 space-y-3">
                   {/* Thumbnail */}
-                  <div className="aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden relative">
+                  <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden relative">
                     {r.fileMime === "application/pdf" ? (
                       <div className="w-full h-full flex items-center justify-center">
                         <FileImage className="w-12 h-12 text-gray-300" />
@@ -235,13 +235,13 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                     {r.extractionStatus === ExtractionStatus.DONE ? (
                       <>
                         {r.vendor && (
-                          <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <Building2 className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Building2 className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                             <span className="truncate font-medium">{r.vendor}</span>
                           </div>
                         )}
                         {r.receiptDate && (
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
                             {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
                           </div>
@@ -260,7 +260,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                         )}
                       </>
                     ) : r.extractionStatus === ExtractionStatus.PENDING ? (
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         AI sedang membaca resit...
                       </div>

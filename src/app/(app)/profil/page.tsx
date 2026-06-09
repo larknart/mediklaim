@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Role } from "@/generated/prisma";
@@ -64,21 +64,21 @@ export default async function ProfilPage({
         </CardHeader>
         <CardContent className="space-y-0 text-sm">
           <div className="flex justify-between py-2.5 border-b">
-            <span className="text-gray-500">Nama</span>
+            <span className="text-muted-foreground">Nama</span>
             <span className="font-medium">{user.name}</span>
           </div>
           <div className="flex justify-between py-2.5 border-b">
-            <span className="text-gray-500">E-mel</span>
+            <span className="text-muted-foreground">E-mel</span>
             <span className="font-medium">{user.email}</span>
           </div>
           {user.staffNo && (
             <div className="flex justify-between py-2.5 border-b">
-              <span className="text-gray-500">No. Staf</span>
+              <span className="text-muted-foreground">No. Staf</span>
               <span className="font-medium">{user.staffNo}</span>
             </div>
           )}
           <div className="flex justify-between py-2.5">
-            <span className="text-gray-500">Peranan</span>
+            <span className="text-muted-foreground">Peranan</span>
             <span className="font-medium">{user.roles.map((r) => r.role).join(", ") || "—"}</span>
           </div>
         </CardContent>

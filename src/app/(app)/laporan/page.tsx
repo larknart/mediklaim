@@ -98,13 +98,13 @@ export default async function LaporanPage({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card>
           <CardContent className="p-3 text-center">
-            <p className="text-xs text-gray-500">Jumlah Tuntutan</p>
+            <p className="text-xs text-muted-foreground">Jumlah Tuntutan</p>
             <p className="text-xl font-bold mt-1">{claims.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
-            <p className="text-xs text-gray-500">Diluluskan</p>
+            <p className="text-xs text-muted-foreground">Diluluskan</p>
             <p className="text-xl font-bold mt-1 text-primary">
               {claims.filter((c) => c.status === "APPROVED" || c.status === "PAID").length}
             </p>
@@ -112,7 +112,7 @@ export default async function LaporanPage({
         </Card>
         <Card>
           <CardContent className="p-3 text-center">
-            <p className="text-xs text-gray-500">Jumlah Lulus (RM)</p>
+            <p className="text-xs text-muted-foreground">Jumlah Lulus (RM)</p>
             <p className="text-lg font-bold mt-1 text-primary">{totalApproved.toFixed(2)}</p>
           </CardContent>
         </Card>

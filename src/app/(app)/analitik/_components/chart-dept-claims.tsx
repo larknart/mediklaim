@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
@@ -22,7 +22,7 @@ export function ChartDeptClaims({ data }: { data: ByDeptRow[] }) {
           <CardTitle className="text-base">Tuntutan Mengikut Jabatan</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
-          <p className="text-gray-400 text-sm">Tiada data untuk tempoh ini</p>
+          <p className="text-muted-foreground text-sm">Tiada data untuk tempoh ini</p>
         </CardContent>
       </Card>
     );

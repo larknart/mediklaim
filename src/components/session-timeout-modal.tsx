@@ -46,7 +46,7 @@ export function SessionTimeoutModal({ warningMinutes }: SessionTimeoutModalProps
           </DialogTitle>
           <DialogDescription>
             Sesi anda akan tamat dalam{" "}
-            <span className="font-semibold text-gray-900">
+            <span className="font-semibold text-foreground">
               {formatCountdown(secondsLeft)}
             </span>
             . Teruskan untuk kekal log masuk.

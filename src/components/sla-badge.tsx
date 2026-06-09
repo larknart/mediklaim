@@ -1,4 +1,4 @@
-import type { SlaInfo } from "@/lib/sla";
+﻿import type { SlaInfo } from "@/lib/sla";
 
 const STEP_BM: Record<string, string> = {
   HEAD: "Sokongan",
@@ -17,7 +17,7 @@ export function SlaBadge({ step, sla }: { step: string; sla: SlaInfo }) {
       ? "bg-red-100 text-red-700"
       : sla.status === "WARNING"
       ? "bg-amber-100 text-amber-700"
-      : "bg-gray-100 text-gray-500";
+      : "bg-muted text-muted-foreground";
 
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${colorClass}`}>

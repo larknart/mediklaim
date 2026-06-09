@@ -18,7 +18,7 @@ const ACTION_COLORS: Record<string, string> = {
   CLAIM_APPROVED: "bg-primary/10 text-primary",
   CLAIM_REJECTED: "bg-red-50 text-red-700",
   CLAIM_PAID: "bg-emerald-50 text-emerald-700",
-  RECEIPT_UPLOADED: "bg-gray-50 text-gray-600",
+  RECEIPT_UPLOADED: "bg-muted/50 text-muted-foreground",
   SETTINGS_UPDATED: "bg-yellow-50 text-yellow-700",
 };
 
@@ -107,18 +107,18 @@ export default async function AuditPage({
       <Card>
         <CardContent className="p-0">
           {logs.length === 0 ? (
-            <div className="py-12 text-center text-gray-400 text-sm">Tiada rekod audit.</div>
+            <div className="py-12 text-center text-muted-foreground text-sm">Tiada rekod audit.</div>
           ) : (
             <div className="divide-y text-sm">
               {logs.map((log) => {
-                const colorClass = ACTION_COLORS[log.action] ?? "bg-gray-50 text-gray-600";
+                const colorClass = ACTION_COLORS[log.action] ?? "bg-muted/50 text-muted-foreground";
                 return (
                   <div key={log.id} className="flex items-start gap-3 p-3">
                     <div className="shrink-0 w-32">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {new Date(log.createdAt).toLocaleDateString("ms-MY")}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-muted-foreground">
                         {new Date(log.createdAt).toLocaleTimeString("ms-MY", { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
@@ -127,23 +127,23 @@ export default async function AuditPage({
                         <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${colorClass}`}>
                           {log.action}
                         </span>
-                        <span className="text-xs text-gray-500">{log.entity}</span>
+                        <span className="text-xs text-muted-foreground">{log.entity}</span>
                         {log.entityId && (
-                          <span className="text-xs text-gray-400 font-mono truncate max-w-[120px]">
+                          <span className="text-xs text-muted-foreground font-mono truncate max-w-[120px]">
                             {log.entityId.slice(0, 12)}…
                           </span>
                         )}
                       </div>
                       {log.actorName && (
-                        <p className="text-xs text-gray-500 mt-0.5">{log.actorName}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{log.actorName}</p>
                       )}
                       {log.meta && Object.keys(log.meta as object).length > 0 && (
-                        <p className="text-xs text-gray-400 mt-0.5 font-mono truncate">
+                        <p className="text-xs text-muted-foreground mt-0.5 font-mono truncate">
                           {JSON.stringify(log.meta).slice(0, 80)}
                         </p>
                       )}
                     </div>
-                    {log.ip && <span className="text-xs text-gray-400 shrink-0">{log.ip}</span>}
+                    {log.ip && <span className="text-xs text-muted-foreground shrink-0">{log.ip}</span>}
                   </div>
                 );
               })}

@@ -21,7 +21,7 @@ export default async function ResetKataLaluanPage() {
           <CardDescription>Cipta kata laluan baru untuk akaun anda</CardDescription>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<p className="text-sm text-center text-gray-500">Memuatkan...</p>}>
+          <Suspense fallback={<p className="text-sm text-center text-muted-foreground">Memuatkan...</p>}>
             <ResetForm policy={policy} />
           </Suspense>
         </CardContent>

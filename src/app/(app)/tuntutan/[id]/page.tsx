@@ -155,20 +155,20 @@ export default async function ClaimDetailPage({
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-xs text-gray-500">{claim.refNo}</p>
+                <p className="text-xs text-muted-foreground">{claim.refNo}</p>
                 <a
                   href={`/api/tuntutan/${claim.id}/pdf`}
-                  className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-primary transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
                   title="Muat turun PDF"
                 >
                   <Download className="w-3 h-3" />
                   PDF
                 </a>
               </div>
-              <h1 className="text-lg font-bold text-gray-900 leading-tight">
+              <h1 className="text-lg font-bold text-foreground leading-tight">
                 Tuntutan {MONTHS_BM[claim.forMonth - 1]} {claim.forYear}
               </h1>
-              <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-600">
+              <div className="mt-2 flex flex-wrap gap-3 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <User className="w-3.5 h-3.5" />
                   {claim.claimant.name}
@@ -193,13 +193,13 @@ export default async function ClaimDetailPage({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs">
             <div>
-              <p className="text-gray-500">Dituntut</p>
+              <p className="text-muted-foreground">Dituntut</p>
               <p className="font-semibold text-sm mt-0.5">
                 RM {Number(claim.totalClaimedMyr).toFixed(2)}
               </p>
             </div>
             <div>
-              <p className="text-gray-500">Layak</p>
+              <p className="text-muted-foreground">Layak</p>
               <p className="font-semibold text-sm mt-0.5">
                 {claim.totalEligibleMyr != null
                   ? `RM ${Number(claim.totalEligibleMyr).toFixed(2)}`
@@ -207,7 +207,7 @@ export default async function ClaimDetailPage({
               </p>
             </div>
             <div>
-              <p className="text-gray-500">Diluluskan</p>
+              <p className="text-muted-foreground">Diluluskan</p>
               <p className={`font-semibold text-sm mt-0.5 ${claim.totalApprovedMyr ? "text-primary" : ""}`}>
                 {claim.totalApprovedMyr != null
                   ? `RM ${Number(claim.totalApprovedMyr).toFixed(2)}`
@@ -287,12 +287,12 @@ export default async function ClaimDetailPage({
               : r.items.reduce((s, i) => s + Number(i.amountMyr), 0);
             return (
               <div key={r.id} className="border rounded-lg overflow-hidden">
-                <div className="flex items-start justify-between p-3 bg-gray-50">
+                <div className="flex items-start justify-between p-3 bg-muted/50">
                   <div>
                     <p className="font-medium text-sm">{r.vendor ?? "Vendor tidak diketahui"}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {r.receiptDate && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
                         </p>
                       )}
@@ -327,7 +327,7 @@ export default async function ClaimDetailPage({
                     <img
                       src={`/api/files/${r.fileUrl}`}
                       alt={`Resit ${r.vendor ?? ""}`}
-                      className="w-full max-h-48 object-contain bg-gray-100 border-b cursor-zoom-in"
+                      className="w-full max-h-48 object-contain bg-muted border-b cursor-zoom-in"
                     />
                   </a>
                 )}
@@ -339,7 +339,7 @@ export default async function ClaimDetailPage({
                           <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-red-500" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs ${!item.isEligible ? "text-red-600 line-through" : "text-gray-700"}`}>
+                          <p className={`text-xs ${!item.isEligible ? "text-red-600 line-through" : "text-muted-foreground"}`}>
                             {item.description}
                             {item.qty > 1 && ` × ${item.qty}`}
                           </p>
@@ -347,7 +347,7 @@ export default async function ClaimDetailPage({
                             <p className="text-xs text-red-500">{item.flaggedReason}</p>
                           )}
                         </div>
-                        <span className={`text-xs font-medium shrink-0 ${!item.isEligible ? "text-gray-400" : ""}`}>
+                        <span className={`text-xs font-medium shrink-0 ${!item.isEligible ? "text-muted-foreground" : ""}`}>
                           RM {Number(item.amountMyr).toFixed(2)}
                         </span>
                       </div>
@@ -396,16 +396,16 @@ export default async function ClaimDetailPage({
                     <div className={`absolute -left-4 top-1 w-2.5 h-2.5 rounded-full border-2 border-white ${dotColor}`} />
                     <p className="text-sm font-medium">
                       {stepLabel[apv.step] ?? apv.step}{" "}
-                      <span className={isRejected ? "text-red-600" : isApproved ? "text-primary" : "text-gray-500"}>
+                      <span className={isRejected ? "text-red-600" : isApproved ? "text-primary" : "text-muted-foreground"}>
                         — {decisionLabel[apv.decision] ?? apv.decision}
                       </span>
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {apv.actor.name} · {new Date(apv.decidedAt).toLocaleDateString("ms-MY")}{" "}
                       {new Date(apv.decidedAt).toLocaleTimeString("ms-MY", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                     {apv.comment && (
-                      <p className="text-xs text-gray-600 mt-1 italic">"{apv.comment}"</p>
+                      <p className="text-xs text-muted-foreground mt-1 italic">"{apv.comment}"</p>
                     )}
                   </div>
                 );

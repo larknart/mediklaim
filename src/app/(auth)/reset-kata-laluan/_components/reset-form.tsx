@@ -103,7 +103,7 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -128,7 +128,7 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
       >
         {isPending ? "Menyimpan..." : "Tetapkan Kata Laluan Baru"}
       </Button>
-      <Link href="/login" className="flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-700">
+      <Link href="/login" className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-muted-foreground">
         <ArrowLeft className="w-4 h-4" />
         Kembali ke Log Masuk
       </Link>

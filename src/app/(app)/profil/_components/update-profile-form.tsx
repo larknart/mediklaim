@@ -37,7 +37,7 @@ export function UpdateProfileForm({ phone: initialPhone }: UpdateProfileFormProp
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <Label className="text-xs text-gray-500 mb-1.5 block">No. Telefon</Label>
+        <Label className="text-xs text-muted-foreground mb-1.5 block">No. Telefon</Label>
         <Input
           type="tel"
           value={phone}
@@ -45,7 +45,7 @@ export function UpdateProfileForm({ phone: initialPhone }: UpdateProfileFormProp
           placeholder="cth: 019-1234567"
           className="text-sm"
         />
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           Digunakan untuk notifikasi WhatsApp. Kosongkan untuk nyahaktifkan WA.
         </p>
       </div>

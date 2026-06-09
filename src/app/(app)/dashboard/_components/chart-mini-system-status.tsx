@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Pie, PieChart, Cell } from "recharts";
 import {
@@ -32,7 +32,7 @@ export function ChartMiniSystemStatus({ data, year }: Props) {
           <CardTitle className="text-sm font-medium">Status Sistem {year}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-40">
-          <p className="text-gray-400 text-sm">Tiada data</p>
+          <p className="text-muted-foreground text-sm">Tiada data</p>
         </CardContent>
       </Card>
     );
@@ -81,7 +81,7 @@ export function ChartMiniSystemStatus({ data, year }: Props) {
         </ChartContainer>
         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
           {chartData.map((d) => (
-            <span key={d.status} className="flex items-center gap-1 text-xs text-gray-600">
+            <span key={d.status} className="flex items-center gap-1 text-xs text-muted-foreground">
               <span
                 className="w-2 h-2 rounded-full inline-block flex-shrink-0"
                 style={{ backgroundColor: d.fill }}

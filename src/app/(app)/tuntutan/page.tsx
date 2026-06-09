@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,7 +57,7 @@ export default async function TuntutanPage({
       <Card>
         <CardContent className="p-0">
           {total === 0 ? (
-            <div className="py-12 text-center text-gray-400">
+            <div className="py-12 text-center text-muted-foreground">
               <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>Tiada tuntutan lagi.</p>
               <Button asChild variant="outline" className="mt-4">
@@ -73,14 +73,14 @@ export default async function TuntutanPage({
                   <Link
                     key={claim.id}
                     href={`/tuntutan/${claim.id}`}
-                    className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-4 p-4 hover:bg-accent transition-colors"
                   >
                     <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FileText className="w-5 h-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{claim.refNo}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {month} {claim.forYear} · {claim._count.receipts} resit · RM {Number(claim.totalClaimedMyr).toFixed(2)}
                       </p>
                     </div>

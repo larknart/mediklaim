@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Pie, PieChart, Cell } from "recharts";
 import {
@@ -29,10 +29,10 @@ export function ChartClaimStatus({ data }: Props) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Status Tuntutan Saya</CardTitle>
-          <p className="text-xs text-gray-400">Semua masa</p>
+          <p className="text-xs text-muted-foreground">Semua masa</p>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-48">
-          <p className="text-gray-400 text-sm">Tiada tuntutan lagi</p>
+          <p className="text-muted-foreground text-sm">Tiada tuntutan lagi</p>
         </CardContent>
       </Card>
     );
@@ -81,7 +81,7 @@ export function ChartClaimStatus({ data }: Props) {
         </ChartContainer>
         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
           {chartData.map((d) => (
-            <span key={d.status} className="flex items-center gap-1 text-xs text-gray-600">
+            <span key={d.status} className="flex items-center gap-1 text-xs text-muted-foreground">
               <span
                 className="w-2 h-2 rounded-full inline-block flex-shrink-0"
                 style={{ backgroundColor: d.fill }}

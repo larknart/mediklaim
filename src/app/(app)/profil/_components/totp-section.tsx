@@ -113,8 +113,8 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
               </>
             ) : (
               <>
-                <ShieldOff className="w-5 h-5 text-gray-400" />
-                <Badge variant="outline" className="text-gray-500">Tidak Aktif</Badge>
+                <ShieldOff className="w-5 h-5 text-muted-foreground" />
+                <Badge variant="outline" className="text-muted-foreground">Tidak Aktif</Badge>
               </>
             )}
           </div>
@@ -139,7 +139,7 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
           )}
         </div>
         {!enabled && (
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             2FA menambah lapisan keselamatan dengan memerlukan kod dari aplikasi authenticator semasa log masuk.
           </p>
         )}
@@ -150,15 +150,15 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
   if (state === "enrolling") {
     return (
       <form onSubmit={submitEnroll} className="space-y-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Imbas kod QR menggunakan aplikasi authenticator (Google Authenticator, Authy, dll.).
         </p>
         <div className="flex justify-center">
           <Image src={qrDataUrl} alt="QR 2FA" width={200} height={200} className="border rounded" unoptimized />
         </div>
-        <details className="text-xs text-gray-400">
-          <summary className="cursor-pointer hover:text-gray-600">Tidak dapat imbas? Masukkan kunci manual</summary>
-          <code className="block mt-2 p-2 bg-gray-100 rounded break-all select-all font-mono">{secret}</code>
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer hover:text-muted-foreground">Tidak dapat imbas? Masukkan kunci manual</summary>
+          <code className="block mt-2 p-2 bg-muted rounded break-all select-all font-mono">{secret}</code>
         </details>
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
         <div className="space-y-2">
@@ -205,9 +205,9 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
             </p>
           </div>
         </div>
-        <div className="bg-gray-50 rounded p-3 border space-y-1">
+        <div className="bg-muted/50 rounded p-3 border space-y-1">
           {recoveryCodes.map((code) => (
-            <code key={code} className="block text-sm font-mono text-gray-700">{code}</code>
+            <code key={code} className="block text-sm font-mono text-muted-foreground">{code}</code>
           ))}
         </div>
         <Button type="button" variant="outline" size="sm" className="w-full" onClick={copyAllCodes}>
@@ -227,7 +227,7 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
   // state === "disabling"
   return (
     <form onSubmit={submitDisable} className="space-y-4">
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-muted-foreground">
         Masukkan kod 6 digit dari aplikasi authenticator untuk mengesahkan penyahaktifan 2FA.
       </p>
       {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}

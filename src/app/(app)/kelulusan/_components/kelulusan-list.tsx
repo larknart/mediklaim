@@ -65,7 +65,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
   if (claims.length === 0) {
     return (
       <Card>
-        <CardContent className="py-12 text-center text-gray-400">
+        <CardContent className="py-12 text-center text-muted-foreground">
           <Shield className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p>Tiada tuntutan menunggu kelulusan.</p>
         </CardContent>
@@ -80,7 +80,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
         <div className="flex items-center justify-between gap-3 px-1">
           <button
             onClick={toggleAll}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
             {selected.size === approvable.length && approvable.length > 0
               ? <CheckSquare className="w-4 h-4" />
@@ -117,10 +117,10 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
               const isApprovable = claim.status === "FINANCE_REVIEWED";
               const isChecked = selected.has(claim.id);
               return (
-                <div key={claim.id} className={`flex items-center gap-3 p-4 ${isChecked ? "bg-success/5" : "hover:bg-gray-50"}`}>
+                <div key={claim.id} className={`flex items-center gap-3 p-4 ${isChecked ? "bg-success/5" : "hover:bg-accent"}`}>
                   {/* Checkbox */}
                   <button
-                    className="shrink-0 text-gray-400 hover:text-primary disabled:opacity-30"
+                    className="shrink-0 text-muted-foreground hover:text-primary disabled:opacity-30"
                     onClick={() => isApprovable && toggle(claim.id)}
                     disabled={!isApprovable || isPending}
                     aria-label={isChecked ? "Nyahpilih" : "Pilih"}
@@ -138,7 +138,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm">{claim.refNo}</p>
-                    <p className="text-xs text-gray-500">{claim.claimantName} · {claim.departmentName ?? "—"}</p>
+                    <p className="text-xs text-muted-foreground">{claim.claimantName} · {claim.departmentName ?? "—"}</p>
                     <p className="text-xs font-medium text-primary mt-0.5">
                       Layak: RM {claim.totalEligibleMyr.toFixed(2)}
                     </p>

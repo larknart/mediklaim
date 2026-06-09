@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Pie, PieChart, Cell } from "recharts";
 import {
@@ -28,7 +28,7 @@ export function ChartSystemStatus({ data }: { data: ByStatusRow[] }) {
           <CardTitle className="text-base">Status Tuntutan Sistem</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-56">
-          <p className="text-gray-400 text-sm">Tiada data untuk tempoh ini</p>
+          <p className="text-muted-foreground text-sm">Tiada data untuk tempoh ini</p>
         </CardContent>
       </Card>
     );
@@ -77,7 +77,7 @@ export function ChartSystemStatus({ data }: { data: ByStatusRow[] }) {
         </ChartContainer>
         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
           {chartData.map((d) => (
-            <span key={d.status} className="flex items-center gap-1 text-xs text-gray-600">
+            <span key={d.status} className="flex items-center gap-1 text-xs text-muted-foreground">
               <span
                 className="w-2 h-2 rounded-full inline-block flex-shrink-0"
                 style={{ backgroundColor: d.fill }}

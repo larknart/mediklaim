@@ -105,7 +105,7 @@ export function NotifSettings(props: NotifSettingsProps) {
           <Checkbox checked={waEnabled} onCheckedChange={(v) => setWaEnabled(!!v)} />
           <div>
             <span className="text-sm font-medium">Aktifkan notifikasi WhatsApp</span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Hantar mesej WA untuk CLAIM_APPROVED, CLAIM_REJECTED, ACTION_REQUIRED
             </p>
           </div>
@@ -114,7 +114,7 @@ export function NotifSettings(props: NotifSettingsProps) {
         <div className={`space-y-3 ${!waEnabled ? "opacity-50 pointer-events-none" : ""}`}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Had / minit</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Had / minit</Label>
               <Input
                 type="number"
                 min="1"
@@ -123,7 +123,7 @@ export function NotifSettings(props: NotifSettingsProps) {
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Had / hari</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Had / hari</Label>
               <Input
                 type="number"
                 min="1"
@@ -135,7 +135,7 @@ export function NotifSettings(props: NotifSettingsProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Quiet hours mula (jam)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Quiet hours mula (jam)</Label>
               <Input
                 type="number"
                 min="0"
@@ -145,7 +145,7 @@ export function NotifSettings(props: NotifSettingsProps) {
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Quiet hours tamat (jam)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Quiet hours tamat (jam)</Label>
               <Input
                 type="number"
                 min="0"
@@ -156,7 +156,7 @@ export function NotifSettings(props: NotifSettingsProps) {
             </div>
           </div>
 
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Mesej tidak dihantar antara jam {quietStart}:00 – {quietEnd}:00. Akan dihantar semula bila buka.
           </p>
         </div>
@@ -164,7 +164,7 @@ export function NotifSettings(props: NotifSettingsProps) {
         {waEnabled && (
           <div className="pt-3 border-t space-y-3">
             <div>
-              <p className="text-xs text-gray-500 mb-2">Uji Sambungan Evolution API</p>
+              <p className="text-xs text-muted-foreground mb-2">Uji Sambungan Evolution API</p>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={testWaConnHandler} disabled={waConnTesting}>
                   <Wifi className="w-3.5 h-3.5 mr-1.5" />
@@ -178,7 +178,7 @@ export function NotifSettings(props: NotifSettingsProps) {
               </div>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-2">Hantar Mesej Ujian</p>
+              <p className="text-xs text-muted-foreground mb-2">Hantar Mesej Ujian</p>
               <div className="flex items-center gap-2">
                 <Input ref={waPhoneRef} placeholder="60123456789" className="w-40 text-sm" />
                 <Button variant="outline" size="sm" onClick={testWaSendHandler} disabled={waSending}>
@@ -212,7 +212,7 @@ export function NotifSettings(props: NotifSettingsProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-xs text-gray-500">Uji sambungan SMTP menggunakan tetapan semasa dalam .env.</p>
+        <p className="text-xs text-muted-foreground">Uji sambungan SMTP menggunakan tetapan semasa dalam .env.</p>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={testSmtpHandler} disabled={smtpTesting}>
             {smtpTesting ? "Menguji..." : "Uji Sambungan SMTP"}

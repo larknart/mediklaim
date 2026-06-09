@@ -50,7 +50,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <Label className="text-xs text-gray-500 mb-1.5 block">Kata Laluan Semasa</Label>
+        <Label className="text-xs text-muted-foreground mb-1.5 block">Kata Laluan Semasa</Label>
         <div className="relative">
           <Input
             type={showCurrent ? "text" : "password"}
@@ -62,7 +62,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
           <button
             type="button"
             onClick={() => setShowCurrent((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
           >
             {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -70,7 +70,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
       </div>
 
       <div>
-        <Label className="text-xs text-gray-500 mb-1.5 block">Kata Laluan Baru</Label>
+        <Label className="text-xs text-muted-foreground mb-1.5 block">Kata Laluan Baru</Label>
         <div className="relative">
           <Input
             type={showNew ? "text" : "password"}
@@ -82,7 +82,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
           <button
             type="button"
             onClick={() => setShowNew((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
           >
             {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -91,7 +91,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
       </div>
 
       <div>
-        <Label className="text-xs text-gray-500 mb-1.5 block">Sahkan Kata Laluan Baru</Label>
+        <Label className="text-xs text-muted-foreground mb-1.5 block">Sahkan Kata Laluan Baru</Label>
         <Input
           type="password"
           value={confirmPassword}

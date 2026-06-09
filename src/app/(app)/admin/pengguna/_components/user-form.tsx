@@ -111,11 +111,11 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
       <CardContent className="p-4 space-y-4">
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Nama Penuh</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Nama Penuh</Label>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama penuh..." />
           </div>
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Email</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Email</Label>
             <Input
               type="email"
               value={email}
@@ -126,16 +126,16 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">No. Staf</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">No. Staf</Label>
               <Input value={staffNo} onChange={(e) => setStaffNo(e.target.value)} placeholder="MDS-XXX-001" />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">No. Telefon</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">No. Telefon</Label>
               <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="60123456789" />
             </div>
           </div>
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">
+            <Label className="text-xs text-muted-foreground mb-1.5 block">
               {user ? "Password Baru (kosongkan jika tak tukar)" : "Password"}
             </Label>
             <Input
@@ -146,7 +146,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
             {password && <PasswordPolicyHints policy={policy} password={password} />}
           </div>
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Jabatan</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Jabatan</Label>
             <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? departmentId)}>
               <SelectTrigger>
                 <span>{departments.find((d) => d.id === departmentId)?.name ?? "Pilih jabatan..."}</span>
@@ -160,7 +160,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
           </div>
 
           <div>
-            <Label className="text-xs text-gray-500 mb-2 block">Peranan</Label>
+            <Label className="text-xs text-muted-foreground mb-2 block">Peranan</Label>
             <div className="space-y-2">
               {ALL_ROLES.map((r) => (
                 <label key={r.value} className="flex items-center gap-2 cursor-pointer">
@@ -175,13 +175,13 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
           </div>
 
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh Mula Berkhidmat</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Tarikh Mula Berkhidmat</Label>
             <Input
               type="date"
               value={joinDate}
               onChange={(e) => setJoinDate(e.target.value)}
             />
-            <p className="text-xs text-gray-400 mt-1">Digunakan untuk kira peruntukan pro-rata tahun pertama.</p>
+            <p className="text-xs text-muted-foreground mt-1">Digunakan untuk kira peruntukan pro-rata tahun pertama.</p>
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">
@@ -191,7 +191,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
             />
             <div>
               <span className="text-sm font-medium">Ahli Majlis</span>
-              <p className="text-xs text-gray-500">Tuntutan skip langkah sokongan Ketua Jabatan</p>
+              <p className="text-xs text-muted-foreground">Tuntutan skip langkah sokongan Ketua Jabatan</p>
             </div>
           </label>
         </div>

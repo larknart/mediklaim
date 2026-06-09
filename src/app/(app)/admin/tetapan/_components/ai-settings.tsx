@@ -86,11 +86,11 @@ export function AiSettings(props: AiSettingsProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Provider</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Provider</Label>
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="manual">Manual (AI dimatikan)</option>
               <option value="ollama">Ollama (self-hosted)</option>
@@ -102,7 +102,7 @@ export function AiSettings(props: AiSettingsProps) {
           {provider === "ollama" && (
             <div className="space-y-3">
               <div>
-                <Label className="text-xs text-gray-500 mb-1.5 block">Ollama Base URL</Label>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Ollama Base URL</Label>
                 <Input
                   value={baseUrl}
                   onChange={(e) => setBaseUrl(e.target.value)}
@@ -110,7 +110,7 @@ export function AiSettings(props: AiSettingsProps) {
                 />
               </div>
               <div>
-                <Label className="text-xs text-gray-500 mb-1.5 block">Model</Label>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Model</Label>
                 <Input
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
@@ -122,7 +122,7 @@ export function AiSettings(props: AiSettingsProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Threshold keyakinan (0–1)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Threshold keyakinan (0–1)</Label>
               <Input
                 type="number"
                 min="0"
@@ -131,10 +131,10 @@ export function AiSettings(props: AiSettingsProps) {
                 value={threshold}
                 onChange={(e) => setThreshold(e.target.value)}
               />
-              <p className="text-xs text-gray-400 mt-1">Bawah nilai ini → amaran kuning di resit</p>
+              <p className="text-xs text-muted-foreground mt-1">Bawah nilai ini → amaran kuning di resit</p>
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Timeout (saat)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Timeout (saat)</Label>
               <Input
                 type="number"
                 min="10"
@@ -144,7 +144,7 @@ export function AiSettings(props: AiSettingsProps) {
               />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Bilangan cuba semula</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Bilangan cuba semula</Label>
               <Input
                 type="number"
                 min="0"
@@ -173,7 +173,7 @@ export function AiSettings(props: AiSettingsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-gray-500">Upload sampel resit untuk uji konfigurasi AI semasa.</p>
+          <p className="text-xs text-muted-foreground">Upload sampel resit untuk uji konfigurasi AI semasa.</p>
           <div className="flex gap-3 items-center">
             <input ref={fileRef} type="file" accept="image/*,application/pdf" className="text-sm" />
             <Button
@@ -185,7 +185,7 @@ export function AiSettings(props: AiSettingsProps) {
             </Button>
           </div>
           {testResult && (
-            <pre className="bg-gray-50 border rounded p-3 text-xs overflow-auto max-h-64 whitespace-pre-wrap">
+            <pre className="bg-muted/50 border rounded p-3 text-xs overflow-auto max-h-64 whitespace-pre-wrap">
               {testResult}
             </pre>
           )}

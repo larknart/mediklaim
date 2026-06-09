@@ -55,26 +55,26 @@ export function SistemSettings(props: SistemSettingsProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2 text-gray-600">
+            <CardTitle className="text-sm flex items-center gap-2 text-muted-foreground">
               <Database className="w-4 h-4" />
               Pangkalan Data
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <p className="text-2xl font-bold">{props.stats.dbSize}</p>
-            <p className="text-xs text-gray-500">{props.stats.claimCount} tuntutan · {props.stats.receiptCount} resit · {props.stats.userCount} pengguna</p>
+            <p className="text-xs text-muted-foreground">{props.stats.claimCount} tuntutan · {props.stats.receiptCount} resit · {props.stats.userCount} pengguna</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2 text-gray-600">
+            <CardTitle className="text-sm flex items-center gap-2 text-muted-foreground">
               <HardDrive className="w-4 h-4" />
               Storan Fail
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">{props.stats.storageMb} MB</p>
-            <p className="text-xs text-gray-500">Folder ./storage</p>
+            <p className="text-xs text-muted-foreground">Folder ./storage</p>
           </CardContent>
         </Card>
       </div>
@@ -91,7 +91,7 @@ export function SistemSettings(props: SistemSettingsProps) {
             <Checkbox checked={maintenance} onCheckedChange={(v) => setMaintenance(!!v)} />
             <div>
               <span className="text-sm font-medium">Aktifkan mod penyelenggaraan</span>
-              <p className="text-xs text-gray-500">Pengguna bukan admin akan diarahkan ke halaman penyelenggaraan.</p>
+              <p className="text-xs text-muted-foreground">Pengguna bukan admin akan diarahkan ke halaman penyelenggaraan.</p>
             </div>
           </label>
         </CardContent>
@@ -102,7 +102,7 @@ export function SistemSettings(props: SistemSettingsProps) {
           <CardTitle className="text-base">Pengekalan Log</CardTitle>
         </CardHeader>
         <CardContent>
-          <Label className="text-xs text-gray-500 mb-1.5 block">Tempoh simpan audit log (tahun)</Label>
+          <Label className="text-xs text-muted-foreground mb-1.5 block">Tempoh simpan audit log (tahun)</Label>
           <Input
             type="number"
             min="1"
@@ -111,7 +111,7 @@ export function SistemSettings(props: SistemSettingsProps) {
             value={logRetention}
             onChange={(e) => setLogRetention(e.target.value)}
           />
-          <p className="text-xs text-gray-400 mt-1">Polisi kerajaan: minimum 7 tahun.</p>
+          <p className="text-xs text-muted-foreground mt-1">Polisi kerajaan: minimum 7 tahun.</p>
         </CardContent>
       </Card>
 
@@ -120,7 +120,7 @@ export function SistemSettings(props: SistemSettingsProps) {
           <CardTitle className="text-base">PDPA &amp; Eksport Data</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Eksport semua data sistem (pengguna, tuntutan, resit) dalam format JSON untuk tujuan pematuhan PDPA. Tidak termasuk kata laluan.
           </p>
           <Button variant="outline" onClick={downloadPdpa} className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export function SistemSettings(props: SistemSettingsProps) {
           <CardTitle className="text-base">Versi Sistem</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm font-mono text-gray-700">MediKlaim MDS v{props.stats.version}</p>
+          <p className="text-sm font-mono text-muted-foreground">MediKlaim MDS v{props.stats.version}</p>
         </CardContent>
       </Card>
 

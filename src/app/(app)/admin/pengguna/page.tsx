@@ -63,7 +63,7 @@ export default async function PenggunaPage({
       <Card>
         <CardContent className="p-0">
           {users.length === 0 ? (
-            <div className="py-12 text-center text-gray-400">
+            <div className="py-12 text-center text-muted-foreground">
               <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>Tiada pengguna berdaftar.</p>
             </div>
@@ -80,15 +80,15 @@ export default async function PenggunaPage({
                     {!user.isActive && <Badge variant="secondary">Tidak aktif</Badge>}
                     {user.isAhliMajlis && <Badge variant="outline" className="text-xs">Ahli Majlis</Badge>}
                   </div>
-                  <p className="text-xs text-gray-500">{user.email}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {user.roles.map((r) => (
-                      <span key={r.role} className="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
+                      <span key={r.role} className="text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5">
                         {ROLE_LABELS[r.role] ?? r.role}
                       </span>
                     ))}
                     {user.department && (
-                      <span className="text-xs text-gray-400">· {user.department.name}</span>
+                      <span className="text-xs text-muted-foreground">· {user.department.name}</span>
                     )}
                   </div>
                 </div>

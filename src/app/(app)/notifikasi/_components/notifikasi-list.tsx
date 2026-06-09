@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -40,8 +40,8 @@ export function NotifikasiList({ notifications }: { notifications: NotifItem[] }
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">{n.title}</p>
-            <p className="text-sm text-gray-600 mt-0.5">{n.body}</p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-0.5">{n.body}</p>
+            <p className="text-xs text-muted-foreground mt-1">
               {formatDistanceToNow(new Date(n.createdAt))}
             </p>
             {n.link && (

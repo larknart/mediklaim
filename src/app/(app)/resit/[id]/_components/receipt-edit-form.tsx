@@ -140,7 +140,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Nama Vendor / Klinik</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Nama Vendor / Klinik</Label>
             <Input
               value={vendor}
               onChange={(e) => setVendor(e.target.value)}
@@ -148,7 +148,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
             />
           </div>
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh Resit</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Tarikh Resit</Label>
             <Input
               type="date"
               value={receiptDate}
@@ -188,14 +188,14 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => removeItem(idx)}
-                  className="shrink-0 text-gray-400 hover:text-red-600"
+                  className="shrink-0 text-muted-foreground hover:text-red-600"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div>
-                  <Label className="text-xs text-gray-500 mb-1 block">Qty</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Qty</Label>
                   <Input
                     type="number"
                     min="1"
@@ -205,7 +205,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-gray-500 mb-1 block">Unit (RM)</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Unit (RM)</Label>
                   <Input
                     type="number"
                     min="0"
@@ -216,7 +216,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-gray-500 mb-1 block">Amaun (RM)</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Amaun (RM)</Label>
                   <Input
                     type="number"
                     min="0"

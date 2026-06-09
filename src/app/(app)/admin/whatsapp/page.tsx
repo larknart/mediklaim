@@ -71,11 +71,11 @@ export default async function WhatsAppOutboxPage({
               className={`px-3 py-1.5 rounded-full text-sm border flex items-center gap-1.5 transition-colors ${
                 active
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "text-gray-600 border-gray-200 hover:bg-gray-50"
+                  : "text-muted-foreground border-border hover:bg-accent"
               }`}
             >
               {label}
-              <span className={`text-xs font-mono ${active ? "opacity-80" : "text-gray-400"}`}>
+              <span className={`text-xs font-mono ${active ? "opacity-80" : "text-muted-foreground"}`}>
                 {count}
               </span>
             </a>
@@ -86,33 +86,33 @@ export default async function WhatsAppOutboxPage({
       <Card>
         <CardContent className="p-0">
           {rows.length === 0 ? (
-            <div className="py-12 text-center text-gray-400 text-sm">Tiada rekod.</div>
+            <div className="py-12 text-center text-muted-foreground text-sm">Tiada rekod.</div>
           ) : (
             <div className="divide-y text-sm">
               {rows.map((row) => (
                 <div key={row.id} className="p-4 space-y-1">
                   <div className="flex items-center justify-between gap-3 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-gray-500">{row.toPhone}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{row.toPhone}</span>
                       <span
-                        className={`text-xs px-2 py-0.5 rounded border font-medium ${STATUS_STYLES[row.status] ?? "bg-gray-50 text-gray-600"}`}
+                        className={`text-xs px-2 py-0.5 rounded border font-medium ${STATUS_STYLES[row.status] ?? "bg-muted/50 text-muted-foreground"}`}
                       >
                         {row.status}
                       </span>
                       {row.attempt > 0 && (
-                        <span className="text-xs text-gray-400">{row.attempt}x cuba</span>
+                        <span className="text-xs text-muted-foreground">{row.attempt}x cuba</span>
                       )}
                     </div>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-muted-foreground">
                       {new Date(row.scheduledAt).toLocaleString("ms-MY")}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-600 line-clamp-2">{row.body}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{row.body}</p>
                   {row.lastError && (
                     <p className="text-xs text-red-500 font-mono truncate">{row.lastError}</p>
                   )}
                   {row.sentAt && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       Terhantar: {new Date(row.sentAt).toLocaleString("ms-MY")}
                     </p>
                   )}
@@ -124,16 +124,16 @@ export default async function WhatsAppOutboxPage({
       </Card>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>Halaman {page} / {totalPages}</span>
           <div className="flex gap-2">
             {page > 1 && (
-              <a href={buildHref(filterStatus, page - 1)} className="px-3 py-1 border rounded hover:bg-gray-50">
+              <a href={buildHref(filterStatus, page - 1)} className="px-3 py-1 border rounded hover:bg-accent">
                 ← Sebelum
               </a>
             )}
             {page < totalPages && (
-              <a href={buildHref(filterStatus, page + 1)} className="px-3 py-1 border rounded hover:bg-gray-50">
+              <a href={buildHref(filterStatus, page + 1)} className="px-3 py-1 border rounded hover:bg-accent">
                 Seterusnya →
               </a>
             )}

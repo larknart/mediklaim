@@ -93,11 +93,11 @@ export function AnalitikFilters({
       {/* Filter bar */}
       <div className="flex flex-wrap gap-4 items-center">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700">Tahun:</label>
+          <label className="text-sm font-medium text-muted-foreground">Tahun:</label>
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+            className="border border-border rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {yearOptions.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -107,11 +107,11 @@ export function AnalitikFilters({
 
         {!isHeadOnly && (
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Jabatan:</label>
+            <label className="text-sm font-medium text-muted-foreground">Jabatan:</label>
             <select
               value={dept}
               onChange={(e) => setDept(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border border-border rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Semua Jabatan</option>
               {departments.map((d) => (

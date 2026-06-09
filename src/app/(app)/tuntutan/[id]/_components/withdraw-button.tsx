@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -35,7 +35,7 @@ export function WithdrawButton({ claimId }: { claimId: string }) {
         variant="outline"
         onClick={() => setOpen(true)}
         disabled={isPending}
-        className="w-full border-gray-300 text-gray-600"
+        className="w-full border-border text-muted-foreground"
       >
         <Undo2 className="w-4 h-4 mr-2" />
         {isPending ? "Menarik balik..." : "Tarik Balik Tuntutan"}

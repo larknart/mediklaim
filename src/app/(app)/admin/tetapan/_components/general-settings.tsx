@@ -37,7 +37,7 @@ export function GeneralSettings({ orgName: initial }: { orgName: string }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label className="text-xs text-gray-500 mb-1.5 block">Nama Agensi</Label>
+          <Label className="text-xs text-muted-foreground mb-1.5 block">Nama Agensi</Label>
           <Input value={orgName} onChange={(e) => setOrgName(e.target.value)} />
         </div>
         {saved && <p className="text-xs text-success">Tetapan disimpan.</p>}

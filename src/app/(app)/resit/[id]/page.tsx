@@ -26,7 +26,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
     [ExtractionStatus.PENDING]: { label: "Sedang proses...", icon: Clock, color: "text-yellow-600" },
     [ExtractionStatus.DONE]:    { label: "Selesai", icon: CheckCircle2, color: "text-success" },
     [ExtractionStatus.FAILED]:  { label: "Gagal — edit manual", icon: AlertTriangle, color: "text-red-600" },
-    [ExtractionStatus.SKIPPED]: { label: "Dihantar manual", icon: FileImage, color: "text-gray-500" },
+    [ExtractionStatus.SKIPPED]: { label: "Dihantar manual", icon: FileImage, color: "text-muted-foreground" },
   }[receipt.extractionStatus];
 
   const Icon = statusBadge.icon;
@@ -36,8 +36,8 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
       <BackButton />
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Edit Resit</h1>
-          <p className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{receipt.fileUrl.split("/").pop()}</p>
+          <h1 className="text-xl font-bold text-foreground">Edit Resit</h1>
+          <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-xs">{receipt.fileUrl.split("/").pop()}</p>
         </div>
         <span className={`flex items-center gap-1.5 text-xs font-medium ${statusBadge.color}`}>
           <Icon className="w-3.5 h-3.5" />

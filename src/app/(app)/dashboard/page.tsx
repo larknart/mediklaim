@@ -276,7 +276,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingTotal === 0 ? (
-              <p className="text-gray-500 text-sm">Tiada tindakan tertangguh.</p>
+              <p className="text-muted-foreground text-sm">Tiada tindakan tertangguh.</p>
             ) : (
               <>
                 {pendingHead > 0 && (
@@ -329,7 +329,7 @@ export default async function DashboardPage() {
       {isMgmt && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-700">
+            <h2 className="text-sm font-semibold text-muted-foreground">
               Gambaran Sistem {currentYear}
             </h2>
             <Link href="/analitik" className="text-xs text-primary hover:underline">
@@ -366,7 +366,7 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent>
           {myClaims.length === 0 ? (
-            <p className="text-gray-500 text-sm text-center py-6">Tiada tuntutan lagi.</p>
+            <p className="text-muted-foreground text-sm text-center py-6">Tiada tuntutan lagi.</p>
           ) : (
             <div className="space-y-2">
               {myClaims.map((claim) => {

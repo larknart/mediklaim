@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { SessionProvider } from "next-auth/react";
@@ -66,11 +66,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <SessionProvider session={session}>
       <SidebarProvider>
         <SessionTimeoutModal warningMinutes={warningMinutes} />
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-muted/50">
           <LiveNotifications initialUnreadCount={unreadCount} />
           <SidebarBackdrop />
           <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-            <header className="h-14 bg-white border-b border-gray-200 shadow-sm fixed top-0 left-0 right-0 md:left-64 z-40 flex items-center px-4">
+            <header className="h-14 bg-white border-b border-border shadow-sm fixed top-0 left-0 right-0 md:left-64 z-40 flex items-center px-4">
               <SidebarToggle />
               <GlobalSearch />
             </header>

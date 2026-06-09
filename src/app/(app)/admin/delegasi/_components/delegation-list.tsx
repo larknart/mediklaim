@@ -110,7 +110,7 @@ export function DelegationList({ delegations, users }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {delegations.length} rekod delegasi
         </p>
         <Button
@@ -131,7 +131,7 @@ export function DelegationList({ delegations, users }: Props) {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-gray-500 mb-1.5 block">Delegator (yang cuti)</Label>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Delegator (yang cuti)</Label>
                 <Select value={delegatorId} onValueChange={(v) => setDelegatorId(v ?? delegatorId)}>
                   <SelectTrigger>
                     <span className="truncate">{users.find((u) => u.id === delegatorId)?.name ?? "Pilih pengguna..."}</span>
@@ -144,7 +144,7 @@ export function DelegationList({ delegations, users }: Props) {
                 </Select>
               </div>
               <div>
-                <Label className="text-xs text-gray-500 mb-1.5 block">Penolong (yang cover)</Label>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Penolong (yang cover)</Label>
                 <Select value={delegateId} onValueChange={(v) => setDelegateId(v ?? delegateId)}>
                   <SelectTrigger>
                     <span className="truncate">{users.find((u) => u.id === delegateId)?.name ?? "Pilih pengguna..."}</span>
@@ -158,7 +158,7 @@ export function DelegationList({ delegations, users }: Props) {
               </div>
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Peranan yang didelegasi</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Peranan yang didelegasi</Label>
               <Select value={role} onValueChange={(v) => setRole(v as Role)}>
                 <SelectTrigger>
                   <span>{DELEGATABLE_ROLES.find((r) => r.value === role)?.label ?? "Pilih peranan..."}</span>
@@ -172,11 +172,11 @@ export function DelegationList({ delegations, users }: Props) {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh Mula</Label>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Tarikh Mula</Label>
                 <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} min={today} />
               </div>
               <div>
-                <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh Tamat</Label>
+                <Label className="text-xs text-muted-foreground mb-1.5 block">Tarikh Tamat</Label>
                 <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} min={fromDate || today} />
               </div>
             </div>
@@ -195,7 +195,7 @@ export function DelegationList({ delegations, users }: Props) {
 
       {delegations.length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center text-sm text-gray-400">
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
             Tiada rekod delegasi.
           </CardContent>
         </Card>
@@ -205,14 +205,14 @@ export function DelegationList({ delegations, users }: Props) {
             <Card key={d.id} className={d.isActive ? "border-primary/20" : ""}>
               <CardContent className="p-3">
                 <div className="flex items-center gap-3">
-                  <CalendarRange className="w-4 h-4 text-gray-400 shrink-0" />
+                  <CalendarRange className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">
                       {d.delegatorName}
-                      <span className="text-gray-400 font-normal mx-1">→</span>
+                      <span className="text-muted-foreground font-normal mx-1">→</span>
                       {d.delegateName}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {ROLE_LABELS[d.role] ?? d.role} · {d.fromDate} – {d.toDate}
                     </p>
                   </div>

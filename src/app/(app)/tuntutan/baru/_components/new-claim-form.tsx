@@ -142,7 +142,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
         </CardHeader>
         <CardContent className="flex gap-3">
           <div className="flex-1">
-            <Label className="text-xs text-gray-500 mb-1.5 block">Bulan</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Bulan</Label>
             <Select value={forMonth} onValueChange={(v) => setForMonth(v ?? forMonth)}>
               <SelectTrigger>
                 <span>{MONTHS_BM[parseInt(forMonth) - 1]}</span>
@@ -155,7 +155,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
             </Select>
           </div>
           <div className="w-32">
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tahun</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Tahun</Label>
             <Select value={forYear} onValueChange={(v) => setForYear(v ?? forYear)}>
               <SelectTrigger>
                 <span>{forYear}</span>
@@ -172,7 +172,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
 
       {/* Limit info */}
       <div className="flex items-center justify-between p-3 bg-success/5 rounded-lg text-sm">
-        <span className="text-gray-600">Baki peruntukan {forYear}:</span>
+        <span className="text-muted-foreground">Baki peruntukan {forYear}:</span>
         <span className={`font-semibold ${remaining < 100 ? "text-red-600" : "text-primary"}`}>
           RM {remaining.toFixed(2)} / RM {limit.toFixed(2)}
         </span>
@@ -185,7 +185,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
         </CardHeader>
         <CardContent className="space-y-2">
           {receipts.length === 0 ? (
-            <div className="text-center py-6 text-gray-400">
+            <div className="text-center py-6 text-muted-foreground">
               <FileText className="w-10 h-10 mx-auto mb-2 opacity-30" />
               <p className="text-sm">Tiada resit dalam inbox.</p>
               <Button variant="link" onClick={() => router.push("/resit")} className="text-primary">
@@ -205,7 +205,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
                 <div
                   key={r.id}
                   className={`rounded-lg border transition-colors ${
-                    isSelected ? "border-primary bg-success/5" : "border-gray-200"
+                    isSelected ? "border-primary bg-success/5" : "border-border"
                   }`}
                 >
                   <label className="flex items-center gap-3 p-3 cursor-pointer">
@@ -222,7 +222,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
                       </div>
                       <div className="flex items-center gap-3 mt-0.5">
                         {r.receiptDate && (
-                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
                             {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
                           </span>
@@ -235,7 +235,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
                   </label>
                   {isSelected && !isAhliMajlis && (
                     <div className="px-3 pb-3 flex items-center gap-2">
-                      <span className="text-xs text-gray-500 shrink-0">Untuk:</span>
+                      <span className="text-xs text-muted-foreground shrink-0">Untuk:</span>
                       <select
                         value={b.claimFor}
                         onChange={(e) => setBeneficiaryFor(r.id, e.target.value as ClaimFor)}
@@ -247,7 +247,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
                       </select>
                       {b.claimFor === ClaimFor.CHILD && (
                         <>
-                          <span className="text-xs text-gray-500">ke-</span>
+                          <span className="text-xs text-muted-foreground">ke-</span>
                           <select
                             value={b.childNo}
                             onChange={(e) => setBeneficiaryFor(r.id, ClaimFor.CHILD, e.target.value)}

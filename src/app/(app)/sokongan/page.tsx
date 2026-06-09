@@ -31,7 +31,7 @@ export default async function SokonganPage() {
       <Card>
         <CardContent className="p-0">
           {claims.length === 0 ? (
-            <div className="py-12 text-center text-gray-400">
+            <div className="py-12 text-center text-muted-foreground">
               <CheckSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>Tiada tuntutan menunggu sokongan.</p>
             </div>
@@ -45,14 +45,14 @@ export default async function SokonganPage() {
                   <Link
                     key={claim.id}
                     href={`/tuntutan/${claim.id}`}
-                    className="flex items-center gap-4 p-4 hover:bg-gray-50"
+                    className="flex items-center gap-4 p-4 hover:bg-accent"
                   >
                     <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
                       <FileText className="w-5 h-5 text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{claim.refNo}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {claim.claimant.name} · Bulan {claim.forMonth}/{claim.forYear} · RM {Number(claim.totalClaimedMyr).toFixed(2)}
                       </p>
                     </div>

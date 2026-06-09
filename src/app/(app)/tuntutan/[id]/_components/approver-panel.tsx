@@ -76,7 +76,7 @@ export function ApproverPanel({
       <CardContent className="space-y-3">
         {totalEligibleMyr != null && (
           <div className="flex items-center justify-between text-sm p-2 bg-white rounded border">
-            <span className="text-gray-600">Jumlah layak:</span>
+            <span className="text-muted-foreground">Jumlah layak:</span>
             <span className="font-semibold text-primary">RM {totalEligibleMyr.toFixed(2)}</span>
           </div>
         )}

@@ -104,26 +104,26 @@ export function SecuritySettings(props: SecuritySettingsProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Maksimum cubaan gagal</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Maksimum cubaan gagal</Label>
               <Input type="number" min="3" max="10" value={maxAttempts} onChange={(e) => setMaxAttempts(e.target.value)} />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Tempoh kunci (minit)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Tempoh kunci (minit)</Label>
               <Input type="number" min="5" max="60" value={lockDuration} onChange={(e) => setLockDuration(e.target.value)} />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Tamat tempoh sesi (minit)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Tamat tempoh sesi (minit)</Label>
               <Input type="number" min="15" max="480" value={sessionTimeout} onChange={(e) => setSessionTimeout(e.target.value)} />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Berkuat kuasa serta-merta untuk log masuk baru. Sesi sedia ada akan diperbaharui pada tindakan seterusnya.
               </p>
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Amaran tamat tempoh sesi (minit)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Amaran tamat tempoh sesi (minit)</Label>
               <Input type="number" min="2" max="30" value={sessionWarning} onChange={(e) => setSessionWarning(e.target.value)} />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Tunjuk amaran X minit sebelum sesi tamat.
               </p>
             </div>
@@ -133,7 +133,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
               <Checkbox checked={require2fa} onCheckedChange={(v) => setRequire2fa(!!v)} />
               <span className="text-sm">Wajibkan 2FA untuk pengguna Admin</span>
             </label>
-            <p className="text-xs text-gray-400 mt-1 ml-6">
+            <p className="text-xs text-muted-foreground mt-1 ml-6">
               Admin tanpa 2FA akan diarahkan ke halaman profil untuk setup semasa log masuk.
             </p>
           </div>
@@ -146,7 +146,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Panjang minimum</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Panjang minimum</Label>
             <Input type="number" min="6" max="32" value={pwMinLen} onChange={(e) => setPwMinLen(e.target.value)} />
           </div>
           <div className="space-y-2">
@@ -164,7 +164,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
             </label>
           </div>
           <div className="pt-2 border-t">
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tempoh luput kata laluan (hari)</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Tempoh luput kata laluan (hari)</Label>
             <Input
               type="number"
               min="0"
@@ -173,7 +173,7 @@ export function SecuritySettings(props: SecuritySettingsProps) {
               onChange={(e) => setPwExpiry(e.target.value)}
               className="w-32"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               0 = tidak luput. Pengguna akan diarahkan ke /profil untuk tukar kata laluan bila tempoh tamat.
             </p>
           </div>
@@ -185,9 +185,9 @@ export function SecuritySettings(props: SecuritySettingsProps) {
           <CardTitle className="text-base">Had Muat Naik</CardTitle>
         </CardHeader>
         <CardContent>
-          <Label className="text-xs text-gray-500 mb-1.5 block">Saiz maksimum fail (MB)</Label>
+          <Label className="text-xs text-muted-foreground mb-1.5 block">Saiz maksimum fail (MB)</Label>
           <Input type="number" min="1" max="50" value={maxUpload} onChange={(e) => setMaxUpload(e.target.value)} />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Memerlukan kemas kini konfigurasi Next.js dan restart app di Coolify.
           </p>
         </CardContent>

@@ -76,7 +76,7 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           Hujung minggu Terengganu (Jumaat + Sabtu) dikecualikan secara automatik.
           Tambah cuti umum di bawah.
         </p>
@@ -84,7 +84,7 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
         {/* Import from API */}
         <div className="flex gap-2 items-end border border-primary/20 bg-success/5 rounded-lg p-3">
           <div>
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tahun</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Tahun</Label>
             <select
               value={importYear}
               onChange={(e) => setImportYear(Number(e.target.value))}
@@ -111,11 +111,11 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
         {/* Add form */}
         <div className="flex gap-2 items-end">
           <div className="flex-1">
-            <Label className="text-xs text-gray-500 mb-1.5 block">Tarikh</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Tarikh</Label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="flex-[2]">
-            <Label className="text-xs text-gray-500 mb-1.5 block">Nama Cuti</Label>
+            <Label className="text-xs text-muted-foreground mb-1.5 block">Nama Cuti</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -139,13 +139,13 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
           .sort(([a], [b]) => Number(b) - Number(a))
           .map(([year, rows]) => (
             <div key={year}>
-              <p className="text-xs font-semibold text-gray-500 mb-2">{year}</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-2">{year}</p>
               <div className="space-y-1">
                 {rows
                   .sort((a, b) => a.date.localeCompare(b.date))
                   .map((h) => (
-                    <div key={h.id} className="flex items-center justify-between text-sm py-1 px-2 rounded hover:bg-gray-50">
-                      <span className="text-gray-500 w-28 shrink-0">{h.date}</span>
+                    <div key={h.id} className="flex items-center justify-between text-sm py-1 px-2 rounded hover:bg-accent">
+                      <span className="text-muted-foreground w-28 shrink-0">{h.date}</span>
                       <span className="flex-1">{h.name}</span>
                       <button
                         onClick={() => handleDelete(h.id)}
@@ -162,7 +162,7 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
           ))}
 
         {holidays.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-4">Tiada cuti umum.</p>
+          <p className="text-xs text-muted-foreground text-center py-4">Tiada cuti umum.</p>
         )}
       </CardContent>
     </Card>

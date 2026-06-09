@@ -39,7 +39,7 @@ export function AllocationSettings({ defaultLimit: initial }: { defaultLimit: nu
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label className="text-xs text-gray-500 mb-1.5 block">
+          <Label className="text-xs text-muted-foreground mb-1.5 block">
             Had lalai peruntukan tahunan (RM)
           </Label>
           <Input
@@ -49,7 +49,7 @@ export function AllocationSettings({ defaultLimit: initial }: { defaultLimit: nu
             value={limit}
             onChange={(e) => setLimit(e.target.value)}
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Peruntukan ini digunakan apabila tiada had khas ditetapkan untuk pengguna.
             Reset automatik setiap 1 Januari.
           </p>

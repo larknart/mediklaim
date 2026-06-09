@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,7 +29,7 @@ export default async function NotifikasiPage() {
       <Card>
         <CardContent className="p-0">
           {notifications.length === 0 ? (
-            <div className="py-12 text-center text-gray-400">
+            <div className="py-12 text-center text-muted-foreground">
               <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>Tiada notifikasi.</p>
             </div>

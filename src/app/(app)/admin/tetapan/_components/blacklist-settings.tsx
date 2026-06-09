@@ -67,7 +67,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Item resit yang mengandungi keyword ini akan auto-flagged sebagai tidak layak semasa semakan kewangan.
           </p>
           <div className="flex gap-2">
@@ -94,7 +94,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
             {initial.map((kw) => (
               <div key={kw.id} className="flex items-center gap-2 p-2 rounded bg-red-50 border border-red-100">
                 <span className="flex-1 text-sm font-mono text-red-700">{kw.keyword}</span>
-                {kw.reason && <span className="text-xs text-gray-500">{kw.reason}</span>}
+                {kw.reason && <span className="text-xs text-muted-foreground">{kw.reason}</span>}
                 <Button
                   variant="ghost"
                   size="icon"

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,7 @@ function ResultSection({
   return (
     <div>
       <div className="px-4 py-1.5 flex items-center gap-2">
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">
           {title} ({items.length})
         </span>
         {adminOnly && (
@@ -50,11 +50,11 @@ function ResultSection({
                 {item.status}
               </span>
             )}
-            <span className="text-xs font-semibold text-gray-800 truncate">
+            <span className="text-xs font-semibold text-foreground truncate">
               {item.label}
             </span>
           </div>
-          <p className="text-[11px] text-gray-500 truncate">{item.sublabel}</p>
+          <p className="text-[11px] text-muted-foreground truncate">{item.sublabel}</p>
         </button>
       ))}
     </div>
@@ -175,14 +175,14 @@ export function GlobalSearch() {
       <div className="relative flex-1 max-w-[500px]">
         <div
           className={cn(
-            "flex items-center gap-2 bg-gray-50 border rounded-lg h-9 px-3 transition-colors",
+            "flex items-center gap-2 bg-muted/50 border rounded-lg h-9 px-3 transition-colors",
             panelOpen ? "border-primary" : "border-border focus-within:border-primary"
           )}
         >
           {loading ? (
-            <Loader2 className="w-4 h-4 text-gray-400 animate-spin flex-shrink-0" />
+            <Loader2 className="w-4 h-4 text-muted-foreground animate-spin flex-shrink-0" />
           ) : (
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           )}
           <input
             ref={inputRef}
@@ -190,14 +190,14 @@ export function GlobalSearch() {
             value={query}
             onChange={(e) => handleChange(e.target.value)}
             placeholder="Cari tuntutan, resit, pengguna..."
-            className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 outline-none"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           {query ? (
             <button onClick={clearSearch} aria-label="Kosongkan carian" className="flex-shrink-0 p-0.5">
-              <X className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600" />
+              <X className="w-3.5 h-3.5 text-muted-foreground hover:text-muted-foreground" />
             </button>
           ) : (
-            <kbd className="flex-shrink-0 text-xs text-gray-400 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 font-sans">
+            <kbd className="flex-shrink-0 text-xs text-muted-foreground bg-muted border border-border rounded px-1.5 py-0.5 font-sans">
               Ctrl+K
             </kbd>
           )}
@@ -218,17 +218,17 @@ export function GlobalSearch() {
         <div
           role="region"
           aria-label="Keputusan carian"
-          className="fixed right-0 top-14 bottom-0 w-full sm:w-[320px] z-30 bg-white border-l border-gray-200 shadow-xl flex flex-col"
+          className="fixed right-0 top-14 bottom-0 w-full sm:w-[320px] z-30 bg-white border-l border-border shadow-xl flex flex-col"
         >
           {/* Panel header */}
-          <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-600 truncate">
+          <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground truncate">
               Keputusan: &quot;{query}&quot;
             </span>
             <button
               onClick={clearSearch}
               aria-label="Tutup panel carian"
-              className="text-xs text-gray-400 hover:text-gray-600 bg-gray-100 rounded px-1.5 py-0.5 flex-shrink-0"
+              className="text-xs text-muted-foreground hover:text-muted-foreground bg-muted rounded px-1.5 py-0.5 flex-shrink-0"
             >
               ESC ✕
             </button>
@@ -240,7 +240,7 @@ export function GlobalSearch() {
               <p className="text-sm text-red-500 text-center py-8 px-4">{error}</p>
             )}
             {!error && results && !hasResults && (
-              <p className="text-sm text-gray-400 text-center py-8 px-4">
+              <p className="text-sm text-muted-foreground text-center py-8 px-4">
                 Tiada keputusan untuk &quot;{query}&quot;
               </p>
             )}
@@ -273,8 +273,8 @@ export function GlobalSearch() {
           </div>
 
           {/* Panel footer */}
-          <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
-            <p className="text-xs text-gray-400 text-center">
+          <div className="px-4 py-2 border-t border-border bg-muted/50">
+            <p className="text-xs text-muted-foreground text-center">
               Klik result untuk navigate · ESC untuk tutup
             </p>
           </div>

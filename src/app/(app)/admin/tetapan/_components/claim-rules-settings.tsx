@@ -65,7 +65,7 @@ export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label className="text-xs text-gray-500 mb-1.5 block">
+          <Label className="text-xs text-muted-foreground mb-1.5 block">
             Had hari hantar tuntutan (selepas bulan berakhir)
           </Label>
           <Input
@@ -75,12 +75,12 @@ export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths
             value={cutoffDays}
             onChange={(e) => setCutoffDays(e.target.value)}
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Contoh: 45 = tuntutan Januari mesti dihantar sebelum 17 Mac.
           </p>
         </div>
         <div>
-          <Label className="text-xs text-gray-500 mb-1.5 block">
+          <Label className="text-xs text-muted-foreground mb-1.5 block">
             Had umur resit (bulan)
           </Label>
           <Input
@@ -90,7 +90,7 @@ export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths
             value={maxAge}
             onChange={(e) => setMaxAge(e.target.value)}
           />
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Resit lebih lama dari had ini tidak diterima dalam tuntutan.
           </p>
         </div>
@@ -101,25 +101,25 @@ export function ClaimRulesSettings({ cutoffDays: initCutoff, receiptMaxAgeMonths
           />
           <div>
             <span className="text-sm font-medium">Peruntukan pro-rata</span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Kakitangan yang mula berkhidmat pertengahan tahun mendapat peruntukan mengikut baki bulan.
             </p>
           </div>
         </label>
         <div>
-          <p className="text-xs font-medium text-gray-600 mb-2">Had SLA (hari bekerja)</p>
-          <p className="text-xs text-gray-400 mb-3">Amaran kuning ≥ 75% had, merah apabila melepasi had.</p>
+          <p className="text-xs font-medium text-muted-foreground mb-2">Had SLA (hari bekerja)</p>
+          <p className="text-xs text-muted-foreground mb-3">Amaran kuning ≥ 75% had, merah apabila melepasi had.</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Sokongan (HEAD)</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Sokongan (HEAD)</Label>
               <Input type="number" min="1" max="30" value={slaHead} onChange={(e) => setSlaHead(e.target.value)} />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Kewangan</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Kewangan</Label>
               <Input type="number" min="1" max="30" value={slaFinance} onChange={(e) => setSlaFinance(e.target.value)} />
             </div>
             <div>
-              <Label className="text-xs text-gray-500 mb-1.5 block">Kelulusan</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">Kelulusan</Label>
               <Input type="number" min="1" max="30" value={slaApprover} onChange={(e) => setSlaApprover(e.target.value)} />
             </div>
           </div>
