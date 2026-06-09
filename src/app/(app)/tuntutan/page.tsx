@@ -1,33 +1,49 @@
-﻿import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import Link from "next/link";
-import { ClaimStatus } from "@/generated/prisma";
 import { FileText, Plus } from "lucide-react";
 import { CLAIM_STATUS_CONFIG } from "@/lib/claim-status";
 
 const MONTHS_BM = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
+const PAGE_SIZE = 20;
 
-export default async function TuntutanPage() {
+export default async function TuntutanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const claims = await prisma.claim.findMany({
-    where: { claimantId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    include: { receipts: true, approvals: true },
-    take: 200,
-  });
+  const sp = await searchParams;
+  const page = Math.max(1, parseInt(sp.page ?? "1"));
+
+  const where = { claimantId: session.user.id };
+
+  const [claims, total] = await Promise.all([
+    prisma.claim.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { receipts: true } } },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.claim.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Tuntutan Saya</h1>
-          <p className="text-gray-500 text-sm mt-1">Semua tuntutan perubatan anda</p>
+          <p className="text-gray-500 text-sm mt-1">{total} tuntutan</p>
         </div>
         <Button asChild>
           <Link href="/tuntutan/baru">
@@ -39,7 +55,7 @@ export default async function TuntutanPage() {
 
       <Card>
         <CardContent className="p-0">
-          {claims.length === 0 ? (
+          {total === 0 ? (
             <div className="py-12 text-center text-gray-400">
               <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p>Tiada tuntutan lagi.</p>
@@ -64,7 +80,7 @@ export default async function TuntutanPage() {
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{claim.refNo}</p>
                       <p className="text-xs text-gray-500">
-                        {month} {claim.forYear} · {claim.receipts.length} resit · RM {Number(claim.totalClaimedMyr).toFixed(2)}
+                        {month} {claim.forYear} · {claim._count.receipts} resit · RM {Number(claim.totalClaimedMyr).toFixed(2)}
                       </p>
                     </div>
                     <Badge variant={s.variant}>{s.label}</Badge>
@@ -75,6 +91,12 @@ export default async function TuntutanPage() {
           )}
         </CardContent>
       </Card>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        buildHref={(p) => `?page=${p}`}
+      />
     </div>
   );
 }
