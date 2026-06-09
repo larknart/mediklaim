@@ -8,6 +8,7 @@ import { Download } from "lucide-react";
 import { AuditFilter } from "./_components/audit-filter";
 import { buildAuditWhere } from "./_lib/build-where";
 import { Pagination } from "@/components/ui/pagination";
+import { PageHeader } from "@/components/page-header";
 
 const ACTION_COLORS: Record<string, string> = {
   LOGIN: "bg-blue-50 text-blue-700",
@@ -81,18 +82,18 @@ export default async function AuditPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Log Audit</h1>
-          <p className="text-gray-500 text-sm mt-1">{total.toLocaleString()} rekod</p>
-        </div>
-        <Button asChild variant="outline" size="sm">
-          <a href={`/api/admin/audit/export?${exportParams}`}>
-            <Download className="w-4 h-4 mr-2" />
-            Export CSV
-          </a>
-        </Button>
-      </div>
+      <PageHeader
+        title="Log Audit"
+        subtitle={`${total.toLocaleString()} rekod`}
+        actions={
+          <Button asChild variant="outline" size="sm">
+            <a href={`/api/admin/audit/export?${exportParams}`}>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </a>
+          </Button>
+        }
+      />
 
       <AuditFilter
         filterAction={filterAction}

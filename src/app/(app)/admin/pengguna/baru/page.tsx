@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/permissions";
 import { getPasswordPolicy } from "@/lib/password-policy-server";
 import { UserForm } from "../_components/user-form";
 import { BackButton } from "@/components/back-button";
+import { PageHeader } from "@/components/page-header";
 
 export default async function NewUserPage() {
   const session = await auth();
@@ -18,10 +19,7 @@ export default async function NewUserPage() {
   return (
     <div className="max-w-lg space-y-6">
       <BackButton />
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Tambah Pengguna</h1>
-        <p className="text-gray-500 text-sm mt-1">Cipta akaun kakitangan baru</p>
-      </div>
+      <PageHeader title="Tambah Pengguna" subtitle="Cipta akaun kakitangan baru" />
       <UserForm departments={departments} policy={policy} />
     </div>
   );

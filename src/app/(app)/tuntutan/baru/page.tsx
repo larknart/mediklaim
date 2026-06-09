@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ReceiptStatus, Decision } from "@/generated/prisma";
 import { NewClaimForm } from "./_components/new-claim-form";
 import { BackButton } from "@/components/back-button";
+import { PageHeader } from "@/components/page-header";
 
 type ResubmitContext = {
   claimId: string;
@@ -67,16 +68,10 @@ export default async function BuatTuntutanPage({
   return (
     <div className="space-y-6 max-w-2xl">
       <BackButton />
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {resubmitContext ? "Hantar Semula Tuntutan" : "Buat Tuntutan Baru"}
-        </h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {resubmitContext
-            ? `Resubmit dari ${resubmitContext.refNo}`
-            : "Pilih resit dan hantar tuntutan"}
-        </p>
-      </div>
+      <PageHeader
+        title={resubmitContext ? "Hantar Semula Tuntutan" : "Buat Tuntutan Baru"}
+        subtitle={resubmitContext ? `Resubmit dari ${resubmitContext.refNo}` : "Pilih resit dan hantar tuntutan"}
+      />
       <NewClaimForm
         receipts={unsortedReceipts.map((r) => ({
           ...r,

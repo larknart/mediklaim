@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { FileText, CheckSquare } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 export default async function SokonganPage() {
   const session = await auth();
@@ -25,10 +26,7 @@ export default async function SokonganPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Sokongan Ketua Jabatan</h1>
-        <p className="text-gray-500 text-sm mt-1">{claims.length} tuntutan menunggu sokongan</p>
-      </div>
+      <PageHeader title="Sokongan Ketua Jabatan" subtitle={`${claims.length} tuntutan menunggu sokongan`} />
 
       <Card>
         <CardContent className="p-0">

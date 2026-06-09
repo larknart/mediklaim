@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LaporanFilter } from "./_components/laporan-filter";
+import { PageHeader } from "@/components/page-header";
 import { LaporanTable } from "./_components/laporan-table";
 import type { LaporanClaimItem } from "./_components/laporan-table";
 
@@ -62,26 +63,26 @@ export default async function LaporanPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Laporan</h1>
-          <p className="text-gray-500 text-sm mt-1">{claims.length} tuntutan</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <a href={`/api/laporan/pdf?${exportParams}`}>
-              <FileText className="w-4 h-4 mr-2" />
-              PDF
-            </a>
-          </Button>
-          <Button className="" asChild>
-            <a href={`/api/laporan/excel?${exportParams}`}>
-              <Download className="w-4 h-4 mr-2" />
-              Excel
-            </a>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Laporan"
+        subtitle={`${claims.length} tuntutan`}
+        actions={
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <a href={`/api/laporan/pdf?${exportParams}`}>
+                <FileText className="w-4 h-4 mr-2" />
+                PDF
+              </a>
+            </Button>
+            <Button asChild>
+              <a href={`/api/laporan/excel?${exportParams}`}>
+                <Download className="w-4 h-4 mr-2" />
+                Excel
+              </a>
+            </Button>
+          </div>
+        }
+      />
 
       <LaporanFilter
         currentYear={currentYear}

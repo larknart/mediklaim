@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/permissions";
 import { DelegationList } from "./_components/delegation-list";
 import type { DelegationRow, UserOption } from "./_components/delegation-list";
 import { BackButton } from "@/components/back-button";
+import { PageHeader } from "@/components/page-header";
 
 export default async function DelegasiPage() {
   const session = await auth();
@@ -47,10 +48,7 @@ export default async function DelegasiPage() {
   return (
     <div className="max-w-lg space-y-6">
       <BackButton />
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Delegasi Kelulusan</h1>
-        <p className="text-gray-500 text-sm mt-1">Urus pelantikan penjawab semasa cuti</p>
-      </div>
+      <PageHeader title="Delegasi Kelulusan" subtitle="Urus pelantikan penjawab semasa cuti" />
       <DelegationList delegations={rows} users={userOptions} />
     </div>
   );

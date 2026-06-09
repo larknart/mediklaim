@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { isFinance } from "@/lib/permissions";
 import { ClaimStatus } from "@/generated/prisma";
 import { SemukanClient } from "./_components/semakan-client";
+import { PageHeader } from "@/components/page-header";
 
 export default async function SemulaPage() {
   const session = await auth();
@@ -26,12 +27,10 @@ export default async function SemulaPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Semakan Kewangan</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          {reviewClaims.length} menunggu semakan · {approvedClaims.length} menunggu pembayaran
-        </p>
-      </div>
+      <PageHeader
+        title="Semakan Kewangan"
+        subtitle={`${reviewClaims.length} menunggu semakan · ${approvedClaims.length} menunggu pembayaran`}
+      />
       <SemukanClient
         reviewClaims={reviewClaims.map((c) => ({
           id: c.id,

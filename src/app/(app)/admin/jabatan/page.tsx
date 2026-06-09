@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/permissions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2 } from "lucide-react";
 import { DeptManager } from "./_components/dept-manager";
+import { PageHeader } from "@/components/page-header";
 
 export default async function JabatanPage() {
   const session = await auth();
@@ -30,10 +31,7 @@ export default async function JabatanPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Jabatan</h1>
-        <p className="text-gray-500 text-sm mt-1">{departments.length} jabatan</p>
-      </div>
+      <PageHeader title="Jabatan" subtitle={`${departments.length} jabatan`} />
       <DeptManager
         departments={departments.map((d) => ({
           id: d.id,

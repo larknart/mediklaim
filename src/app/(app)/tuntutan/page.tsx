@@ -8,6 +8,7 @@ import { Pagination } from "@/components/ui/pagination";
 import Link from "next/link";
 import { FileText, Plus } from "lucide-react";
 import { CLAIM_STATUS_CONFIG } from "@/lib/claim-status";
+import { PageHeader } from "@/components/page-header";
 
 const MONTHS_BM = ["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
 const PAGE_SIZE = 20;
@@ -40,18 +41,18 @@ export default async function TuntutanPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tuntutan Saya</h1>
-          <p className="text-gray-500 text-sm mt-1">{total} tuntutan</p>
-        </div>
-        <Button asChild>
-          <Link href="/tuntutan/baru">
-            <Plus className="w-4 h-4 mr-2" />
-            Buat Tuntutan
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Tuntutan Saya"
+        subtitle={`${total} tuntutan`}
+        actions={
+          <Button asChild>
+            <Link href="/tuntutan/baru">
+              <Plus className="w-4 h-4 mr-2" />
+              Buat Tuntutan
+            </Link>
+          </Button>
+        }
+      />
 
       <Card>
         <CardContent className="p-0">

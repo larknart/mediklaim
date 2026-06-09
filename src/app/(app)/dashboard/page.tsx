@@ -15,6 +15,7 @@ import { FileText, AlertCircle, Plus, Timer } from "lucide-react";
 import { computeSla } from "@/lib/sla";
 import { CLAIM_STATUS_CONFIG } from "@/lib/claim-status";
 import { Progress } from "@/components/ui/progress";
+import { PageHeader } from "@/components/page-header";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -218,10 +219,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Papan Pemuka</h1>
-        <p className="text-gray-500 text-sm mt-1">Selamat datang, {session.user.name}</p>
-      </div>
+      <PageHeader title="Papan Pemuka" subtitle={`Selamat datang, ${session.user.name}`} />
 
       {/* SLA overdue alert banner — role-aware */}
       {overdueTotal > 0 && (

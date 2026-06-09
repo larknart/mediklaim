@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { ReceiptInbox } from "./_components/receipt-inbox";
+import { PageHeader } from "@/components/page-header";
 import { ExtractionStatus, ReceiptStatus } from "@/generated/prisma";
 
 export default async function ResitPage() {
@@ -30,12 +31,7 @@ export default async function ResitPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Resit Saya</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Upload dan simpan resit di sini sebelum buat tuntutan.
-        </p>
-      </div>
+      <PageHeader title="Resit Saya" subtitle="Upload dan simpan resit di sini sebelum buat tuntutan." />
       <ReceiptInbox receipts={serialized} />
     </div>
   );

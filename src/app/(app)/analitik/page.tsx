@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Role } from "@/generated/prisma";
 import { AnalitikFilters } from "./_components/analitik-filters";
+import { PageHeader } from "@/components/page-header";
 import type { AllChartsData, MonthlyTrendRow } from "@/app/api/charts/all/route";
 
 const MGMT_ROLES: Role[] = [Role.HEAD, Role.FINANCE, Role.APPROVER, Role.YDP, Role.ADMIN];
@@ -124,12 +125,7 @@ export default async function AnalitikPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Analitik Tuntutan</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Data dikemaskini setiap 60 saat secara automatik
-        </p>
-      </div>
+      <PageHeader title="Analitik Tuntutan" subtitle="Data dikemaskini setiap 60 saat secara automatik" />
 
       <AnalitikFilters
         initialData={initialData}

@@ -9,6 +9,7 @@ import { TotpSection } from "./_components/totp-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Lock, Phone, ShieldCheck, AlertTriangle } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
 
 export default async function ProfilPage({
   searchParams,
@@ -43,10 +44,7 @@ export default async function ProfilPage({
 
   return (
     <div className="space-y-6 max-w-lg">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profil Saya</h1>
-        <p className="text-gray-500 text-sm mt-1">Maklumat akaun dan keselamatan</p>
-      </div>
+      <PageHeader title="Profil Saya" subtitle="Maklumat akaun dan keselamatan" />
 
       {isExpired && (
         <Alert className="border-amber-300 bg-amber-50">

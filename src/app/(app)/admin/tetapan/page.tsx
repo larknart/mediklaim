@@ -16,6 +16,7 @@ import { SistemSettings } from "./_components/sistem-settings";
 import { RefNoSettings } from "./_components/refno-settings";
 import { getSystemStats } from "@/server/actions/admin";
 import { getRefNoPreview } from "@/lib/refno";
+import { PageHeader } from "@/components/page-header";
 
 export default async function TetapanPage() {
   const session = await auth();
@@ -37,10 +38,7 @@ export default async function TetapanPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Tetapan Sistem</h1>
-        <p className="text-gray-500 text-sm mt-1">Konfigurasi sistem MediKlaim</p>
-      </div>
+      <PageHeader title="Tetapan Sistem" subtitle="Konfigurasi sistem MediKlaim" />
 
       <Tabs defaultValue="am">
         <TabsList className="flex flex-wrap h-auto gap-1 justify-start">

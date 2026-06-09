@@ -9,6 +9,7 @@ import { Users, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { UserActions } from "./_components/user-actions";
 import { Pagination } from "@/components/ui/pagination";
+import { PageHeader } from "@/components/page-header";
 
 const ROLE_LABELS: Record<string, string> = {
   CLAIMANT: "Kakitangan",
@@ -46,18 +47,18 @@ export default async function PenggunaPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pengguna</h1>
-          <p className="text-gray-500 text-sm mt-1">{total} pengguna terdaftar</p>
-        </div>
-        <Button asChild>
-          <Link href="/admin/pengguna/baru">
-            <UserPlus className="w-4 h-4 mr-2" />
-            Tambah Pengguna
-          </Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Pengguna"
+        subtitle={`${total} pengguna terdaftar`}
+        actions={
+          <Button asChild>
+            <Link href="/admin/pengguna/baru">
+              <UserPlus className="w-4 h-4 mr-2" />
+              Tambah Pengguna
+            </Link>
+          </Button>
+        }
+      />
 
       <Card>
         <CardContent className="p-0">

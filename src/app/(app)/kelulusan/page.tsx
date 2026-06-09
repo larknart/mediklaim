@@ -5,6 +5,7 @@ import { isApprover, isYdp } from "@/lib/permissions";
 import { ClaimStatus } from "@/generated/prisma";
 import { KelulusanList } from "./_components/kelulusan-list";
 import type { ClaimRow } from "./_components/kelulusan-list";
+import { PageHeader } from "@/components/page-header";
 
 export default async function KelulusanPage() {
   const session = await auth();
@@ -34,10 +35,7 @@ export default async function KelulusanPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Kelulusan</h1>
-        <p className="text-gray-500 text-sm mt-1">{claims.length} tuntutan</p>
-      </div>
+      <PageHeader title="Kelulusan" subtitle={`${claims.length} tuntutan`} />
       <KelulusanList claims={rows} />
     </div>
   );

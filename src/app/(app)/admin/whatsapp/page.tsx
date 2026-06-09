@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
+import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WaStatus } from "@/generated/prisma";
@@ -49,10 +50,10 @@ export default async function WhatsAppOutboxPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Outbox WhatsApp</h1>
-        <p className="text-gray-500 text-sm mt-1">{total} mesej {filterStatus ? filterStatus.toLowerCase() : "keseluruhan"}</p>
-      </div>
+      <PageHeader
+        title="Outbox WhatsApp"
+        subtitle={`${total} mesej ${filterStatus ? filterStatus.toLowerCase() : "keseluruhan"}`}
+      />
 
       {/* Status filter tabs */}
       <div className="flex gap-2 flex-wrap">

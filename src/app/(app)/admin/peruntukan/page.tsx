@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
 import { getDefaultAnnualLimit } from "@/lib/allocation";
 import { AllocationTable } from "./_components/allocation-table";
+import { PageHeader } from "@/components/page-header";
 
 export default async function PeruntukanPage({
   searchParams,
@@ -45,13 +46,10 @@ export default async function PeruntukanPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Pengurusan Peruntukan</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Kemaskini had dan jumlah telah guna bagi setiap staf. Berguna untuk rollout
-          pertengahan tahun atau pelarasan manual.
-        </p>
-      </div>
+      <PageHeader
+        title="Pengurusan Peruntukan"
+        subtitle="Kemaskini had dan jumlah telah guna bagi setiap staf. Berguna untuk rollout pertengahan tahun atau pelarasan manual."
+      />
 
       <AllocationTable
         rows={rows}
