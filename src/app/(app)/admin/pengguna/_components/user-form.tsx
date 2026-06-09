@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -205,7 +205,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
         <Button
           onClick={submit}
           disabled={isPending}
-          className="w-full bg-green-700 hover:bg-green-800"
+          className="w-full"
         >
           {isPending ? "Menyimpan..." : user ? "Kemaskini Pengguna" : "Cipta Pengguna"}
         </Button>

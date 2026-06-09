@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -77,7 +77,7 @@ export function ApproverPanel({
         {totalEligibleMyr != null && (
           <div className="flex items-center justify-between text-sm p-2 bg-white rounded border">
             <span className="text-gray-600">Jumlah layak:</span>
-            <span className="font-semibold text-green-700">RM {totalEligibleMyr.toFixed(2)}</span>
+            <span className="font-semibold text-primary">RM {totalEligibleMyr.toFixed(2)}</span>
           </div>
         )}
 
@@ -153,7 +153,7 @@ export function ApproverPanel({
               <Button
                 onClick={() => submit("APPROVED")}
                 disabled={isPending}
-                className="flex-1 bg-green-700 hover:bg-green-800"
+                className="flex-1"
               >
                 {isPending && pendingDecision === "APPROVED" ? "Memproses..." : "Lulus"}
               </Button>

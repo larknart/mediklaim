@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -116,7 +116,7 @@ export function DelegationList({ delegations, users }: Props) {
         <Button
           size="sm"
           onClick={() => setShowForm((v) => !v)}
-          className="bg-green-700 hover:bg-green-800"
+          className=""
         >
           <Plus className="w-4 h-4 mr-1" />
           Tambah Delegasi
@@ -124,7 +124,7 @@ export function DelegationList({ delegations, users }: Props) {
       </div>
 
       {showForm && (
-        <Card className="border-green-200">
+        <Card className="border-primary/20">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm">Delegasi Baru</CardTitle>
           </CardHeader>
@@ -185,7 +185,7 @@ export function DelegationList({ delegations, users }: Props) {
               <Button variant="ghost" size="sm" onClick={() => { setShowForm(false); setError(""); }}>
                 Batal
               </Button>
-              <Button size="sm" onClick={handleCreate} disabled={isPending} className="bg-green-700 hover:bg-green-800">
+              <Button size="sm" onClick={handleCreate} disabled={isPending} className="">
                 {isPending ? "Menyimpan..." : "Simpan"}
               </Button>
             </div>
@@ -202,7 +202,7 @@ export function DelegationList({ delegations, users }: Props) {
       ) : (
         <div className="space-y-2">
           {delegations.map((d) => (
-            <Card key={d.id} className={d.isActive ? "border-green-200" : ""}>
+            <Card key={d.id} className={d.isActive ? "border-primary/20" : ""}>
               <CardContent className="p-3">
                 <div className="flex items-center gap-3">
                   <CalendarRange className="w-4 h-4 text-gray-400 shrink-0" />
@@ -217,7 +217,7 @@ export function DelegationList({ delegations, users }: Props) {
                     </p>
                   </div>
                   {d.isActive && (
-                    <Badge className="bg-green-100 text-green-700 text-xs shrink-0">Aktif</Badge>
+                    <Badge className="bg-primary/10 text-primary text-xs shrink-0">Aktif</Badge>
                   )}
                   <button
                     onClick={() => setDeleteId(d.id)}

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect, notFound } from "next/navigation";
@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, FileText, Calendar, Building2, User, Clock, RotateCcw, Download, ExternalLink } from "lucide-react";
+import { CLAIM_STATUS_CONFIG } from "@/lib/claim-status";
 import { HeadPanel } from "./_components/head-panel";
 import { FinancePanel } from "./_components/finance-panel";
 import { ApproverPanel } from "./_components/approver-panel";
@@ -30,16 +31,6 @@ function claimForLabel(claimFor: string, childNo: number | null): string {
   return "Diri Sendiri";
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  DRAFT:            { label: "Draf",               color: "bg-gray-100 text-gray-700" },
-  SUBMITTED:        { label: "Menunggu Sokongan",  color: "bg-blue-100 text-blue-700" },
-  HEAD_APPROVED:    { label: "Menunggu Kewangan",  color: "bg-yellow-100 text-yellow-700" },
-  FINANCE_REVIEWED: { label: "Menunggu Kelulusan", color: "bg-purple-100 text-purple-700" },
-  APPROVED:         { label: "Diluluskan",         color: "bg-green-100 text-green-700" },
-  REJECTED:         { label: "Ditolak",            color: "bg-red-100 text-red-700" },
-  PAID:             { label: "Dibayar",            color: "bg-emerald-100 text-emerald-700" },
-  WITHDRAWN:        { label: "Tarik Balik",        color: "bg-gray-100 text-gray-500" },
-};
 
 export default async function ClaimDetailPage({
   params,
@@ -84,7 +75,7 @@ export default async function ClaimDetailPage({
     redirect("/dashboard");
   }
 
-  const statusCfg = STATUS_CONFIG[claim.status] ?? STATUS_CONFIG.DRAFT;
+  const statusCfg = CLAIM_STATUS_CONFIG[claim.status as keyof typeof CLAIM_STATUS_CONFIG] ?? CLAIM_STATUS_CONFIG.DRAFT;
   const isOwner = claim.claimantId === user.id;
   const canWithdraw = isOwner && claim.status === ClaimStatus.SUBMITTED;
   const resubmission = claim.resubmissions[0] ?? null;
@@ -150,7 +141,7 @@ export default async function ClaimDetailPage({
     <div className="space-y-4 pb-10">
       <BackButton />
       {sp.submitted === "1" && (
-        <Alert className="border-green-300 bg-green-50 text-green-800">
+        <Alert className="border-primary/30 bg-success/5 text-primary">
           <CheckCircle2 className="h-4 w-4" />
           <AlertDescription>
             Tuntutan berjaya dihantar. Ketua Jabatan akan menyemak tuntutan anda.
@@ -167,7 +158,7 @@ export default async function ClaimDetailPage({
                 <p className="text-xs text-gray-500">{claim.refNo}</p>
                 <a
                   href={`/api/tuntutan/${claim.id}/pdf`}
-                  className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-green-700 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-primary transition-colors"
                   title="Muat turun PDF"
                 >
                   <Download className="w-3 h-3" />
@@ -191,9 +182,9 @@ export default async function ClaimDetailPage({
               </div>
             </div>
             <div className="flex flex-col items-end gap-1 shrink-0">
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusCfg.color}`}>
+              <Badge variant={statusCfg.variant}>
                 {statusCfg.label}
-              </span>
+              </Badge>
               {slaInfo && <SlaBadge step={slaInfo.step} sla={slaInfo} />}
             </div>
           </div>
@@ -217,7 +208,7 @@ export default async function ClaimDetailPage({
             </div>
             <div>
               <p className="text-gray-500">Diluluskan</p>
-              <p className={`font-semibold text-sm mt-0.5 ${claim.totalApprovedMyr ? "text-green-700" : ""}`}>
+              <p className={`font-semibold text-sm mt-0.5 ${claim.totalApprovedMyr ? "text-primary" : ""}`}>
                 {claim.totalApprovedMyr != null
                   ? `RM ${Number(claim.totalApprovedMyr).toFixed(2)}`
                   : "—"}
@@ -325,7 +316,7 @@ export default async function ClaimDetailPage({
                       )}
                       Resit Asal
                     </a>
-                    <span className="font-semibold text-sm text-green-700">
+                    <span className="font-semibold text-sm text-primary">
                       RM {rTotal.toFixed(2)}
                     </span>
                   </div>
@@ -385,7 +376,7 @@ export default async function ClaimDetailPage({
                 const isApproved = apv.decision === "APPROVED" || apv.decision === "SKIPPED";
                 const isRejected = apv.decision === "REJECTED";
                 const dotColor = isApproved
-                  ? "bg-green-500"
+                  ? "bg-success/50"
                   : isRejected
                   ? "bg-red-500"
                   : "bg-gray-400";
@@ -405,7 +396,7 @@ export default async function ClaimDetailPage({
                     <div className={`absolute -left-4 top-1 w-2.5 h-2.5 rounded-full border-2 border-white ${dotColor}`} />
                     <p className="text-sm font-medium">
                       {stepLabel[apv.step] ?? apv.step}{" "}
-                      <span className={isRejected ? "text-red-600" : isApproved ? "text-green-700" : "text-gray-500"}>
+                      <span className={isRejected ? "text-red-600" : isApproved ? "text-primary" : "text-gray-500"}>
                         — {decisionLabel[apv.decision] ?? apv.decision}
                       </span>
                     </p>

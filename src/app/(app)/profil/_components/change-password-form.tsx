@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { changePassword } from "@/server/actions/profile";
@@ -107,7 +107,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
       )}
 
       {success && (
-        <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded p-3 border border-green-200">
+        <div className="flex items-center gap-2 text-sm text-primary bg-success/5 rounded p-3 border border-primary/20">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           Kata laluan berjaya ditukar.
         </div>
@@ -116,7 +116,7 @@ export function ChangePasswordForm({ policy }: { policy: PasswordPolicy }) {
       <Button
         type="submit"
         disabled={isPending}
-        className="w-full bg-green-700 hover:bg-green-800"
+        className="w-full"
       >
         {isPending ? "Menyimpan..." : "Tukar Kata Laluan"}
       </Button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -61,7 +61,7 @@ export function ResubmitButton({ claimId }: { claimId: string }) {
             <Button
               onClick={handleConfirm}
               disabled={isPending}
-              className="bg-green-700 hover:bg-green-800"
+              className=""
             >
               {isPending ? "Memproses..." : "Ya, Hantar Semula"}
             </Button>

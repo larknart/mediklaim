@@ -129,12 +129,12 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-          dragOver ? "border-green-500 bg-green-50" : "border-gray-200 hover:border-green-400"
+          dragOver ? "border-primary bg-success/5" : "border-gray-200 hover:border-primary/70"
         }`}
       >
         <div className="flex flex-col items-center gap-3">
           {uploading ? (
-            <Loader2 className="w-10 h-10 text-green-600 animate-spin" />
+            <Loader2 className="w-10 h-10 text-success animate-spin" />
           ) : (
             <Upload className="w-10 h-10 text-gray-300 hidden sm:block" />
           )}
@@ -150,7 +150,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
           <div className="flex gap-2 flex-wrap justify-center">
             {/* Camera first on mobile */}
             <label className="cursor-pointer order-first sm:order-last">
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50" asChild>
+              <Button variant="outline" className="border-primary/30 text-primary hover:bg-success/5" asChild>
                 <span>
                   <Camera className="w-4 h-4 mr-2" />
                   Snap Kamera
@@ -247,7 +247,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                           </div>
                         )}
                         {r.totalMyr && (
-                          <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                             <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
                             RM {r.totalMyr.toFixed(2)}
                           </div>

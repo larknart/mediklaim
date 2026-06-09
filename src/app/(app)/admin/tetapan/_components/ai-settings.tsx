@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -90,7 +90,7 @@ export function AiSettings(props: AiSettingsProps) {
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
-              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+              className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="manual">Manual (AI dimatikan)</option>
               <option value="ollama">Ollama (self-hosted)</option>
@@ -155,10 +155,10 @@ export function AiSettings(props: AiSettingsProps) {
             </div>
           </div>
 
-          {saved && <p className="text-xs text-green-600">Tetapan disimpan.</p>}
+          {saved && <p className="text-xs text-success">Tetapan disimpan.</p>}
           {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
 
-          <Button onClick={save} disabled={isPending} className="bg-green-700 hover:bg-green-800">
+          <Button onClick={save} disabled={isPending} className="">
             <Save className="w-4 h-4 mr-2" />
             {isPending ? "Menyimpan..." : "Simpan"}
           </Button>

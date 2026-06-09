@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -171,7 +171,7 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
 
         <div className="flex items-center justify-between p-3 bg-white rounded-lg border font-medium text-sm">
           <span>Jumlah layak:</span>
-          <span className="text-green-700">RM {eligibleTotal.toFixed(2)}</span>
+          <span className="text-primary">RM {eligibleTotal.toFixed(2)}</span>
         </div>
 
         <div>

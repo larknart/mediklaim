@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -40,9 +40,9 @@ export function GeneralSettings({ orgName: initial }: { orgName: string }) {
           <Label className="text-xs text-gray-500 mb-1.5 block">Nama Agensi</Label>
           <Input value={orgName} onChange={(e) => setOrgName(e.target.value)} />
         </div>
-        {saved && <p className="text-xs text-green-600">Tetapan disimpan.</p>}
+        {saved && <p className="text-xs text-success">Tetapan disimpan.</p>}
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-        <Button onClick={save} disabled={isPending} className="bg-green-700 hover:bg-green-800">
+        <Button onClick={save} disabled={isPending} className="">
           <Save className="w-4 h-4 mr-2" />
           {isPending ? "Menyimpan..." : "Simpan"}
         </Button>

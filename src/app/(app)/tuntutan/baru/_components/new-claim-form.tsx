@@ -171,9 +171,9 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
       </Card>
 
       {/* Limit info */}
-      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg text-sm">
+      <div className="flex items-center justify-between p-3 bg-success/5 rounded-lg text-sm">
         <span className="text-gray-600">Baki peruntukan {forYear}:</span>
-        <span className={`font-semibold ${remaining < 100 ? "text-red-600" : "text-green-700"}`}>
+        <span className={`font-semibold ${remaining < 100 ? "text-red-600" : "text-primary"}`}>
           RM {remaining.toFixed(2)} / RM {limit.toFixed(2)}
         </span>
       </div>
@@ -188,7 +188,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
             <div className="text-center py-6 text-gray-400">
               <FileText className="w-10 h-10 mx-auto mb-2 opacity-30" />
               <p className="text-sm">Tiada resit dalam inbox.</p>
-              <Button variant="link" onClick={() => router.push("/resit")} className="text-green-700">
+              <Button variant="link" onClick={() => router.push("/resit")} className="text-primary">
                 Upload resit dahulu →
               </Button>
             </div>
@@ -205,7 +205,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
                 <div
                   key={r.id}
                   className={`rounded-lg border transition-colors ${
-                    isSelected ? "border-green-500 bg-green-50" : "border-gray-200"
+                    isSelected ? "border-primary bg-success/5" : "border-gray-200"
                   }`}
                 >
                   <label className="flex items-center gap-3 p-3 cursor-pointer">
@@ -227,7 +227,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
                             {new Date(r.receiptDate).toLocaleDateString("ms-MY")}
                           </span>
                         )}
-                        <span className="text-xs font-semibold text-green-700">
+                        <span className="text-xs font-semibold text-primary">
                           RM {total.toFixed(2)}
                         </span>
                       </div>
@@ -270,11 +270,11 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
 
       {/* Summary + submit */}
       {selectedIds.size > 0 && (
-        <Card className={exceedsLimit ? "border-red-300 bg-red-50" : "border-green-300 bg-green-50"}>
+        <Card className={exceedsLimit ? "border-red-300 bg-red-50" : "border-primary/30 bg-success/5"}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="font-medium text-sm">Jumlah tuntutan:</span>
-              <span className={`text-lg font-bold ${exceedsLimit ? "text-red-700" : "text-green-700"}`}>
+              <span className={`text-lg font-bold ${exceedsLimit ? "text-red-700" : "text-primary"}`}>
                 RM {totalSelected.toFixed(2)}
               </span>
             </div>
@@ -297,7 +297,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
       <Button
         onClick={handleSubmit}
         disabled={isPending || selectedIds.size === 0}
-        className="w-full bg-green-700 hover:bg-green-800"
+        className="w-full"
         size="lg"
       >
         {isPending ? "Menghantar..." : "Hantar Tuntutan"}

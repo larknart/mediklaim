@@ -5,22 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SearchResponse, SearchResult } from "@/app/api/search/route";
-
-// ─── Status badge colour map ──────────────────────────────────────────────────
-
-const STATUS_COLORS: Record<string, string> = {
-  APPROVED:         "bg-green-100 text-green-700",
-  PAID:             "bg-green-100 text-green-700",
-  ARCHIVED:         "bg-green-100 text-green-700",
-  SUBMITTED:        "bg-yellow-100 text-yellow-700",
-  HEAD_APPROVED:    "bg-yellow-100 text-yellow-700",
-  FINANCE_REVIEWED: "bg-blue-100 text-blue-700",
-  REJECTED:         "bg-red-100 text-red-700",
-  WITHDRAWN:        "bg-gray-100 text-gray-500",
-  DRAFT:            "bg-gray-100 text-gray-500",
-  UNSORTED:         "bg-gray-100 text-gray-500",
-  ATTACHED:         "bg-gray-100 text-gray-500",
-};
+import { STATUS_PILL_CLASSES } from "@/lib/claim-status";
 
 // ─── Result section ───────────────────────────────────────────────────────────
 
@@ -52,14 +37,14 @@ function ResultSection({
         <button
           key={item.id}
           onClick={() => onSelect(item.link)}
-          className="w-full text-left px-4 py-2.5 hover:bg-green-50 border-b border-gray-50 transition-colors"
+          className="w-full text-left px-4 py-2.5 hover:bg-accent border-b border-border/40 transition-colors"
         >
           <div className="flex items-center gap-2 mb-0.5">
             {item.status && (
               <span
                 className={cn(
                   "text-[9px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0",
-                  STATUS_COLORS[item.status] ?? "bg-gray-100 text-gray-500"
+                  STATUS_PILL_CLASSES[item.status] ?? "bg-muted text-muted-foreground"
                 )}
               >
                 {item.status}
@@ -191,7 +176,7 @@ export function GlobalSearch() {
         <div
           className={cn(
             "flex items-center gap-2 bg-gray-50 border rounded-lg h-9 px-3 transition-colors",
-            panelOpen ? "border-green-700" : "border-gray-200 focus-within:border-green-700"
+            panelOpen ? "border-primary" : "border-border focus-within:border-primary"
           )}
         >
           {loading ? (

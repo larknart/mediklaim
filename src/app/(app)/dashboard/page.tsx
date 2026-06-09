@@ -11,19 +11,10 @@ import { ChartClaimStatus } from "./_components/chart-claim-status";
 import { ChartMiniMonthly } from "./_components/chart-mini-monthly";
 import { ChartMiniSystemStatus } from "./_components/chart-mini-system-status";
 import { ChartDeptBreakdown } from "./_components/chart-dept-breakdown";
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, Plus, Timer } from "lucide-react";
+import { FileText, AlertCircle, Plus, Timer } from "lucide-react";
 import { computeSla } from "@/lib/sla";
-
-const STATUS_LABELS: Record<ClaimStatus, { label: string; color: string }> = {
-  DRAFT:            { label: "Draf",              color: "secondary" },
-  SUBMITTED:        { label: "Dihantar",          color: "default" },
-  HEAD_APPROVED:    { label: "Sokong KJ",         color: "outline" },
-  FINANCE_REVIEWED: { label: "Semakan Kewangan",  color: "outline" },
-  APPROVED:         { label: "Diluluskan",        color: "default" },
-  REJECTED:         { label: "Ditolak",           color: "destructive" },
-  PAID:             { label: "Dibayar",           color: "default" },
-  WITHDRAWN:        { label: "Tarik Balik",       color: "secondary" },
-};
+import { CLAIM_STATUS_CONFIG } from "@/lib/claim-status";
+import { Progress } from "@/components/ui/progress";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -255,19 +246,24 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="flex items-end justify-between mb-2">
               <div>
-                <span className="text-3xl font-bold text-green-700">RM {remaining.toFixed(2)}</span>
-                <span className="text-gray-500 text-sm ml-2">baki</span>
+                <span className="text-3xl font-bold text-primary">RM {remaining.toFixed(2)}</span>
+                <span className="text-muted-foreground text-sm ml-2">baki</span>
               </div>
-              <span className={`text-sm font-medium ${usedPercent >= 90 ? "text-red-600" : usedPercent >= 70 ? "text-amber-600" : "text-green-600"}`}>
+              <span className={`text-sm font-medium ${usedPercent >= 90 ? "text-destructive" : usedPercent >= 70 ? "text-warning" : "text-success"}`}>
                 {usedPercent.toFixed(0)}% diguna
               </span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3">
-              <div
-                className={`h-3 rounded-full transition-all ${usedPercent >= 90 ? "bg-red-500" : usedPercent >= 70 ? "bg-amber-500" : "bg-green-500"}`}
-                style={{ width: `${usedPercent}%` }}
-              />
-            </div>
+            <Progress
+              value={usedPercent}
+              className="h-3"
+              indicatorClassName={
+                usedPercent >= 90
+                  ? "bg-destructive"
+                  : usedPercent >= 70
+                  ? "bg-warning"
+                  : "bg-success"
+              }
+            />
             {remaining < 200 && remaining > 0 && (
               <p className="text-amber-600 text-xs mt-2 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" /> Baki hampir habis. Peruntukan tidak boleh dibawa ke tahun hadapan.
@@ -298,8 +294,8 @@ export default async function DashboardPage() {
                   </Link>
                 )}
                 {pendingApprover > 0 && (
-                  <Link href="/kelulusan" className="flex items-center justify-between p-2 bg-green-50 rounded-lg hover:bg-green-100">
-                    <span className="text-sm text-green-800">Kelulusan</span>
+                  <Link href="/kelulusan" className="flex items-center justify-between p-2 bg-success/5 rounded-lg hover:bg-primary/10">
+                    <span className="text-sm text-primary">Kelulusan</span>
                     <Badge variant="default">{pendingApprover}</Badge>
                   </Link>
                 )}
@@ -311,7 +307,7 @@ export default async function DashboardPage() {
 
       {/* Quick actions */}
       <div className="flex gap-3 flex-wrap">
-        <Button asChild className="bg-green-700 hover:bg-green-800">
+        <Button asChild>
           <Link href="/resit">
             <Plus className="w-4 h-4 mr-2" />
             Upload Resit
@@ -338,7 +334,7 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-gray-700">
               Gambaran Sistem {currentYear}
             </h2>
-            <Link href="/analitik" className="text-xs text-green-700 hover:underline">
+            <Link href="/analitik" className="text-xs text-primary hover:underline">
               Lihat analitik penuh →
             </Link>
           </div>
@@ -376,23 +372,23 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {myClaims.map((claim) => {
-                const statusInfo = STATUS_LABELS[claim.status];
+                const statusInfo = CLAIM_STATUS_CONFIG[claim.status];
                 return (
                   <Link
                     key={claim.id}
                     href={`/tuntutan/${claim.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <FileText className="w-4 h-4 text-gray-400" />
+                      <FileText className="w-4 h-4 text-muted-foreground" />
                       <div>
                         <p className="text-sm font-medium">{claim.refNo}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           Bulan {claim.forMonth}/{claim.forYear} · RM {Number(claim.totalClaimedMyr).toFixed(2)}
                         </p>
                       </div>
                     </div>
-                    <Badge variant={statusInfo.color as "default" | "secondary" | "destructive" | "outline"}>
+                    <Badge variant={statusInfo.variant}>
                       {statusInfo.label}
                     </Badge>
                   </Link>
@@ -402,7 +398,7 @@ export default async function DashboardPage() {
           )}
           {myClaims.length > 0 && (
             <div className="mt-3 text-center">
-              <Link href="/tuntutan" className="text-sm text-green-700 hover:underline">
+              <Link href="/tuntutan" className="text-sm text-primary hover:underline">
                 Lihat semua tuntutan →
               </Link>
             </div>

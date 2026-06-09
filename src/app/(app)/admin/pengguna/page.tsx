@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Users, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { UserActions } from "./_components/user-actions";
+import { Pagination } from "@/components/ui/pagination";
 
 const ROLE_LABELS: Record<string, string> = {
   CLAIMANT: "Kakitangan",
@@ -50,7 +51,7 @@ export default async function PenggunaPage({
           <h1 className="text-2xl font-bold text-gray-900">Pengguna</h1>
           <p className="text-gray-500 text-sm mt-1">{total} pengguna terdaftar</p>
         </div>
-        <Button asChild className="bg-green-700 hover:bg-green-800">
+        <Button asChild>
           <Link href="/admin/pengguna/baru">
             <UserPlus className="w-4 h-4 mr-2" />
             Tambah Pengguna
@@ -69,7 +70,7 @@ export default async function PenggunaPage({
           <div className="divide-y">
             {users.map((user) => (
               <div key={user.id} className={`flex items-center gap-3 p-4 ${!user.isActive ? "opacity-50" : ""}`}>
-                <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold text-sm shrink-0">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -98,19 +99,11 @@ export default async function PenggunaPage({
         </CardContent>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>Halaman {page} / {totalPages}</span>
-          <div className="flex gap-2">
-            {page > 1 && (
-              <a href={`?page=${page - 1}`} className="px-3 py-1 border rounded hover:bg-gray-50">← Sebelum</a>
-            )}
-            {page < totalPages && (
-              <a href={`?page=${page + 1}`} className="px-3 py-1 border rounded hover:bg-gray-50">Seterusnya →</a>
-            )}
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        buildHref={(p) => `?page=${p}`}
+      />
     </div>
   );
 }

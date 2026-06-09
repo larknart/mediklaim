@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
@@ -8,7 +8,7 @@ import { WaStatus } from "@/generated/prisma";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  SENT:    "bg-green-50 text-green-700 border-green-200",
+  SENT:    "bg-success/5 text-primary border-primary/20",
   FAILED:  "bg-red-50 text-red-700 border-red-200",
 };
 
@@ -69,7 +69,7 @@ export default async function WhatsAppOutboxPage({
               href={buildHref(value)}
               className={`px-3 py-1.5 rounded-full text-sm border flex items-center gap-1.5 transition-colors ${
                 active
-                  ? "bg-green-700 text-white border-green-700"
+                  ? "bg-primary text-primary-foreground border-primary"
                   : "text-gray-600 border-gray-200 hover:bg-gray-50"
               }`}
             >

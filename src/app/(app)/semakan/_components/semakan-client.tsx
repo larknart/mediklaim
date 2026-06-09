@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -125,7 +125,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                   <div className="flex-1 min-w-0">
                     <NextLink
                       href={`/tuntutan/${claim.id}`}
-                      className="font-medium text-sm hover:underline text-green-800"
+                      className="font-medium text-sm hover:underline text-primary"
                     >
                       {claim.refNo}
                     </NextLink>
@@ -162,7 +162,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                   <div className="flex-1 min-w-0">
                     <NextLink
                       href={`/tuntutan/${claim.id}`}
-                      className="font-medium text-sm hover:underline text-green-800"
+                      className="font-medium text-sm hover:underline text-primary"
                     >
                       {claim.refNo}
                     </NextLink>

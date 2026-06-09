@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -57,7 +57,7 @@ export function UpdateProfileForm({ phone: initialPhone }: UpdateProfileFormProp
       )}
 
       {success && (
-        <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded p-3 border border-green-200">
+        <div className="flex items-center gap-2 text-sm text-primary bg-success/5 rounded p-3 border border-primary/20">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           Profil berjaya dikemaskini.
         </div>
@@ -66,7 +66,7 @@ export function UpdateProfileForm({ phone: initialPhone }: UpdateProfileFormProp
       <Button
         type="submit"
         disabled={isPending}
-        className="bg-green-700 hover:bg-green-800"
+        className=""
       >
         {isPending ? "Menyimpan..." : "Simpan"}
       </Button>

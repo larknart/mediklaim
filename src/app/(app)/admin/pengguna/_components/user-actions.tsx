@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -46,7 +46,7 @@ export function UserActions({ userId, isActive }: { userId: string; isActive: bo
       >
         {isActive
           ? <UserX className="w-4 h-4 text-red-500" />
-          : <UserCheck className="w-4 h-4 text-green-600" />}
+          : <UserCheck className="w-4 h-4 text-success" />}
       </Button>
 
       <AlertDialog open={open} onOpenChange={setOpen}>
@@ -65,7 +65,7 @@ export function UserActions({ userId, isActive }: { userId: string; isActive: bo
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirm}
-              className={isActive ? "bg-red-600 hover:bg-red-700" : "bg-green-700 hover:bg-green-800"}
+              className={isActive ? "bg-red-600 hover:bg-red-700" : ""}
             >
               {isActive ? "Nyahaktifkan" : "Aktifkan"}
             </AlertDialogAction>

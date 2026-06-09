@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -83,7 +83,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
               placeholder="sebab (opsyenal)"
               className="flex-1"
             />
-            <Button onClick={add} disabled={isPending || !newKw.trim()} className="bg-green-700 hover:bg-green-800 shrink-0">
+            <Button onClick={add} disabled={isPending || !newKw.trim()} className="shrink-0">
               <Plus className="w-4 h-4" />
             </Button>
           </div>

@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin, isFinance, isApprover, isYdp } from "@/lib/permissions";
@@ -70,7 +70,7 @@ export default async function LaporanPage({
               PDF
             </a>
           </Button>
-          <Button className="bg-green-700 hover:bg-green-800" asChild>
+          <Button className="" asChild>
             <a href={`/api/laporan/excel?${exportParams}`}>
               <Download className="w-4 h-4 mr-2" />
               Excel
@@ -99,7 +99,7 @@ export default async function LaporanPage({
         <Card>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-gray-500">Diluluskan</p>
-            <p className="text-xl font-bold mt-1 text-green-700">
+            <p className="text-xl font-bold mt-1 text-primary">
               {claims.filter((c) => c.status === "APPROVED" || c.status === "PAID").length}
             </p>
           </CardContent>
@@ -107,7 +107,7 @@ export default async function LaporanPage({
         <Card>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-gray-500">Jumlah Lulus (RM)</p>
-            <p className="text-lg font-bold mt-1 text-green-700">{totalApproved.toFixed(2)}</p>
+            <p className="text-lg font-bold mt-1 text-primary">{totalApproved.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>

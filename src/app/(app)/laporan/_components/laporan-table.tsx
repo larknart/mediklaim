@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -117,7 +117,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
                     />
                   </td>
                   <td className="p-3">
-                    <Link href={`/tuntutan/${claim.id}`} className="text-green-700 hover:underline font-medium">
+                    <Link href={`/tuntutan/${claim.id}`} className="text-primary hover:underline font-medium">
                       {claim.refNo}
                     </Link>
                     {claim.resubmittedFromRefNo && (
@@ -132,7 +132,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
                     {MONTHS_BM[claim.forMonth - 1]} {claim.forYear}
                   </td>
                   <td className="p-3 text-right">RM {claim.totalClaimedMyr.toFixed(2)}</td>
-                  <td className="p-3 text-right text-green-700">
+                  <td className="p-3 text-right text-primary">
                     {claim.totalApprovedMyr != null
                       ? `RM ${claim.totalApprovedMyr.toFixed(2)}`
                       : "—"}
@@ -141,7 +141,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full ${
                         claim.status === "APPROVED" || claim.status === "PAID"
-                          ? "bg-green-100 text-green-700"
+                          ? "bg-primary/10 text-primary"
                           : claim.status === "REJECTED"
                           ? "bg-red-100 text-red-700"
                           : claim.status === "WITHDRAWN"

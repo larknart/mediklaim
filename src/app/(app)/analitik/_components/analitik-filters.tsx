@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Role } from "@/generated/prisma";
@@ -97,7 +97,7 @@ export function AnalitikFilters({
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
+            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
           >
             {yearOptions.map((y) => (
               <option key={y} value={y}>{y}</option>
@@ -111,7 +111,7 @@ export function AnalitikFilters({
             <select
               value={dept}
               onChange={(e) => setDept(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
+              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Semua Jabatan</option>
               {departments.map((d) => (

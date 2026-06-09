@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
@@ -108,8 +108,8 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
           <div className="flex items-center gap-2">
             {enabled ? (
               <>
-                <ShieldCheck className="w-5 h-5 text-green-600" />
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Aktif</Badge>
+                <ShieldCheck className="w-5 h-5 text-success" />
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Aktif</Badge>
               </>
             ) : (
               <>
@@ -130,7 +130,7 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
           ) : (
             <Button
               size="sm"
-              className="bg-green-700 hover:bg-green-800"
+              className=""
               onClick={startEnroll}
               disabled={isPending}
             >
@@ -183,7 +183,7 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
           </Button>
           <Button
             type="submit"
-            className="flex-1 bg-green-700 hover:bg-green-800"
+            className="flex-1"
             disabled={isPending || enrollCode.length !== 6}
           >
             {isPending ? "Mengesahkan..." : "Aktifkan"}
@@ -196,11 +196,11 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
   if (state === "showing_codes") {
     return (
       <div className="space-y-4">
-        <div className="flex items-start gap-3 text-sm text-green-800 bg-green-50 rounded p-4 border border-green-200">
+        <div className="flex items-start gap-3 text-sm text-primary bg-success/5 rounded p-4 border border-primary/20">
           <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">2FA berjaya diaktifkan</p>
-            <p className="text-xs text-green-700 mt-1">
+            <p className="text-xs text-primary mt-1">
               Simpan kod pemulihan di bawah di tempat selamat. Ia hanya dipaparkan sekali sahaja.
             </p>
           </div>
@@ -212,12 +212,12 @@ export function TotpSection({ totpEnabled: initialEnabled, required }: Props) {
         </div>
         <Button type="button" variant="outline" size="sm" className="w-full" onClick={copyAllCodes}>
           {copied ? (
-            <><CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />Disalin!</>
+            <><CheckCircle2 className="w-4 h-4 mr-2 text-success" />Disalin!</>
           ) : (
             <><Copy className="w-4 h-4 mr-2" />Salin Semua Kod</>
           )}
         </Button>
-        <Button type="button" className="w-full bg-green-700 hover:bg-green-800" onClick={() => { setRecoveryCodes([]); setCopied(false); setState("idle"); }}>
+        <Button type="button" className="w-full" onClick={() => { setRecoveryCodes([]); setCopied(false); setState("idle"); }}>
           Selesai
         </Button>
       </div>

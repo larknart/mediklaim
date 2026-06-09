@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -28,7 +28,7 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
     return (
       <div className="space-y-4 text-center text-sm text-red-600">
         <p>Pautan tidak sah atau telah tamat tempoh.</p>
-        <Link href="/lupa-kata-laluan" className="text-green-700 hover:underline">
+        <Link href="/lupa-kata-laluan" className="text-primary hover:underline">
           Minta pautan baru
         </Link>
       </div>
@@ -61,14 +61,14 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
   if (done) {
     return (
       <div className="space-y-4">
-        <div className="flex items-start gap-3 text-sm text-green-800 bg-green-50 rounded p-4 border border-green-200">
+        <div className="flex items-start gap-3 text-sm text-primary bg-success/5 rounded p-4 border border-primary/20">
           <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <p className="font-medium">Kata laluan berjaya ditetapkan</p>
-            <p className="text-xs text-green-700 mt-1">Anda akan dihalakan ke halaman log masuk dalam 3 saat...</p>
+            <p className="text-xs text-primary mt-1">Anda akan dihalakan ke halaman log masuk dalam 3 saat...</p>
           </div>
         </div>
-        <Link href="/login" className="flex items-center justify-center gap-2 text-sm text-green-700 hover:underline">
+        <Link href="/login" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline">
           <ArrowLeft className="w-4 h-4" />
           Log Masuk Sekarang
         </Link>
@@ -123,7 +123,7 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
       </div>
       <Button
         type="submit"
-        className="w-full bg-green-700 hover:bg-green-800"
+        className="w-full"
         disabled={isPending}
       >
         {isPending ? "Menyimpan..." : "Tetapkan Kata Laluan Baru"}

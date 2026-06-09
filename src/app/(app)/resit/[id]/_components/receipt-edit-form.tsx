@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -163,7 +163,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Item ({items.length})</CardTitle>
             <div className="text-right">
-              <p className="text-sm font-semibold text-green-700">
+              <p className="text-sm font-semibold text-primary">
                 Jumlah resit: RM {computedTotal.toFixed(2)}
               </p>
               {hasIneligible && (
@@ -260,7 +260,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
       <Button
         onClick={save}
         disabled={isPending}
-        className="w-full bg-green-700 hover:bg-green-800"
+        className="w-full"
         size="lg"
       >
         <Save className="w-4 h-4 mr-2" />

@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,7 +48,7 @@ export default async function NotifikasiPage() {
                     {n.link && (
                       <Link
                         href={n.link.startsWith("http") ? new URL(n.link).pathname : n.link}
-                        className="text-xs text-green-700 hover:underline mt-1 inline-block"
+                        className="text-xs text-primary hover:underline mt-1 inline-block"
                       >
                         Lihat tuntutan →
                       </Link>

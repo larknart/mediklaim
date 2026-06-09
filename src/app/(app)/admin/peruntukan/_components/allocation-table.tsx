@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -132,11 +132,11 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
         </div>
 
         <div className="flex items-center gap-2 sm:ml-auto">
-          {saved && <span className="text-xs text-green-600 font-medium">Tersimpan ✓</span>}
+          {saved && <span className="text-xs text-success font-medium">Tersimpan ✓</span>}
           <Button
             onClick={save}
             disabled={isPending}
-            className="bg-green-700 hover:bg-green-800 h-9"
+            className="h-9"
           >
             <Save className="w-4 h-4 mr-2" />
             {isPending ? "Menyimpan..." : "Simpan Semua"}
@@ -216,7 +216,7 @@ export function AllocationTable({ rows, year, currentYear, defaultLimit }: Props
                           />
                         </div>
                       </td>
-                      <td className={`px-4 py-2.5 text-right font-medium tabular-nums ${isOver ? "text-red-600" : "text-green-700"}`}>
+                      <td className={`px-4 py-2.5 text-right font-medium tabular-nums ${isOver ? "text-red-600" : "text-primary"}`}>
                         {baki.toFixed(2)}
                       </td>
                     </tr>

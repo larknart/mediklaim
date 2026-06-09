@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -92,7 +92,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
           {selected.size > 0 && (
             <Button
               size="sm"
-              className="bg-green-700 hover:bg-green-800"
+              className=""
               onClick={() => setDialogOpen(true)}
               disabled={isPending}
             >
@@ -104,7 +104,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
 
       {/* Result banner */}
       {result && (
-        <div className={`text-sm px-3 py-2 rounded-lg ${result.failed.length > 0 ? "bg-amber-50 text-amber-800" : "bg-green-50 text-green-800"}`}>
+        <div className={`text-sm px-3 py-2 rounded-lg ${result.failed.length > 0 ? "bg-amber-50 text-amber-800" : "bg-success/5 text-primary"}`}>
           {result.approved} tuntutan diluluskan.
           {result.failed.length > 0 && ` ${result.failed.length} gagal (mungkin status berubah).`}
         </div>
@@ -117,29 +117,29 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
               const isApprovable = claim.status === "FINANCE_REVIEWED";
               const isChecked = selected.has(claim.id);
               return (
-                <div key={claim.id} className={`flex items-center gap-3 p-4 ${isChecked ? "bg-green-50" : "hover:bg-gray-50"}`}>
+                <div key={claim.id} className={`flex items-center gap-3 p-4 ${isChecked ? "bg-success/5" : "hover:bg-gray-50"}`}>
                   {/* Checkbox */}
                   <button
-                    className="shrink-0 text-gray-400 hover:text-green-700 disabled:opacity-30"
+                    className="shrink-0 text-gray-400 hover:text-primary disabled:opacity-30"
                     onClick={() => isApprovable && toggle(claim.id)}
                     disabled={!isApprovable || isPending}
                     aria-label={isChecked ? "Nyahpilih" : "Pilih"}
                   >
                     {isChecked
-                      ? <CheckSquare className="w-5 h-5 text-green-700" />
+                      ? <CheckSquare className="w-5 h-5 text-primary" />
                       : <Square className="w-5 h-5" />}
                   </button>
 
                   {/* Icon */}
-                  <div className="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
-                    <FileText className="w-4 h-4 text-green-700" />
+                  <div className="w-9 h-9 bg-success/5 rounded-lg flex items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-primary" />
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm">{claim.refNo}</p>
                     <p className="text-xs text-gray-500">{claim.claimantName} · {claim.departmentName ?? "—"}</p>
-                    <p className="text-xs font-medium text-green-700 mt-0.5">
+                    <p className="text-xs font-medium text-primary mt-0.5">
                       Layak: RM {claim.totalEligibleMyr.toFixed(2)}
                     </p>
                   </div>
@@ -151,7 +151,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
                     </Badge>
                     <Link
                       href={`/tuntutan/${claim.id}`}
-                      className="text-xs text-green-700 hover:underline"
+                      className="text-xs text-primary hover:underline"
                     >
                       Buka →
                     </Link>
@@ -177,7 +177,7 @@ export function KelulusanList({ claims }: { claims: ClaimRow[] }) {
             <Button
               onClick={handleBulkConfirm}
               disabled={isPending}
-              className="bg-green-700 hover:bg-green-800"
+              className=""
             >
               {isPending ? "Memproses..." : "Ya, Lulus Semua"}
             </Button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -171,7 +171,7 @@ export function NotifSettings(props: NotifSettingsProps) {
                   {waConnTesting ? "Menyemak..." : "Semak Sambungan"}
                 </Button>
                 {waConnResult && (
-                  <span className={`text-xs font-mono ${waConnResult.startsWith("✓") ? "text-green-600" : "text-red-500"}`}>
+                  <span className={`text-xs font-mono ${waConnResult.startsWith("✓") ? "text-success" : "text-red-500"}`}>
                     {waConnResult}
                   </span>
                 )}
@@ -186,7 +186,7 @@ export function NotifSettings(props: NotifSettingsProps) {
                 </Button>
               </div>
               {waSendResult && (
-                <p className={`text-xs font-mono mt-1 ${waSendResult.startsWith("✓") ? "text-green-600" : "text-red-500"}`}>
+                <p className={`text-xs font-mono mt-1 ${waSendResult.startsWith("✓") ? "text-success" : "text-red-500"}`}>
                   {waSendResult}
                 </p>
               )}
@@ -194,10 +194,10 @@ export function NotifSettings(props: NotifSettingsProps) {
           </div>
         )}
 
-        {saved && <p className="text-xs text-green-600">Tetapan disimpan.</p>}
+        {saved && <p className="text-xs text-success">Tetapan disimpan.</p>}
         {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
 
-        <Button onClick={save} disabled={isPending} className="bg-green-700 hover:bg-green-800">
+        <Button onClick={save} disabled={isPending} className="">
           <Save className="w-4 h-4 mr-2" />
           {isPending ? "Menyimpan..." : "Simpan"}
         </Button>
@@ -217,7 +217,7 @@ export function NotifSettings(props: NotifSettingsProps) {
           <Button variant="outline" size="sm" onClick={testSmtpHandler} disabled={smtpTesting}>
             {smtpTesting ? "Menguji..." : "Uji Sambungan SMTP"}
           </Button>
-          {smtpResult === "ok" && <span className="text-xs text-green-600 font-mono">✓ Sambungan berjaya.</span>}
+          {smtpResult === "ok" && <span className="text-xs text-success font-mono">✓ Sambungan berjaya.</span>}
           {smtpResult === "fail" && <span className="text-xs text-red-500 font-mono">✗ Gagal. Semak SMTP_HOST/PORT/USER/PASS.</span>}
         </div>
       </CardContent>

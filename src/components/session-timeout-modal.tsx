@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useSessionTimeout } from "@/hooks/use-session-timeout";
 import {
@@ -58,7 +58,7 @@ export function SessionTimeoutModal({ warningMinutes }: SessionTimeoutModalProps
           </Button>
           <Button
             onClick={handleExtend}
-            className="bg-green-700 hover:bg-green-800 text-white"
+            className="text-white"
           >
             Teruskan Sesi
           </Button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -94,7 +94,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
               className="flex-1"
               onKeyDown={(e) => e.key === "Enter" && add()}
             />
-            <Button onClick={add} disabled={isPending || !newName.trim()} className="bg-green-700 hover:bg-green-800">
+            <Button onClick={add} disabled={isPending || !newName.trim()} className="">
               <Plus className="w-4 h-4 mr-1" />
               Tambah
             </Button>
@@ -140,7 +140,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
                         </Select>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={saveEdit} disabled={isPending} className="bg-green-700 hover:bg-green-800">
+                        <Button size="sm" onClick={saveEdit} disabled={isPending} className="">
                           <Check className="w-3 h-3 mr-1" />Simpan
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => setEditing(null)}>

@@ -76,19 +76,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 to-green-700 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sidebar to-primary p-4">
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="text-center space-y-1">
           <div className="flex justify-center mb-2">
-            <div className="w-16 h-16 bg-green-700 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-md">
               {step === "totp" ? (
-                <ShieldCheck className="text-white w-8 h-8" />
+                <ShieldCheck className="text-primary-foreground w-8 h-8" />
               ) : (
-                <span className="text-white text-2xl font-bold">M</span>
+                <span className="text-primary-foreground text-xl font-bold tracking-tight">
+                  MDS
+                </span>
               )}
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-green-900">MediKlaim MDS</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary">MediKlaim MDS</CardTitle>
           <CardDescription>
             {step === "totp"
               ? "Masukkan kod dari aplikasi authenticator anda"
@@ -126,16 +128,12 @@ export default function LoginPage() {
                   autoComplete="current-password"
                 />
               </div>
-              <Button
-                type="submit"
-                className="w-full bg-green-700 hover:bg-green-800"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Sedang log masuk..." : "Log Masuk"}
               </Button>
               <Link
                 href="/lupa-kata-laluan"
-                className="block text-center text-xs text-gray-500 hover:text-green-700 mt-2"
+                className="block text-center text-xs text-muted-foreground hover:text-primary mt-2"
               >
                 Lupa kata laluan?
               </Link>
@@ -178,12 +176,12 @@ export default function LoginPage() {
                     autoComplete="off"
                     autoFocus
                   />
-                  <p className="text-xs text-gray-400">Satu kod pemulihan satu kali guna sahaja.</p>
+                  <p className="text-xs text-muted-foreground">Satu kod pemulihan satu kali guna sahaja.</p>
                 </div>
               )}
               <Button
                 type="submit"
-                className="w-full bg-green-700 hover:bg-green-800"
+                className="w-full"
                 disabled={loading || (!useRecovery && totpCode.length !== 6)}
               >
                 {loading ? "Mengesahkan..." : "Sahkan"}
@@ -196,7 +194,7 @@ export default function LoginPage() {
                   setTotpCode("");
                   setRecoveryCode("");
                 }}
-                className="block w-full text-center text-xs text-gray-500 hover:text-green-700"
+                className="block w-full text-center text-xs text-muted-foreground hover:text-primary"
               >
                 {useRecovery ? "Guna kod authenticator" : "Guna kod pemulihan"}
               </button>
@@ -210,7 +208,7 @@ export default function LoginPage() {
                   setRecoveryCode("");
                   setUseRecovery(false);
                 }}
-                className="flex items-center justify-center gap-1 w-full text-xs text-gray-400 hover:text-gray-600"
+                className="flex items-center justify-center gap-1 w-full text-xs text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="w-3 h-3" />
                 Kembali log masuk

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Check, X } from "lucide-react";
 import type { PasswordPolicy } from "@/lib/password-policy";
@@ -15,7 +15,7 @@ export function PasswordPolicyHints({ policy, password }: Props) {
   return (
     <ul className="mt-2 space-y-1 text-xs">
       {rules.map((r) => (
-        <li key={r.label} className={`flex items-center gap-1.5 ${r.ok ? "text-green-700" : "text-gray-400"}`}>
+        <li key={r.label} className={`flex items-center gap-1.5 ${r.ok ? "text-primary" : "text-gray-400"}`}>
           {r.ok ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
           <span>{r.label}</span>
         </li>

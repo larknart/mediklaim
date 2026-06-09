@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { AuditFilter } from "./_components/audit-filter";
 import { buildAuditWhere } from "./_lib/build-where";
+import { Pagination } from "@/components/ui/pagination";
 
 const ACTION_COLORS: Record<string, string> = {
   LOGIN: "bg-blue-50 text-blue-700",
   LOGIN_FAILED: "bg-red-50 text-red-700",
   ACCOUNT_LOCKED: "bg-red-100 text-red-800",
-  CLAIM_SUBMITTED: "bg-green-50 text-green-700",
-  CLAIM_APPROVED: "bg-green-100 text-green-800",
+  CLAIM_SUBMITTED: "bg-success/5 text-primary",
+  CLAIM_APPROVED: "bg-primary/10 text-primary",
   CLAIM_REJECTED: "bg-red-50 text-red-700",
   CLAIM_PAID: "bg-emerald-50 text-emerald-700",
   RECEIPT_UPLOADED: "bg-gray-50 text-gray-600",
@@ -150,23 +151,7 @@ export default async function AuditPage({
         </CardContent>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>Halaman {page} / {totalPages}</span>
-          <div className="flex gap-2">
-            {page > 1 && (
-              <a href={buildHref(page - 1)} className="px-3 py-1 border rounded hover:bg-gray-50">
-                ← Sebelum
-              </a>
-            )}
-            {page < totalPages && (
-              <a href={buildHref(page + 1)} className="px-3 py-1 border rounded hover:bg-gray-50">
-                Seterusnya →
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      <Pagination page={page} totalPages={totalPages} buildHref={buildHref} />
     </div>
   );
 }

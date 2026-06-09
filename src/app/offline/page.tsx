@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export default function OfflinePage() {
   return (
@@ -10,7 +10,7 @@ export default function OfflinePage() {
       </p>
       <button
         onClick={() => window.location.reload()}
-        className="mt-2 px-4 py-2 bg-green-700 text-white text-sm rounded-lg hover:bg-green-800"
+        className="mt-2 px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90"
       >
         Cuba Semula
       </button>

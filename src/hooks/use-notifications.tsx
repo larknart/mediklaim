@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -39,7 +39,7 @@ export function useNotifications(initialUnreadCount: number) {
           data.newNotifs.forEach((n) => {
             toast(n.title, {
               description: n.body,
-              icon: <Bell className="w-4 h-4 text-green-700" />,
+              icon: <Bell className="w-4 h-4 text-primary" />,
               action: n.link
                 ? { label: "Lihat →", onClick: () => router.push(n.link!) }
                 : undefined,

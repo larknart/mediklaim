@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -70,7 +70,7 @@ export function HeadPanel({ claimId, refNo }: HeadPanelProps) {
           <Button
             onClick={() => submit("APPROVED")}
             disabled={isPending}
-            className="flex-1 bg-green-700 hover:bg-green-800"
+            className="flex-1"
           >
             <ThumbsUp className="w-4 h-4 mr-2" />
             {isPending && decision === "APPROVED" ? "Memproses..." : "Sokong"}

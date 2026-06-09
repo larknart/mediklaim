@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -141,20 +141,25 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 h-screen w-64 max-w-64 bg-green-900 text-white flex flex-col z-50",
+        "fixed top-0 left-0 h-screen w-64 max-w-64 bg-sidebar text-sidebar-foreground flex flex-col z-50",
         "transition-transform duration-200",
         "-translate-x-full md:translate-x-0",
         open && "translate-x-0"
       )}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-green-700">
-        <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center flex-shrink-0">
-          <span className="text-green-900 font-bold text-sm">M</span>
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border">
+        {/* Replace src="/mds-logo-mark.png" once asset is placed in /public */}
+        <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center flex-shrink-0">
+          <span className="text-primary-foreground font-bold text-[10px] leading-none tracking-tight">
+            MDS
+          </span>
         </div>
         <div>
-          <p className="font-bold text-sm leading-tight">MediKlaim MDS</p>
-          <p className="text-green-300 text-xs">Majlis Daerah Setiu</p>
+          <p className="font-bold text-sm leading-tight text-sidebar-primary-foreground">
+            MediKlaim MDS
+          </p>
+          <p className="text-sidebar-foreground/60 text-xs">Majlis Daerah Setiu</p>
         </div>
       </div>
 
@@ -172,8 +177,8 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                 active
-                  ? "bg-green-700 text-white"
-                  : "text-green-200 hover:bg-green-800 hover:text-white"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -189,14 +194,18 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
       </nav>
 
       {/* User */}
-      <div className="px-3 py-4 border-t border-green-700">
+      <div className="px-3 py-4 border-t border-sidebar-border">
         <div className="px-3 py-2 mb-2">
-          <p className="text-sm font-medium text-white truncate">{session?.user?.name}</p>
-          <p className="text-xs text-green-300 truncate">{session?.user?.email}</p>
+          <p className="text-sm font-medium text-sidebar-primary-foreground truncate">
+            {session?.user?.name}
+          </p>
+          <p className="text-xs text-sidebar-foreground/60 truncate">
+            {session?.user?.email}
+          </p>
         </div>
         <Link
           href="/profil"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-green-200 hover:bg-green-800 hover:text-white transition-colors mb-1"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors mb-1"
         >
           <UserCircle className="w-4 h-4 shrink-0" />
           Profil &amp; Kata Laluan
@@ -204,7 +213,7 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-green-200 hover:text-white hover:bg-green-800"
+          className="w-full justify-start text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
           onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="w-4 h-4 mr-2" />

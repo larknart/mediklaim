@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -116,7 +116,7 @@ export function CommentThread({ claimId, comments, currentUserId }: Props) {
               size="sm"
               onClick={handleSubmit}
               disabled={isPending || !body.trim()}
-              className="bg-green-700 hover:bg-green-800"
+              className=""
             >
               {isPending ? "Menghantar..." : "Hantar"}
             </Button>

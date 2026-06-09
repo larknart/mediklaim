@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -82,7 +82,7 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
         </p>
 
         {/* Import from API */}
-        <div className="flex gap-2 items-end border border-green-200 bg-green-50 rounded-lg p-3">
+        <div className="flex gap-2 items-end border border-primary/20 bg-success/5 rounded-lg p-3">
           <div>
             <Label className="text-xs text-gray-500 mb-1.5 block">Tahun</Label>
             <select
@@ -100,12 +100,12 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
             disabled={isPending}
             size="sm"
             variant="outline"
-            className="border-green-700 text-green-700 hover:bg-green-100"
+            className="border-primary text-primary hover:bg-primary/10"
           >
             <Download className="w-4 h-4 mr-1.5" />
             Import dari API (TRG)
           </Button>
-          {importMsg && <p className="text-xs text-green-700 font-medium">{importMsg}</p>}
+          {importMsg && <p className="text-xs text-primary font-medium">{importMsg}</p>}
         </div>
 
         {/* Add form */}
@@ -127,7 +127,7 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
             onClick={handleAdd}
             disabled={isPending}
             size="sm"
-            className="bg-green-700 hover:bg-green-800 shrink-0"
+            className="shrink-0"
           >
             <Plus className="w-4 h-4" />
           </Button>
