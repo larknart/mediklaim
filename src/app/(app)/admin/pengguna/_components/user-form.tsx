@@ -37,6 +37,7 @@ interface UserFormProps {
     phone: string | null;
     departmentId: string | null;
     isAhliMajlis: boolean;
+    isActive: boolean;
     joinDate: string | null;
     roles: Role[];
   };
@@ -55,6 +56,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [departmentId, setDepartmentId] = useState(user?.departmentId ?? "");
   const [isAhliMajlis, setIsAhliMajlis] = useState(user?.isAhliMajlis ?? false);
+  const [isActive, setIsActive] = useState(user?.isActive ?? true);
   const [joinDate, setJoinDate] = useState(user?.joinDate ?? "");
   const [roles, setRoles] = useState<Set<Role>>(new Set(user?.roles ?? [Role.CLAIMANT]));
 
@@ -84,6 +86,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
           departmentId: departmentId || null,
           roles: Array.from(roles),
           isAhliMajlis,
+          isActive,
           joinDate: joinDate || null,
         });
         if (password.trim()) await resetUserPassword(user.id, password);
@@ -205,6 +208,19 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
               <p className="text-xs text-muted-foreground">Tuntutan skip langkah sokongan Ketua Jabatan</p>
             </div>
           </label>
+
+          {user && (
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={isActive}
+                onCheckedChange={(v) => setIsActive(!!v)}
+              />
+              <div>
+                <span className="text-sm font-medium">Akaun Aktif</span>
+                <p className="text-xs text-muted-foreground">Nyahcentang untuk sekat pengguna daripada log masuk</p>
+              </div>
+            </label>
+          )}
         </div>
 
         {error && (

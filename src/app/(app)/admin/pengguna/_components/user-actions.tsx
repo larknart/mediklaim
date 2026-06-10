@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateUser } from "@/server/actions/admin";
 import { Button } from "@/components/ui/button";
@@ -19,15 +19,18 @@ import { Pencil, UserX, UserCheck } from "lucide-react";
 
 export function UserActions({ userId, isActive }: { userId: string; isActive: boolean }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [open, setOpen] = useState(false);
 
-  function handleConfirm() {
+  async function handleConfirm() {
     setOpen(false);
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       await updateUser(userId, { isActive: !isActive });
       router.refresh();
-    });
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -38,15 +41,15 @@ export function UserActions({ userId, isActive }: { userId: string; isActive: bo
         </Link>
       </Button>
       <Button
-        variant="ghost"
-        size="icon"
+        variant="outline"
+        size="sm"
         onClick={() => setOpen(true)}
         disabled={isPending}
-        aria-label={isActive ? "Nyahaktifkan pengguna" : "Aktifkan semula pengguna"}
+        className={isActive ? "text-destructive border-destructive/30 hover:bg-destructive/10" : "text-success border-success/30 hover:bg-success/10"}
       >
         {isActive
-          ? <UserX className="w-4 h-4 text-destructive" />
-          : <UserCheck className="w-4 h-4 text-success" />}
+          ? <><UserX className="w-3.5 h-3.5 mr-1" />Nyahaktif</>
+          : <><UserCheck className="w-3.5 h-3.5 mr-1" />Aktifkan</>}
       </Button>
 
       <AlertDialog open={open} onOpenChange={setOpen}>
