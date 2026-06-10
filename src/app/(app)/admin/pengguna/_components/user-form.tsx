@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff } from "lucide-react";
 
 const ALL_ROLES: { value: Role; label: string }[] = [
   { value: Role.CLAIMANT, label: "Kakitangan (Claimant)" },
@@ -51,6 +52,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
   const [staffNo, setStaffNo] = useState(user?.staffNo ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [departmentId, setDepartmentId] = useState(user?.departmentId ?? "");
   const [isAhliMajlis, setIsAhliMajlis] = useState(user?.isAhliMajlis ?? false);
   const [joinDate, setJoinDate] = useState(user?.joinDate ?? "");
@@ -138,11 +140,21 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
             <Label className="text-xs text-muted-foreground mb-1.5 block">
               {user ? "Password Baru (kosongkan jika tak tukar)" : "Password"}
             </Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="relative">
+              <Input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
             {password && <PasswordPolicyHints policy={policy} password={password} />}
           </div>
           <div>

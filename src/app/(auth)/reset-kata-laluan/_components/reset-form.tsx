@@ -21,6 +21,7 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
 
@@ -112,14 +113,24 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirm">Sahkan Kata Laluan Baru</Label>
-        <Input
-          id="confirm"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          autoComplete="new-password"
-        />
+        <div className="relative">
+          <Input
+            id="confirm"
+            type={showConfirm ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirm((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
       <Button
         type="submit"
