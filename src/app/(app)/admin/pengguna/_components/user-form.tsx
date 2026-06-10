@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUser, updateUser, resetUserPassword } from "@/server/actions/admin";
 import { validatePasswordPolicy, type PasswordPolicy } from "@/lib/password-policy";
@@ -44,7 +44,7 @@ interface UserFormProps {
 
 export function UserForm({ departments, policy, user }: UserFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
 
   const [name, setName] = useState(user?.name ?? "");
@@ -67,7 +67,7 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
     });
   }
 
-  function submit() {
+  async function submit() {
     if (!name.trim() || !email.trim()) { setError("Nama dan email diperlukan."); return; }
     if (!user && !password.trim()) { setError("Password diperlukan untuk pengguna baru."); return; }
     if (roles.size === 0) { setError("Pilih sekurang-kurangnya satu peranan."); return; }
@@ -75,37 +75,36 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
     if (pwErr) { setError(pwErr); return; }
     setError("");
 
-    startTransition(async () => {
-      try {
-        if (user) {
-          await updateUser(user.id, {
-            name: name.trim(),
-            phone: phone.trim() || undefined,
-            departmentId: departmentId || null,
-            roles: Array.from(roles),
-            isAhliMajlis,
-            joinDate: joinDate || null,
-          });
-          if (password.trim()) await resetUserPassword(user.id, password);
-        } else {
-          await createUser({
-            email: email.trim(),
-            name: name.trim(),
-            staffNo: staffNo.trim() || undefined,
-            phone: phone.trim() || undefined,
-            password,
-            departmentId: departmentId || undefined,
-            roles: Array.from(roles),
-            isAhliMajlis,
-            joinDate: joinDate || undefined,
-          });
-        }
-        router.push("/admin/pengguna");
-        router.refresh();
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Gagal simpan pengguna.");
+    setIsPending(true);
+    try {
+      if (user) {
+        await updateUser(user.id, {
+          name: name.trim(),
+          phone: phone.trim() || undefined,
+          departmentId: departmentId || null,
+          roles: Array.from(roles),
+          isAhliMajlis,
+          joinDate: joinDate || null,
+        });
+        if (password.trim()) await resetUserPassword(user.id, password);
+      } else {
+        await createUser({
+          email: email.trim(),
+          name: name.trim(),
+          staffNo: staffNo.trim() || undefined,
+          phone: phone.trim() || undefined,
+          password,
+          departmentId: departmentId || undefined,
+          roles: Array.from(roles),
+          isAhliMajlis,
+          joinDate: joinDate || undefined,
+        });
       }
-    });
+      router.push("/admin/pengguna");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Gagal simpan pengguna.");
+      setIsPending(false);
+    }
   }
 
   return (
