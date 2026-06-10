@@ -115,6 +115,12 @@ export async function updateUser(userId: string, data: {
   if (!session?.user) throw new Error("UNAUTHORIZED");
   requireAdmin(session.user);
 
+  // Fetch current state before update — needed to detect department change
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { departmentId: true },
+  });
+
   const { roles, joinDate, ...rest } = data;
   await prisma.user.update({
     where: { id: userId },
@@ -127,6 +133,22 @@ export async function updateUser(userId: string, data: {
   if (roles !== undefined) {
     await prisma.userRole.deleteMany({ where: { userId } });
     await prisma.userRole.createMany({ data: roles.map((r) => ({ userId, role: r })) });
+  }
+
+  // Auto-clear stale Department.headId when:
+  // (a) user moved to a different department, OR
+  // (b) HEAD role was explicitly removed
+  const deptChanged =
+    data.departmentId !== undefined &&
+    data.departmentId !== currentUser?.departmentId;
+  const headRoleRemoved =
+    roles !== undefined && !roles.includes(Role.HEAD);
+
+  if (deptChanged || headRoleRemoved) {
+    await prisma.department.updateMany({
+      where: { headId: userId },
+      data: { headId: null },
+    });
   }
 
   await logAction({ actorId: session.user.id, actorName: session.user.name ?? undefined, action: AuditAction.USER_UPDATED, entity: "User", entityId: userId, meta: rest });
