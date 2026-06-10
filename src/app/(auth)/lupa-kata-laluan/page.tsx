@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
 export default function LupaKataLaluanPage() {
   const [isPending, startTransition] = useTransition();
@@ -34,9 +35,7 @@ export default function LupaKataLaluanPage() {
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="text-center space-y-1">
           <div className="flex justify-center mb-2">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">M</span>
-            </div>
+            <Image src="/mds-logo-mark.png" alt="MDS" width={64} height={64} className="drop-shadow-sm" />
           </div>
           <CardTitle className="text-xl font-bold text-primary">Lupa Kata Laluan</CardTitle>
           <CardDescription>Masukkan e-mel akaun anda</CardDescription>
