@@ -258,13 +258,15 @@ model Claim {
 }
 
 model Approval {
-  id        String       @id @default(cuid())
-  claimId   String
-  step      ApprovalStep
-  actorId   String
-  decision  Decision
-  comment   String?
-  decidedAt DateTime     @default(now())
+  id         String       @id @default(cuid())
+  claimId    String
+  step       ApprovalStep
+  actorId    String
+  actorName  String?
+  actorEmail String?
+  decision   Decision
+  comment    String?
+  decidedAt  DateTime     @default(now())
 
   claim Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
   actor User  @relation(fields: [actorId], references: [id])
@@ -274,11 +276,12 @@ model Approval {
 }
 
 model ClaimComment {
-  id        String   @id @default(cuid())
-  claimId   String
-  authorId  String
-  body      String   @db.Text
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  claimId    String
+  authorId   String
+  authorName String?
+  body       String   @db.Text
+  createdAt  DateTime @default(now())
 
   claim  Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
   author User  @relation(fields: [authorId], references: [id])

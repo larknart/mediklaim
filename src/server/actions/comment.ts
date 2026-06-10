@@ -21,7 +21,12 @@ export async function addComment(claimId: string, body: string) {
   if (!canViewClaim(session.user, claim)) throw new Error("UNAUTHORIZED");
 
   const comment = await prisma.claimComment.create({
-    data: { claimId, authorId: session.user.id, body: trimmed },
+    data: {
+      claimId,
+      authorId: session.user.id,
+      authorName: session.user.name ?? undefined,
+      body: trimmed,
+    },
   });
 
   await logAction({

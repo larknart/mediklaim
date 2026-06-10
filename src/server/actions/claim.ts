@@ -146,6 +146,8 @@ export async function createClaim(data: {
         claimId: claim.id,
         step: ApprovalStep.HEAD,
         actorId: session.user.id,
+        actorName: session.user.name ?? undefined,
+        actorEmail: session.user.email ?? undefined,
         decision: Decision.SKIPPED,
         comment: "Auto-skip: claimant is Head/Approver/AhliMajlis",
       },

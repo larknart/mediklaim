@@ -401,7 +401,7 @@ export default async function ClaimDetailPage({
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {apv.actor.name} · {new Date(apv.decidedAt).toLocaleDateString("ms-MY")}{" "}
+                      {apv.actorName ?? apv.actor.name} · {new Date(apv.decidedAt).toLocaleDateString("ms-MY")}{" "}
                       {new Date(apv.decidedAt).toLocaleTimeString("ms-MY", { hour: "2-digit", minute: "2-digit" })}
                     </p>
                     {apv.comment && (
@@ -423,7 +423,7 @@ export default async function ClaimDetailPage({
           id: c.id,
           body: c.body,
           authorId: c.authorId,
-          authorName: c.author.name,
+          authorName: c.authorName ?? c.author.name,
           createdAt: c.createdAt.toISOString(),
         }))}
       />
