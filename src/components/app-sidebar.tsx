@@ -27,6 +27,7 @@ import {
   MessageSquare,
   Wallet,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -149,12 +150,13 @@ export function AppSidebar({ unreadCount = 0 }: { unreadCount?: number }) {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border">
-        {/* Replace src="/mds-logo-mark.png" once asset is placed in /public */}
-        <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center flex-shrink-0">
-          <span className="text-primary-foreground font-bold text-[10px] leading-none tracking-tight">
-            MDS
-          </span>
-        </div>
+        <Image
+          src="/mds-logo-mark.png"
+          alt="MDS"
+          width={32}
+          height={32}
+          className="rounded-sm flex-shrink-0"
+        />
         <div>
           <p className="font-bold text-sm leading-tight text-sidebar-primary-foreground">
             MediKlaim MDS

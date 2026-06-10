@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
 const ERROR_MESSAGES: Record<string, string> = {
   CredentialsSignin: "Email atau kata laluan tidak sah.",
@@ -80,15 +81,13 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm shadow-2xl">
         <CardHeader className="text-center space-y-1">
           <div className="flex justify-center mb-2">
-            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-md">
-              {step === "totp" ? (
+            {step === "totp" ? (
+              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-md">
                 <ShieldCheck className="text-primary-foreground w-8 h-8" />
-              ) : (
-                <span className="text-primary-foreground text-xl font-bold tracking-tight">
-                  MDS
-                </span>
-              )}
-            </div>
+              </div>
+            ) : (
+              <Image src="/mds-logo-mark.png" alt="MDS" width={80} height={80} className="drop-shadow-sm" />
+            )}
           </div>
           <CardTitle className="text-2xl font-bold text-primary">MediKlaim MDS</CardTitle>
           <CardDescription>
