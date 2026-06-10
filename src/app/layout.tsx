@@ -22,7 +22,11 @@ export const metadata: Metadata = {
     title: "MediKlaim",
   },
   icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+    ],
     apple: "/icons/icon-192x192.png",
+    shortcut: "/icon.png",
   },
 };
 
