@@ -176,7 +176,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           {items.map((item, idx) => (
-            <div key={idx} className={`border rounded-lg p-3 space-y-2 ${!item.isEligible ? "bg-red-50 border-red-200" : item.flaggedReason ? "bg-yellow-50 border-yellow-200" : ""}`}>
+            <div key={idx} className={`border rounded-lg p-3 space-y-2 ${!item.isEligible ? "bg-destructive/10 border-destructive/20" : item.flaggedReason ? "bg-yellow-50 border-yellow-200" : ""}`}>
               <div className="flex items-center gap-2">
                 <Input
                   value={item.description}
@@ -188,7 +188,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => removeItem(idx)}
-                  className="shrink-0 text-muted-foreground hover:text-red-600"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -281,7 +281,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
           variant="outline"
           onClick={() => setShowDelete(true)}
           disabled={isPending}
-          className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+          className="flex-1 text-destructive border-destructive/20 hover:bg-destructive/10"
         >
           <Trash2 className="w-4 h-4 mr-2" />
           Padam Resit
@@ -298,7 +298,7 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
               Padam
             </AlertDialogAction>
           </AlertDialogFooter>

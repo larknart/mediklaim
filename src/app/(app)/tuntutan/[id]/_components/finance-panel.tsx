@@ -132,7 +132,7 @@ export function FinancePanel({ claimId, receipts }: FinancePanelProps) {
                   <label
                     key={item.id}
                     className={`flex items-start gap-3 p-3 cursor-pointer transition-colors ${
-                      !isElig ? "bg-red-50" : isAiFlag ? "bg-purple-50" : isFlagged ? "bg-yellow-50" : ""
+                      !isElig ? "bg-destructive/10" : isAiFlag ? "bg-purple-50" : isFlagged ? "bg-yellow-50" : ""
                     }`}
                   >
                     <Checkbox

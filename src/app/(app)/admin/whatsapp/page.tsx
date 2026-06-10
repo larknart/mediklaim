@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { isAdmin } from "@/lib/permissions";
 import { PageHeader } from "@/components/page-header";
+import { Pagination } from "@/components/ui/pagination";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WaStatus } from "@/generated/prisma";
@@ -10,7 +11,7 @@ import { WaStatus } from "@/generated/prisma";
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
   SENT:    "bg-success/5 text-primary border-primary/20",
-  FAILED:  "bg-red-50 text-red-700 border-red-200",
+  FAILED:  "bg-destructive/10 text-destructive border-destructive/20",
 };
 
 export default async function WhatsAppOutboxPage({
@@ -109,7 +110,7 @@ export default async function WhatsAppOutboxPage({
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">{row.body}</p>
                   {row.lastError && (
-                    <p className="text-xs text-red-500 font-mono truncate">{row.lastError}</p>
+                    <p className="text-xs text-destructive font-mono truncate">{row.lastError}</p>
                   )}
                   {row.sentAt && (
                     <p className="text-xs text-muted-foreground">
@@ -123,23 +124,11 @@ export default async function WhatsAppOutboxPage({
         </CardContent>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Halaman {page} / {totalPages}</span>
-          <div className="flex gap-2">
-            {page > 1 && (
-              <a href={buildHref(filterStatus, page - 1)} className="px-3 py-1 border rounded hover:bg-accent">
-                ← Sebelum
-              </a>
-            )}
-            {page < totalPages && (
-              <a href={buildHref(filterStatus, page + 1)} className="px-3 py-1 border rounded hover:bg-accent">
-                Seterusnya →
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        buildHref={(p) => buildHref(filterStatus, p)}
+      />
     </div>
   );
 }

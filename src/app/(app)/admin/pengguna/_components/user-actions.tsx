@@ -45,7 +45,7 @@ export function UserActions({ userId, isActive }: { userId: string; isActive: bo
         aria-label={isActive ? "Nyahaktifkan pengguna" : "Aktifkan semula pengguna"}
       >
         {isActive
-          ? <UserX className="w-4 h-4 text-red-500" />
+          ? <UserX className="w-4 h-4 text-destructive" />
           : <UserCheck className="w-4 h-4 text-success" />}
       </Button>
 
@@ -65,7 +65,7 @@ export function UserActions({ userId, isActive }: { userId: string; isActive: bo
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirm}
-              className={isActive ? "bg-red-600 hover:bg-red-700" : ""}
+              className={isActive ? "bg-destructive hover:bg-destructive/90" : ""}
             >
               {isActive ? "Nyahaktifkan" : "Aktifkan"}
             </AlertDialogAction>

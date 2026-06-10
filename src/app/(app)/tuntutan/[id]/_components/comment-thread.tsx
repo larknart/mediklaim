@@ -81,7 +81,7 @@ export function CommentThread({ claimId, comments, currentUserId }: Props) {
                         <button
                           onClick={() => handleDelete(c.id)}
                           disabled={isPending}
-                          className="ml-auto text-gray-300 hover:text-red-400 disabled:opacity-30"
+                          className="ml-auto text-muted-foreground/50 hover:text-destructive disabled:opacity-30"
                           aria-label="Padam komen"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -110,7 +110,7 @@ export function CommentThread({ claimId, comments, currentUserId }: Props) {
             className="text-sm resize-none"
             disabled={isPending}
           />
-          {error && <p className="text-xs text-red-600">{error}</p>}
+          {error && <p className="text-xs text-destructive">{error}</p>}
           <div className="flex justify-end">
             <Button
               size="sm"

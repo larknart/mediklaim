@@ -17,7 +17,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4 text-center">
-      <AlertTriangle className="w-10 h-10 text-red-500" />
+      <AlertTriangle className="w-10 h-10 text-destructive" />
       <div>
         <h2 className="text-lg font-semibold text-foreground">Ralat sistem</h2>
         <p className="text-sm text-muted-foreground mt-1">

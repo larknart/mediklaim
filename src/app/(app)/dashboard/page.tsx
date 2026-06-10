@@ -223,9 +223,9 @@ export default async function DashboardPage() {
 
       {/* SLA overdue alert banner — role-aware */}
       {overdueTotal > 0 && (
-        <div className="flex items-center gap-3 p-3 rounded-lg border border-red-200 bg-red-50">
-          <Timer className="w-4 h-4 text-red-600 shrink-0" />
-          <div className="flex-1 text-sm text-red-800">
+        <div className="flex items-center gap-3 p-3 rounded-lg border border-destructive/20 bg-destructive/10">
+          <Timer className="w-4 h-4 text-destructive shrink-0" />
+          <div className="flex-1 text-sm text-destructive">
             <span className="font-semibold">{overdueTotal} tuntutan</span> telah melebihi SLA.
             {overdueHead > 0 && <span> Sokongan: {overdueHead}.</span>}
             {overdueFinance > 0 && <span> Kewangan: {overdueFinance}.</span>}

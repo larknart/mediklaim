@@ -173,7 +173,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
                           onClick={() => remove(dept.id, dept.memberCount)}
                           disabled={isPending}
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
                     </div>
@@ -195,7 +195,7 @@ export function DeptManager({ departments, users }: { departments: Dept[]; users
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
               Padam
             </AlertDialogAction>
           </AlertDialogFooter>

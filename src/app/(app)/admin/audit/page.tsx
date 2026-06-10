@@ -12,11 +12,11 @@ import { PageHeader } from "@/components/page-header";
 
 const ACTION_COLORS: Record<string, string> = {
   LOGIN: "bg-blue-50 text-blue-700",
-  LOGIN_FAILED: "bg-red-50 text-red-700",
-  ACCOUNT_LOCKED: "bg-red-100 text-red-800",
+  LOGIN_FAILED: "bg-destructive/10 text-destructive",
+  ACCOUNT_LOCKED: "bg-destructive/20 text-destructive",
   CLAIM_SUBMITTED: "bg-success/5 text-primary",
   CLAIM_APPROVED: "bg-primary/10 text-primary",
-  CLAIM_REJECTED: "bg-red-50 text-red-700",
+  CLAIM_REJECTED: "bg-destructive/10 text-destructive",
   CLAIM_PAID: "bg-emerald-50 text-emerald-700",
   RECEIPT_UPLOADED: "bg-muted/50 text-muted-foreground",
   SETTINGS_UPDATED: "bg-yellow-50 text-yellow-700",

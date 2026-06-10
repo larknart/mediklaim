@@ -26,7 +26,7 @@ export function ResetForm({ policy }: { policy: PasswordPolicy }) {
 
   if (!token) {
     return (
-      <div className="space-y-4 text-center text-sm text-red-600">
+      <div className="space-y-4 text-center text-sm text-destructive">
         <p>Pautan tidak sah atau telah tamat tempoh.</p>
         <Link href="/lupa-kata-laluan" className="text-primary hover:underline">
           Minta pautan baru

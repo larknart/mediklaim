@@ -173,7 +173,7 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
       {/* Limit info */}
       <div className="flex items-center justify-between p-3 bg-success/5 rounded-lg text-sm">
         <span className="text-muted-foreground">Baki peruntukan {forYear}:</span>
-        <span className={`font-semibold ${remaining < 100 ? "text-red-600" : "text-primary"}`}>
+        <span className={`font-semibold ${remaining < 100 ? "text-destructive" : "text-primary"}`}>
           RM {remaining.toFixed(2)} / RM {limit.toFixed(2)}
         </span>
       </div>
@@ -270,16 +270,16 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
 
       {/* Summary + submit */}
       {selectedIds.size > 0 && (
-        <Card className={exceedsLimit ? "border-red-300 bg-red-50" : "border-primary/30 bg-success/5"}>
+        <Card className={exceedsLimit ? "border-destructive/30 bg-destructive/10" : "border-primary/30 bg-success/5"}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="font-medium text-sm">Jumlah tuntutan:</span>
-              <span className={`text-lg font-bold ${exceedsLimit ? "text-red-700" : "text-primary"}`}>
+              <span className={`text-lg font-bold ${exceedsLimit ? "text-destructive" : "text-primary"}`}>
                 RM {totalSelected.toFixed(2)}
               </span>
             </div>
             {exceedsLimit && (
-              <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+              <p className="text-xs text-destructive mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 Melebihi baki peruntukan. Hanya RM {remaining.toFixed(2)} akan dipertimbangkan.
               </p>

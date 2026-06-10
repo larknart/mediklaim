@@ -171,7 +171,7 @@ export function NotifSettings(props: NotifSettingsProps) {
                   {waConnTesting ? "Menyemak..." : "Semak Sambungan"}
                 </Button>
                 {waConnResult && (
-                  <span className={`text-xs font-mono ${waConnResult.startsWith("✓") ? "text-success" : "text-red-500"}`}>
+                  <span className={`text-xs font-mono ${waConnResult.startsWith("✓") ? "text-success" : "text-destructive"}`}>
                     {waConnResult}
                   </span>
                 )}
@@ -186,7 +186,7 @@ export function NotifSettings(props: NotifSettingsProps) {
                 </Button>
               </div>
               {waSendResult && (
-                <p className={`text-xs font-mono mt-1 ${waSendResult.startsWith("✓") ? "text-success" : "text-red-500"}`}>
+                <p className={`text-xs font-mono mt-1 ${waSendResult.startsWith("✓") ? "text-success" : "text-destructive"}`}>
                   {waSendResult}
                 </p>
               )}
@@ -218,7 +218,7 @@ export function NotifSettings(props: NotifSettingsProps) {
             {smtpTesting ? "Menguji..." : "Uji Sambungan SMTP"}
           </Button>
           {smtpResult === "ok" && <span className="text-xs text-success font-mono">✓ Sambungan berjaya.</span>}
-          {smtpResult === "fail" && <span className="text-xs text-red-500 font-mono">✗ Gagal. Semak SMTP_HOST/PORT/USER/PASS.</span>}
+          {smtpResult === "fail" && <span className="text-xs text-destructive font-mono">✗ Gagal. Semak SMTP_HOST/PORT/USER/PASS.</span>}
         </div>
       </CardContent>
     </Card>

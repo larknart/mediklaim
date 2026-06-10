@@ -55,7 +55,7 @@ export function ResubmitButton({ claimId }: { claimId: string }) {
               Resit dalam tuntutan ini akan dikembalikan ke inbox anda. Tuntutan baru akan dibuat dengan nombor rujukan baharu.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isPending}>Batal</AlertDialogCancel>
             <Button

@@ -14,7 +14,7 @@ export function SlaBadge({ step, sla }: { step: string; sla: SlaInfo }) {
 
   const colorClass =
     sla.status === "OVERDUE"
-      ? "bg-red-100 text-red-700"
+      ? "bg-destructive/20 text-destructive"
       : sla.status === "WARNING"
       ? "bg-amber-100 text-amber-700"
       : "bg-muted text-muted-foreground";

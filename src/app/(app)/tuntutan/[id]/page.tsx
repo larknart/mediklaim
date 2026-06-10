@@ -336,15 +336,15 @@ export default async function ClaimDetailPage({
                     {r.items.map((item) => (
                       <div key={item.id} className="flex items-center gap-2 px-3 py-2">
                         {!item.isEligible && (
-                          <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-destructive/100" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className={`text-xs ${!item.isEligible ? "text-red-600 line-through" : "text-muted-foreground"}`}>
+                          <p className={`text-xs ${!item.isEligible ? "text-destructive line-through" : "text-muted-foreground"}`}>
                             {item.description}
                             {item.qty > 1 && ` × ${item.qty}`}
                           </p>
                           {item.flaggedReason && (
-                            <p className="text-xs text-red-500">{item.flaggedReason}</p>
+                            <p className="text-xs text-destructive">{item.flaggedReason}</p>
                           )}
                         </div>
                         <span className={`text-xs font-medium shrink-0 ${!item.isEligible ? "text-muted-foreground" : ""}`}>
@@ -378,7 +378,7 @@ export default async function ClaimDetailPage({
                 const dotColor = isApproved
                   ? "bg-success/50"
                   : isRejected
-                  ? "bg-red-500"
+                  ? "bg-destructive/100"
                   : "bg-gray-400";
                 const stepLabel: Record<string, string> = {
                   HEAD: "Ketua Jabatan",
@@ -396,7 +396,7 @@ export default async function ClaimDetailPage({
                     <div className={`absolute -left-4 top-1 w-2.5 h-2.5 rounded-full border-2 border-white ${dotColor}`} />
                     <p className="text-sm font-medium">
                       {stepLabel[apv.step] ?? apv.step}{" "}
-                      <span className={isRejected ? "text-red-600" : isApproved ? "text-primary" : "text-muted-foreground"}>
+                      <span className={isRejected ? "text-destructive" : isApproved ? "text-primary" : "text-muted-foreground"}>
                         — {decisionLabel[apv.decision] ?? apv.decision}
                       </span>
                     </p>

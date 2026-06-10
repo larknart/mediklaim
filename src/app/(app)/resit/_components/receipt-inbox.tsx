@@ -136,7 +136,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
           {uploading ? (
             <Loader2 className="w-10 h-10 text-success animate-spin" />
           ) : (
-            <Upload className="w-10 h-10 text-gray-300 hidden sm:block" />
+            <Upload className="w-10 h-10 text-muted-foreground/50 hidden sm:block" />
           )}
           <div className="hidden sm:block">
             <p className="font-medium text-muted-foreground">
@@ -186,7 +186,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
       </div>
 
       {uploadError && (
-        <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+        <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-lg">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           {uploadError}
         </div>
@@ -214,8 +214,8 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                   <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden relative">
                     {r.fileMime === "application/pdf" ? (
                       <div className="w-full h-full flex items-center justify-center">
-                        <FileImage className="w-12 h-12 text-gray-300" />
-                        <span className="absolute bottom-2 right-2 bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">PDF</span>
+                        <FileImage className="w-12 h-12 text-muted-foreground/50" />
+                        <span className="absolute bottom-2 right-2 bg-destructive/20 text-destructive text-xs px-2 py-0.5 rounded">PDF</span>
                       </div>
                     ) : (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -265,7 +265,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                         AI sedang membaca resit...
                       </div>
                     ) : r.extractionStatus === ExtractionStatus.FAILED ? (
-                      <p className="text-sm text-red-600">OCR gagal. Isi maklumat secara manual.</p>
+                      <p className="text-sm text-destructive">OCR gagal. Isi maklumat secara manual.</p>
                     ) : null}
                   </div>
 
@@ -291,7 +291,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => setDeleteId(r.id)}
                       disabled={isPending}
                       aria-label="Padam resit"
@@ -316,7 +316,7 @@ export function ReceiptInbox({ receipts: initialReceipts }: { receipts: Receipt[
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
               Padam
             </AlertDialogAction>
           </AlertDialogFooter>

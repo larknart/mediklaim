@@ -62,7 +62,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-red-500" />
+            <ShieldAlert className="w-4 h-4 text-destructive" />
             Keyword Tidak Layak
           </CardTitle>
         </CardHeader>
@@ -92,8 +92,8 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
 
           <div className="space-y-1">
             {initial.map((kw) => (
-              <div key={kw.id} className="flex items-center gap-2 p-2 rounded bg-red-50 border border-red-100">
-                <span className="flex-1 text-sm font-mono text-red-700">{kw.keyword}</span>
+              <div key={kw.id} className="flex items-center gap-2 p-2 rounded bg-destructive/10 border border-destructive/10">
+                <span className="flex-1 text-sm font-mono text-destructive">{kw.keyword}</span>
                 {kw.reason && <span className="text-xs text-muted-foreground">{kw.reason}</span>}
                 <Button
                   variant="ghost"
@@ -103,7 +103,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
                   className="shrink-0 h-7 w-7"
                   aria-label="Padam keyword"
                 >
-                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
                 </Button>
               </div>
             ))}
@@ -121,7 +121,7 @@ export function BlacklistSettings({ keywords: initial }: { keywords: Keyword[] }
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
               Padam
             </AlertDialogAction>
           </AlertDialogFooter>

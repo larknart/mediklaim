@@ -222,7 +222,7 @@ export function DelegationList({ delegations, users }: Props) {
                   <button
                     onClick={() => setDeleteId(d.id)}
                     disabled={isPending}
-                    className="text-gray-300 hover:text-red-400 disabled:opacity-30 shrink-0"
+                    className="text-muted-foreground/50 hover:text-destructive disabled:opacity-30 shrink-0"
                     aria-label="Padam delegasi"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -244,7 +244,7 @@ export function DelegationList({ delegations, users }: Props) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
               Padam
             </AlertDialogAction>
           </AlertDialogFooter>

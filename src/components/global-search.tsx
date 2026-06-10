@@ -237,7 +237,7 @@ export function GlobalSearch() {
           {/* Results area */}
           <div className="flex-1 overflow-y-auto" aria-live="polite" aria-atomic="false">
             {error && (
-              <p className="text-sm text-red-500 text-center py-8 px-4">{error}</p>
+              <p className="text-sm text-destructive text-center py-8 px-4">{error}</p>
             )}
             {!error && results && !hasResults && (
               <p className="text-sm text-muted-foreground text-center py-8 px-4">

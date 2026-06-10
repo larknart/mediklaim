@@ -224,7 +224,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                   <AlertDialogTrigger asChild>
                     <Button
                       disabled={isPending}
-                      className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white"
+                      className="flex-1"
                     >
                       <Banknote className="w-4 h-4 mr-2" />
                       {isPending
@@ -259,7 +259,7 @@ export function SemukanClient({ reviewClaims, approvedClaims }: SemukanClientPro
                       <AlertDialogCancel>Batal</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={confirmPaid}
-                        className="bg-emerald-700 hover:bg-emerald-800"
+                        className=""
                       >
                         Ya, Tandakan Dibayar
                       </AlertDialogAction>

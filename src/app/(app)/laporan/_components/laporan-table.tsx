@@ -143,7 +143,7 @@ export function LaporanTable({ claims }: LaporanTableProps) {
                         claim.status === "APPROVED" || claim.status === "PAID"
                           ? "bg-primary/10 text-primary"
                           : claim.status === "REJECTED"
-                          ? "bg-red-100 text-red-700"
+                          ? "bg-destructive/20 text-destructive"
                           : claim.status === "WITHDRAWN"
                           ? "bg-muted text-muted-foreground line-through"
                           : "bg-muted text-muted-foreground"

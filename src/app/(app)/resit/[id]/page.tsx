@@ -25,7 +25,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
   const statusBadge = {
     [ExtractionStatus.PENDING]: { label: "Sedang proses...", icon: Clock, color: "text-yellow-600" },
     [ExtractionStatus.DONE]:    { label: "Selesai", icon: CheckCircle2, color: "text-success" },
-    [ExtractionStatus.FAILED]:  { label: "Gagal — edit manual", icon: AlertTriangle, color: "text-red-600" },
+    [ExtractionStatus.FAILED]:  { label: "Gagal — edit manual", icon: AlertTriangle, color: "text-destructive" },
     [ExtractionStatus.SKIPPED]: { label: "Dihantar manual", icon: FileImage, color: "text-muted-foreground" },
   }[receipt.extractionStatus];
 

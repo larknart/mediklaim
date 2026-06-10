@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -81,7 +81,7 @@ export function MarkPaidButton({ claimId, refNo, totalApprovedMyr }: MarkPaidBut
           <AlertDialogTrigger asChild>
             <Button
               disabled={isPending}
-              className="w-full bg-emerald-700 hover:bg-emerald-800 text-white"
+              className="w-full"
             >
               <Banknote className="w-4 h-4 mr-2" />
               {isPending ? "Memproses..." : "Tandakan Dibayar"}
@@ -100,7 +100,7 @@ export function MarkPaidButton({ claimId, refNo, totalApprovedMyr }: MarkPaidBut
               <AlertDialogCancel>Batal</AlertDialogCancel>
               <AlertDialogAction
                 onClick={confirm}
-                className="bg-emerald-700 hover:bg-emerald-800"
+                className=""
               >
                 Ya, Tandakan Dibayar
               </AlertDialogAction>

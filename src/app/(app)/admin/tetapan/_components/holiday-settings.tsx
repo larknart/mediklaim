@@ -150,7 +150,7 @@ export function HolidaySettings({ holidays }: { holidays: HolidayRow[] }) {
                       <button
                         onClick={() => handleDelete(h.id)}
                         disabled={isPending}
-                        className="text-gray-300 hover:text-red-400 disabled:opacity-30 ml-2"
+                        className="text-muted-foreground/50 hover:text-destructive disabled:opacity-30 ml-2"
                         aria-label="Padam"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
