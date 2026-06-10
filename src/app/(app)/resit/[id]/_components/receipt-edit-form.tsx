@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { updateReceipt, retryExtraction, deleteReceipt } from "@/server/actions/receipt";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +45,7 @@ interface ReceiptEditFormProps {
 
 export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState("");
 
   const [vendor, setVendor] = useState(receipt.vendor ?? "");
@@ -82,30 +82,30 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  function save() {
+  async function save() {
     if (!vendor.trim()) { setError("Nama vendor diperlukan."); return; }
     if (items.length === 0) { setError("Tambah sekurang-kurangnya satu item."); return; }
     setError("");
-    startTransition(async () => {
-      try {
-        await updateReceipt(receipt.id, {
-          vendor: vendor.trim(),
-          receiptDate: receiptDate || undefined,
-          totalMyr: computedTotal,
-          items: items.map((i) => ({
-            id: i.id,
-            description: i.description,
-            qty: i.qty,
-            unitMyr: i.unitMyr,
-            amountMyr: i.amountMyr,
-            isEligible: i.isEligible,
-          })),
-        });
-        router.push("/resit");
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Gagal simpan.");
-      }
-    });
+    setIsPending(true);
+    try {
+      await updateReceipt(receipt.id, {
+        vendor: vendor.trim(),
+        receiptDate: receiptDate || undefined,
+        totalMyr: computedTotal,
+        items: items.map((i) => ({
+          id: i.id,
+          description: i.description,
+          qty: i.qty,
+          unitMyr: i.unitMyr,
+          amountMyr: i.amountMyr,
+          isEligible: i.isEligible,
+        })),
+      });
+      router.push("/resit");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Gagal simpan.");
+      setIsPending(false);
+    }
   }
 
   // Poll while AI is processing (after retry or on initial PENDING)
@@ -115,21 +115,24 @@ export function ReceiptEditForm({ receipt }: ReceiptEditFormProps) {
     return () => clearInterval(id);
   }, [receipt.extractionStatus, router]);
 
-  function retry() {
-    startTransition(async () => {
-      await retryExtraction(receipt.id);
-      router.refresh();
-    });
+  async function retry() {
+    setIsPending(true);
+    await retryExtraction(receipt.id);
+    router.refresh();
+    setIsPending(false);
   }
 
   const [showDelete, setShowDelete] = useState(false);
 
-  function handleDelete() {
+  async function handleDelete() {
     setShowDelete(false);
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       await deleteReceipt(receipt.id);
       router.push("/resit");
-    });
+    } catch {
+      setIsPending(false);
+    }
   }
 
   return (

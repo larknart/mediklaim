@@ -1,6 +1,5 @@
-﻿"use client";
+"use client";
 
-import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { markNotificationRead } from "@/server/actions/notification";
 import { formatDistanceToNow } from "@/lib/format";
@@ -16,14 +15,11 @@ interface NotifItem {
 
 export function NotifikasiList({ notifications }: { notifications: NotifItem[] }) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
 
   const handleLinkClick = (id: string, rawLink: string) => {
     const href = rawLink.startsWith("http") ? new URL(rawLink).pathname : rawLink;
-    startTransition(async () => {
-      await markNotificationRead(id);
-      router.push(href);
-    });
+    markNotificationRead(id); // fire-and-forget, don't block navigation
+    router.push(href);
   };
 
   return (

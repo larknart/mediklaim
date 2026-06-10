@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClaim } from "@/server/actions/claim";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +44,7 @@ interface NewClaimFormProps {
 
 export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmitContext }: NewClaimFormProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(resubmitContext?.originalReceiptIds ?? [])
   );
@@ -86,11 +86,11 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
 
   const exceedsLimit = totalSelected > remaining;
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (selectedIds.size === 0) { setError("Pilih sekurang-kurangnya satu resit."); return; }
     setError("");
-    startTransition(async () => {
-      try {
+    setIsPending(true);
+    try {
         const receiptBeneficiaries: Record<string, { claimFor: ClaimFor; claimForChildNo?: number | null }> = {};
         for (const id of selectedIds) {
           const b = getBeneficiary(id);
@@ -107,18 +107,18 @@ export function NewClaimForm({ receipts, remaining, limit, isAhliMajlis, resubmi
           ...(resubmitContext && { resubmittedFromId: resubmitContext.claimId }),
         });
         router.push(`/tuntutan/${result.id}?submitted=1`);
-      } catch (e: unknown) {
-        const msg = e instanceof Error ? e.message : "Gagal buat tuntutan.";
-        if (msg === "CLAIM_PERIOD_CLOSED") {
-          setError("Tempoh hantar tuntutan bagi bulan ini telah tamat.");
-        } else if (msg.startsWith("RECEIPT_TOO_OLD:")) {
-          const vendors = msg.replace("RECEIPT_TOO_OLD:", "");
-          setError(`Resit berikut melebihi had umur: ${vendors}. Sila alih keluar resit tersebut.`);
-        } else {
-          setError(msg);
-        }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Gagal buat tuntutan.";
+      if (msg === "CLAIM_PERIOD_CLOSED") {
+        setError("Tempoh hantar tuntutan bagi bulan ini telah tamat.");
+      } else if (msg.startsWith("RECEIPT_TOO_OLD:")) {
+        const vendors = msg.replace("RECEIPT_TOO_OLD:", "");
+        setError(`Resit berikut melebihi had umur: ${vendors}. Sila alih keluar resit tersebut.`);
+      } else {
+        setError(msg);
       }
-    });
+      setIsPending(false);
+    }
   }
 
   return (

@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { withdrawClaim } from "@/server/actions/claim";
 import { Button } from "@/components/ui/button";
@@ -18,15 +18,18 @@ import { Undo2 } from "lucide-react";
 
 export function WithdrawButton({ claimId }: { claimId: string }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [open, setOpen] = useState(false);
 
-  function handleConfirm() {
+  async function handleConfirm() {
     setOpen(false);
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       await withdrawClaim(claimId);
       router.push("/tuntutan");
-    });
+    } catch {
+      setIsPending(false);
+    }
   }
 
   return (

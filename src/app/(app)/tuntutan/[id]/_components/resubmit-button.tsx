@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { initiateResubmit } from "@/server/actions/claim";
 import { Button } from "@/components/ui/button";
@@ -17,23 +17,23 @@ import { RotateCcw } from "lucide-react";
 
 export function ResubmitButton({ claimId }: { claimId: string }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
 
-  function handleConfirm() {
+  async function handleConfirm() {
     setError("");
-    startTransition(async () => {
-      try {
-        const result = await initiateResubmit(claimId);
-        const ids = result.receiptIds.join(",");
-        router.push(
-          `/tuntutan/baru?resubmitFrom=${result.originalClaimId}${ids ? `&receiptIds=${ids}` : ""}`
-        );
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "Gagal memulakan resubmit.");
-      }
-    });
+    setIsPending(true);
+    try {
+      const result = await initiateResubmit(claimId);
+      const ids = result.receiptIds.join(",");
+      router.push(
+        `/tuntutan/baru?resubmitFrom=${result.originalClaimId}${ids ? `&receiptIds=${ids}` : ""}`
+      );
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Gagal memulakan resubmit.");
+      setIsPending(false);
+    }
   }
 
   return (
@@ -61,7 +61,6 @@ export function ResubmitButton({ claimId }: { claimId: string }) {
             <Button
               onClick={handleConfirm}
               disabled={isPending}
-              className=""
             >
               {isPending ? "Memproses..." : "Ya, Hantar Semula"}
             </Button>
