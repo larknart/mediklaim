@@ -82,7 +82,8 @@ export function UserForm({ departments, policy, user }: UserFormProps) {
       if (user) {
         await updateUser(user.id, {
           name: name.trim(),
-          phone: phone.trim() || undefined,
+          staffNo: staffNo.trim() || null,
+          phone: phone.trim() || null,
           departmentId: departmentId || null,
           roles: Array.from(roles),
           isAhliMajlis,

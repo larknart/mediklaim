@@ -104,7 +104,8 @@ export async function createUser(data: {
 
 export async function updateUser(userId: string, data: {
   name?: string;
-  phone?: string;
+  staffNo?: string | null;
+  phone?: string | null;
   departmentId?: string | null;
   roles?: Role[];
   isAhliMajlis?: boolean;
